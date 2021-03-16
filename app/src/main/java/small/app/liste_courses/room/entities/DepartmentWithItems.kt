@@ -3,7 +3,7 @@ package small.app.liste_courses.room.entities
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class ItemClassified(
+data class DepartmentWithItems(
     @Embedded val department: Department,
     @Relation(
         parentColumn = "name",

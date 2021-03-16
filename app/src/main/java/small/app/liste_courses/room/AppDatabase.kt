@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import small.app.liste_courses.room.dao.DepartmentDao
 import small.app.liste_courses.room.dao.ItemDao
 import small.app.liste_courses.room.entities.Department
@@ -32,7 +33,16 @@ fun getInstance(context: Context): AppDatabase {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "app_database"
-            )
+            ).addCallback(object : RoomDatabase.Callback(){
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    INSTANCE.itemDAO().insertAll(Item(name = "pomme"))
+                    INSTANCE.itemDAO().insertAll(Item(name = "poire"))
+                    INSTANCE.itemDAO().insertAll(Item(name = "bannane"))
+                    INSTANCE.itemDAO().insertAll(Item(name = "carotte"))
+                }
+
+            })
                 .fallbackToDestructiveMigration()
                 .build()
 

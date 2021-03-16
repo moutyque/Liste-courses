@@ -20,12 +20,6 @@ class MainActivity : AppCompatActivity() {
         repo = Repository(context = this)
         val scope = CoroutineScope(Job() + Dispatchers.IO)
 
-        scope.launch {
-            repo.addItem(Item(name = "pomme"))
-            repo.addItem(Item(name = "poire"))
-            repo.addItem(Item(name = "bannane"))
-            repo.addItem(Item(name = "carotte"))
 
-        }
     }
 }

@@ -19,9 +19,11 @@ interface ItemDao {
     @Query("SELECT * FROM Item WHERE name == :ref")
     fun findByName(ref: String): Item
 
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg items: Item)
 
+    @Transaction
     @Delete
     fun delete(item: Item)
 }
