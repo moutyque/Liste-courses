@@ -7,13 +7,15 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
-import small.app.liste_courses.DepartmentAdapter
+import small.app.liste_courses.DragAndDropHelper
+import small.app.liste_courses.adapters.DepartmentAdapter
 import small.app.liste_courses.MainActivity
 import small.app.liste_courses.model.MainViewModel
-import small.app.liste_courses.UnclassifiedItemsAdapter
+import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
@@ -85,14 +87,16 @@ class MainFragment : Fragment() {
 
 
         //Create the items adapter
-        unclassifiedAdapter = UnclassifiedItemsAdapter(requireContext(), model.unclassifiedItems)
+        unclassifiedAdapter =
+            UnclassifiedItemsAdapter(
+                requireContext(),
+                model.unclassifiedItems
+            )
 
 
         //Setup the items recycler view
         binding.rvUnclassifiedItems.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        // binding.rvUnclassifiedItems.visibility = View.VISIBLE
-        // binding.rvUnclassifiedItems.setHasFixedSize(true)
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
 
         //Update the list of items to be displayed in the rv and in the autocompletion
@@ -106,15 +110,21 @@ class MainFragment : Fragment() {
             }
         })
 
+        model.updateDepartmentsList()
+
         //Create the department adapter
-        departmentsAdapter = DepartmentAdapter(requireContext(), model.departments)
+        departmentsAdapter = DepartmentAdapter(
+            requireContext(),
+            model.departments,
+            model
+        )
 
         //Setup departments recycler view
         binding.rvDepartment.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.rvDepartment.adapter = departmentsAdapter
 
-        model.updateDepartmentsList()
+
 
         model.newDepartment.observe(viewLifecycleOwner, Observer { newValue ->
             if (newValue) {
@@ -133,6 +143,12 @@ class MainFragment : Fragment() {
 
                 binding.etDepartmentName.setText("")
         }
+
+
+       /*val ddHelper = ItemTouchHelper(DragAndDropHelper())
+
+        ddHelper.attachToRecyclerView(binding.rvDepartment)
+        ddHelper.attachToRecyclerView(binding.rvUnclassifiedItems)*/
 
         // Inflate the layout for this fragment
         return binding.root
