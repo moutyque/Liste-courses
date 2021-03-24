@@ -7,17 +7,15 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
-import small.app.liste_courses.DragAndDropHelper
-import small.app.liste_courses.adapters.DepartmentAdapter
 import small.app.liste_courses.MainActivity
-import small.app.liste_courses.model.MainViewModel
+import small.app.liste_courses.adapters.DepartmentAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
+import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
 
@@ -26,6 +24,8 @@ import small.app.liste_courses.room.entities.Item
  * Use the [MainFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+//TODO : problème lorsque le nom de l'item est grand le bouton réduit de taille
+//TODO : ne pas autoriser l'espace dans le nom de l'item
 class MainFragment : Fragment() {
 
     lateinit var binding: FragmentMainBinding
@@ -136,19 +136,19 @@ class MainFragment : Fragment() {
         })
 
         binding.ibAddDepartment.setOnClickListener {
-        //Create the new department
+            //Create the new department
             // Need to check if it exist first because we don't want to override an existing department
             val dep = Department(binding.etDepartmentName.text.toString(), ArrayList())
             model.updateDepartmentsList(dep)
 
-                binding.etDepartmentName.setText("")
+            binding.etDepartmentName.setText("")
         }
 
 
-       /*val ddHelper = ItemTouchHelper(DragAndDropHelper())
+        /*val ddHelper = ItemTouchHelper(DragAndDropHelper())
 
-        ddHelper.attachToRecyclerView(binding.rvDepartment)
-        ddHelper.attachToRecyclerView(binding.rvUnclassifiedItems)*/
+         ddHelper.attachToRecyclerView(binding.rvDepartment)
+         ddHelper.attachToRecyclerView(binding.rvUnclassifiedItems)*/
 
         // Inflate the layout for this fragment
         return binding.root

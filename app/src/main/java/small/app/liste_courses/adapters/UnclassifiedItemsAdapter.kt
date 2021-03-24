@@ -32,18 +32,19 @@ class UnclassifiedItemsAdapter(private val context: Context, private var list: L
         if (holder is ItemsViewHolder && model.name.isNotEmpty()) {
             holder.itemView.tv_name.text = model.name
 
-            holder.setOnLongClickListener(View.OnLongClickListener { view ->
-                Log.d("LongClick","Click hold")
+            holder.itemView.tv_name.setOnLongClickListener(View.OnLongClickListener { view ->
+                Log.d("LongClick", "Click hold")
                 val clipText = "This is our ClipData text"
                 val item = ClipData.Item(clipText)
                 val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 val data = ClipData(clipText, mimeTypes, item)
 
-                val dragShadowBuilder = View.DragShadowBuilder(view)
+                val dragShadowBuilder = View.DragShadowBuilder(view)//shadowView
 
                 view.startDragAndDrop(data, dragShadowBuilder, model, 0)
                 true
             })
+
         }
 
 
@@ -53,18 +54,6 @@ class UnclassifiedItemsAdapter(private val context: Context, private var list: L
         return list.size
     }
 
-    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener{
-        private lateinit var onclicklistner: View.OnLongClickListener
-        override fun onLongClick(v: View?): Boolean {
-            Log.d("LongClick","Click hold")
-            onclicklistner.onLongClick(v)
-            return true
-        }
-
-        fun setOnLongClickListener(listenner : View.OnLongClickListener){
-            onclicklistner = listenner
-        }
-
-    }
+    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
 }

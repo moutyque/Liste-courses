@@ -8,10 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import small.app.liste_courses.room.Repository
-import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
 
-class MainViewModel(val repo : Repository)  : ViewModel() {
+class MainViewModel(val repo: Repository) : ViewModel() {
 
     private val backgroundScope = CoroutineScope(Job() + Dispatchers.IO)
     private val mainScope = CoroutineScope(Job() + Dispatchers.Main)
@@ -20,7 +19,7 @@ class MainViewModel(val repo : Repository)  : ViewModel() {
 
     var unclassifiedItems: ArrayList<Item> = ArrayList()
 
-    var departments:ArrayList<Department> = ArrayList()
+    var departments: ArrayList<Department> = ArrayList()
 
     val newItems = MutableLiveData(false)
 
@@ -34,15 +33,14 @@ class MainViewModel(val repo : Repository)  : ViewModel() {
         updateItemsList(null)
     }
 
-    fun updateItemsList(item : Item?) {
+    fun updateItemsList(item: Item?) {
+        var itemsList: List<Item> = ArrayList()
         val job = backgroundScope.launch {
-            if(item !=null) repo.saveItem(item)
+            if (item != null) repo.saveItem(item)
             Log.d("MainFragment", "updateItemsList")
 
             //Update auto complete list
-            val itemsList = repo.getUnusedItems()
-            mainScope.launch { autoCompleteItems.value = itemsList }
-
+            itemsList = repo.getUnusedItems()
             //Update unclassified item list
             unclassifiedItems.clear()
             unclassifiedItems.addAll(repo.getUnclassifiedItem())
@@ -55,28 +53,39 @@ class MainViewModel(val repo : Repository)  : ViewModel() {
         }
         job.invokeOnCompletion {
             mainScope.launch {
+                autoCompleteItems.value = itemsList
                 newItems.value = true
             }
 
         }
     }
-    fun updateDepartmentsList(){
+
+    fun updateDepartmentsList() {
         updateDepartmentsList(null)
     }
 
-    fun updateDepartmentsList(department: Department?){
+    fun updateDepartmentsList(department: Department?) {
+        var localNewItem = false
         val job = backgroundScope.launch {
-            if(department!=null)Log.d("updateDep" , (!(repo.departmentExist(department.name))).toString())
-            if(department!=null && (department.items.isEmpty() && !repo.departmentExist(department.name) || department.items.isNotEmpty())){
-                    repo.saveDepartment(department)
-            }
 
+            if (department != null && (department.items.isEmpty() && !repo.departmentExist(
+                    department.name
+                ) || department.items.isNotEmpty())
+            ) {
+                repo.saveDepartment(department)
+                localNewItem = department.items.isNotEmpty()
+                department.items.forEach {
+                    repo.saveItem(it)
+                }
+            }
             departments.clear()
             departments.addAll(repo.getAllDepartment())
+            updateItemsList()
         }
         job.invokeOnCompletion {
             mainScope.launch {
                 newDepartment.value = true
+                if (localNewItem) newItems.value = true
             }
 
         }

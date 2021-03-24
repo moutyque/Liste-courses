@@ -16,16 +16,20 @@ import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
-class DepartmentAdapter(private val context: Context, private var list: List<Department>,private var viewModel: MainViewModel) :
-RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
+class DepartmentAdapter(
+    private val context: Context,
+    private var list: List<Department>,
+    private var viewModel: MainViewModel
+) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-       return DepartmentViewHolder(
-           LayoutInflater.from(context).inflate(
-               R.layout.item_department,
-               parent,
-               false
-           )
-       )
+        return DepartmentViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.item_department,
+                parent,
+                false
+            )
+        )
     }
 
     override fun getItemCount(): Int {
@@ -33,47 +37,90 @@ RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-       val model = list[position]
-        if(holder is DepartmentViewHolder){
+        val model = list[position]
+        if (holder is DepartmentViewHolder) {
             holder.itemView.tv_dep_name.text = model.name
 
 //Manage the drop action
-            val dragListener = View.OnDragListener { view, event ->
+
+            // Creates a new drag event listener
+            val dragListen = View.OnDragListener { v, event ->
+
+                // Handles each of the expected events
                 when (event.action) {
-                    DragEvent.ACTION_DROP ->{
-                        Log.d("DD","Has drop")
+                    DragEvent.ACTION_DRAG_STARTED -> {
+                        // Determines if this View can accept the dragged data
+                        event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                    }
+                    DragEvent.ACTION_DRAG_ENTERED -> {
+
+                        true
+                    }
+
+                    DragEvent.ACTION_DRAG_LOCATION ->
+                        // Ignore the event
+                        true
+                    DragEvent.ACTION_DRAG_EXITED -> {
+
+                        true
+                    }
+                    DragEvent.ACTION_DROP -> {
+                        Log.d("DDD", "Has drop")
                         val item = event.clipData.getItemAt(0)
 
                         val localState = event.localState
 
-                        if(localState is Item){
-                            Log.d("DD","Droped ${localState.name}")
+                        if (localState is Item) {
+                            Log.d("DDD", "Dropped ${localState.name}")
                             model.classify(localState)
-                            viewModel.updateItemsList(localState)
                             viewModel.updateDepartmentsList(model)
 
                         }
-                        val dragData = item.text
-                        Toast.makeText(context,dragData, Toast.LENGTH_LONG).show()
+                        //val dragData = item.text
+                        // Toast.makeText(context, dragData, Toast.LENGTH_LONG).show()
+
+
+                        // Returns true. DragEvent.getResult() will return true.
                         true
                     }
-                    else -> false
 
+                    DragEvent.ACTION_DRAG_ENDED -> {
+                        // Turns off any color tinting
+
+
+                        // Does a getResult(), and displays what happened.
+                        when (event.result) {
+                            true ->
+                                Toast.makeText(context, "The drop was handled.", Toast.LENGTH_LONG)
+                            else ->
+                                Toast.makeText(context, "The drop didn't work.", Toast.LENGTH_LONG)
+                        }.show()
+
+                        // returns true; the value is ignored.
+                        true
+                    }
+                    else -> {
+                        // An unknown action type was received.
+                        Log.e("DragDrop Example", "Unknown action type received by OnDragListener.")
+                        false
+                    }
                 }
-
             }
-            holder.itemView.setOnDragListener(dragListener)
+
+
+            holder.itemView.setOnDragListener(dragListen)
 
 
             //Recycler view for the items in the department
 
-Log.d("DAdapter","departement name : ${model.name} & items ${model.items}")
+            Log.d("DAdapter", "departement name : ${model.name} & items ${model.items}")
 
-                holder.itemView.rv_items.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                holder.itemView.rv_items.adapter = UnclassifiedItemsAdapter(
+            holder.itemView.rv_items.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            holder.itemView.rv_items.adapter = UnclassifiedItemsAdapter(
                 context,
-                model.items)
-
+                model.items
+            )
 
 
         }

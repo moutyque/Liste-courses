@@ -13,6 +13,7 @@ data class Department(val name: String, var items: List<Item>) {
 
     fun classify(item: Item) {
         val list = ArrayList(items)
+        item.isClassified = true
         item.departmentId = name
         list.add(item)
         items = list.toList()
