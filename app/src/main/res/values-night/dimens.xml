@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="height_search_item">40dp</dimen>
     <dimen name="item_height">20dp</dimen>
-    <dimen name="width_button_add">50dp</dimen>
 </resources>

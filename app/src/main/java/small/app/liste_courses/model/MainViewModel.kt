@@ -27,10 +27,20 @@ class MainViewModel(val repo: Repository) : ViewModel() {
 
     /**
      * Remove an item from autoComplete and perhaps add it to unclassifiedItem
-     * //TODO Optimization can be done by checking if the item that we get from the list as already been classified
+     * //TODO Optimization can be done by checking if the item we get from the list as already been classified
      */
     fun updateItemsList() {
         updateItemsList(null)
+    }
+
+    fun createItem(item: Item) {
+        val job = backgroundScope.launch {
+            repo.createItem(item)
+        }
+        job.invokeOnCompletion {
+            updateView()
+        }
+
     }
 
     fun updateItemsList(item: Item?) {
@@ -74,12 +84,14 @@ class MainViewModel(val repo: Repository) : ViewModel() {
             ) {
                 repo.saveDepartment(department)
                 localNewItem = department.items.isNotEmpty()
+                //Save item in case there is a new one in the department : can be optimize
                 department.items.forEach {
                     repo.saveItem(it)
                 }
             }
             departments.clear()
             departments.addAll(repo.getAllDepartment())
+            departments.sortBy { department -> department.order }
             updateItemsList()
         }
         job.invokeOnCompletion {
@@ -90,5 +102,25 @@ class MainViewModel(val repo: Repository) : ViewModel() {
 
         }
 
+    }
+
+    fun updateView() {
+        updateItemsList()
+        updateDepartmentsList()
+    }
+
+    fun updateView(item: Item) {
+        updateItemsList(item)
+        updateDepartmentsList()
+    }
+
+    fun updateView(department: Department) {
+        updateItemsList()
+        updateDepartmentsList(department)
+    }
+
+    fun updateView(item: Item, department: Department) {
+        updateItemsList(item)
+        updateDepartmentsList(department)
     }
 }

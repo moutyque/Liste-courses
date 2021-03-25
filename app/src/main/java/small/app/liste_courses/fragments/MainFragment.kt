@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,8 +25,8 @@ import small.app.liste_courses.room.entities.Item
  * Use the [MainFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-//TODO : problème lorsque le nom de l'item est grand le bouton réduit de taille
-//TODO : ne pas autoriser l'espace dans le nom de l'item
+//TODO : Si perte de focus clear le nom ?
+//TODO : ne pas autoriser les retour à la ligne dans le nom de l'item
 class MainFragment : Fragment() {
 
     lateinit var binding: FragmentMainBinding
@@ -57,7 +58,16 @@ class MainFragment : Fragment() {
         model = MainViewModel(activity.repo)
         binding.model = model
 
+        binding.actvSelectionItem.validator = object : AutoCompleteTextView.Validator {
+            override fun isValid(text: CharSequence?): Boolean {
+                return !text?.contains("\n")!!
+            }
 
+            override fun fixText(invalidText: CharSequence?): CharSequence {
+                return invalidText!!.toString().replace("\n", "")
+            }
+
+        }
         //Setup the autocomplete item list
         model.autoCompleteItems.observe(viewLifecycleOwner, Observer { list ->
             val toTypedArray: Array<String> = list.map { i -> i.name }.toTypedArray()
@@ -67,6 +77,7 @@ class MainFragment : Fragment() {
             )
             binding.actvSelectionItem.setAdapter(adapter)
         })
+
 
         //Setup btn to add an new item
         binding.ibAddItem.setOnClickListener {
@@ -80,7 +91,7 @@ class MainFragment : Fragment() {
             item.isUsed = true
 
 
-            model.updateItemsList(item)
+            model.createItem(item)
 
             binding.actvSelectionItem.setText("")
         }
@@ -90,7 +101,8 @@ class MainFragment : Fragment() {
         unclassifiedAdapter =
             UnclassifiedItemsAdapter(
                 requireContext(),
-                model.unclassifiedItems
+                model.unclassifiedItems,
+                model
             )
 
 
@@ -129,6 +141,7 @@ class MainFragment : Fragment() {
         model.newDepartment.observe(viewLifecycleOwner, Observer { newValue ->
             if (newValue) {
                 mainScope.launch {
+                    model.departments.sortBy { d -> d.order }
                     departmentsAdapter.notifyDataSetChanged()
                     model.newDepartment.value = false
                 }
@@ -138,7 +151,11 @@ class MainFragment : Fragment() {
         binding.ibAddDepartment.setOnClickListener {
             //Create the new department
             // Need to check if it exist first because we don't want to override an existing department
-            val dep = Department(binding.etDepartmentName.text.toString(), ArrayList())
+            val dep = Department(
+                binding.etDepartmentName.text.toString(),
+                ArrayList(),
+                model.departments.size
+            )
             model.updateDepartmentsList(dep)
 
             binding.etDepartmentName.setText("")
@@ -152,6 +169,11 @@ class MainFragment : Fragment() {
 
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    fun updateDepartmentList(item: Any) {
+        if (item is Department)
+            model.updateDepartmentsList(item)
     }
 
 

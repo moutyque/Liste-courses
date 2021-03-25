@@ -22,6 +22,10 @@ class DepartmentAdapter(
     private var viewModel: MainViewModel
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    var onDropAction: Unit? = null
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return DepartmentViewHolder(
             LayoutInflater.from(context).inflate(
@@ -74,7 +78,6 @@ class DepartmentAdapter(
                             Log.d("DDD", "Dropped ${localState.name}")
                             model.classify(localState)
                             viewModel.updateDepartmentsList(model)
-
                         }
                         //val dragData = item.text
                         // Toast.makeText(context, dragData, Toast.LENGTH_LONG).show()
@@ -119,7 +122,8 @@ class DepartmentAdapter(
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             holder.itemView.rv_items.adapter = UnclassifiedItemsAdapter(
                 context,
-                model.items
+                model.items.filter { it -> it.isUsed },
+                viewModel
             )
 
 

@@ -27,37 +27,36 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-            <LinearLayout
-                android:id="@+id/ll_add_items"
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_selection_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
                     android:hint="@string/autocompletetextview"
 
                     android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_add_item"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:visibility="visible" />
 
                 <ImageButton
                     android:id="@+id/ib_add_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/width_button_add"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0.2"
                     android:background="@color/design_default_color_primary"
-                    android:src="@drawable/ic_add_item" />
-
-            </LinearLayout>
-
+                    android:src="@drawable/ic_add_item"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -88,29 +87,34 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-            <LinearLayout
-                android:id="@+id/ll_add_department"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/et_departmentName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
-                    android:hint="New department name" />
+                    android:hint="New department name"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_add_department"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
                     android:id="@+id/ib_add_department"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/width_button_add"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="0.2"
                     android:background="@color/design_default_color_primary"
-                    android:src="@drawable/ic_add_item" />
+                    android:src="@drawable/ic_add_item"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
