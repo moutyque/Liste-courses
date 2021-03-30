@@ -8,25 +8,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
+import java.text.FieldPosition
+import java.util.*
+
 
 class DepartmentAdapter(
     private val context: Context,
     private var list: List<Department>,
     private var viewModel: MainViewModel
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    RecyclerView.Adapter<ViewHolder>() {
 
     var onDropAction: Unit? = null
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder{
         return DepartmentViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_department,
@@ -40,7 +45,7 @@ class DepartmentAdapter(
         return list.size
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val model = list[position]
         if (holder is DepartmentViewHolder) {
             holder.itemView.tv_dep_name.text = model.name
@@ -127,10 +132,19 @@ class DepartmentAdapter(
             )
 
 
+
+
         }
     }
 
-    class DepartmentViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    fun onItemMove(initialPosition: Int, targetPosition: Int) {
+    Collections.swap(list,initialPosition,targetPosition)
+
+    }
+
+
+    class DepartmentViewHolder(view: View) : ViewHolder(view)
+
 
 
 }

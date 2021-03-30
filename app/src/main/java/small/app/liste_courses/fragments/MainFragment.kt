@@ -1,6 +1,7 @@
 package small.app.liste_courses.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
@@ -136,7 +138,9 @@ class MainFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.rvDepartment.adapter = departmentsAdapter
 
-
+        val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
         model.newDepartment.observe(viewLifecycleOwner, Observer { newValue ->
             if (newValue) {
@@ -167,6 +171,10 @@ class MainFragment : Fragment() {
          ddHelper.attachToRecyclerView(binding.rvDepartment)
          ddHelper.attachToRecyclerView(binding.rvUnclassifiedItems)*/
 
+
+
+
+
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -175,6 +183,58 @@ class MainFragment : Fragment() {
         if (item is Department)
             model.updateDepartmentsList(item)
     }
+    class SimpleItemTouchHelperCallback(adapter: DepartmentAdapter) :
+        ItemTouchHelper.Callback() {
+        private val mAdapter: DepartmentAdapter
+        override fun isLongPressDragEnabled(): Boolean {
+            return true
+        }
 
+        override fun isItemViewSwipeEnabled(): Boolean {
+            return true
+        }
+
+        override fun getMovementFlags(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder
+        ): Int {
+            val swipeFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            val dragFlags = ItemTouchHelper.START or ItemTouchHelper.END
+            return makeMovementFlags(dragFlags, swipeFlags)
+        }
+
+        override fun onMove(
+            recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            Log.d("DDSwipe","In the onMove methode from ${viewHolder.adapterPosition} to ${target.adapterPosition}")
+
+            mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
+            mAdapter.notifyItemMoved(viewHolder.adapterPosition,target.adapterPosition)
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            Log.d("DDSwipe","In the onSwipe")
+        }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if(actionState == ItemTouchHelper.ACTION_STATE_DRAG){
+                viewHolder?.itemView?.alpha = 0.5f
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+
+            super.clearView(recyclerView, viewHolder)
+            viewHolder?.itemView?.alpha = 1.0f
+        }
+
+
+        init {
+            mAdapter = adapter
+        }
+    }
 
 }

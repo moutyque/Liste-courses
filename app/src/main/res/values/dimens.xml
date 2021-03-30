@@ -3,4 +3,5 @@
     <dimen name="height_search_item">40dp</dimen>
     <dimen name="item_height">20dp</dimen>
     <dimen name="width_button_add">50dp</dimen>
+    <dimen name="department_width">200dp</dimen>
 </resources>

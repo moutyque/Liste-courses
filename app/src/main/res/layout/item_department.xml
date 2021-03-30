@@ -8,7 +8,7 @@
 
 
     <LinearLayout
-        android:layout_width="150dp"
+        android:layout_width="@dimen/department_width"
         android:layout_height="wrap_content"
         android:background="@drawable/border"
         android:orientation="vertical"
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:text="TextView"
             android:textSize="18sp"
-            android:textStyle="italic" />
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_items"
