@@ -31,6 +31,50 @@
                         android:layout_height="@dimen/item_height"
                         android:visibility="visible"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="TEST" />
+
+
+                    <ImageView
+                        android:id="@+id/iv_increase_qty"
+                        android:layout_width="@dimen/width_button_add"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_decrease_qty"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_increase_qty" />
+
+                    <ImageView
+                        android:id="@+id/iv_decrease_qty"
+                        android:layout_width="@dimen/width_button_add"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_qty"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_decrease_qty" />
+
+                    <TextView
+                        android:id="@+id/tv_qty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TextView"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_unit"
+                        android:layout_width="@dimen/width_qty"
+                        android:layout_height="wrap_content"
+                        android:text="TextView"
+                        app:layout_constraintEnd_toStartOf="@+id/s_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Spinner
+                        android:id="@+id/s_unit"
+                        android:layout_width="@dimen/width_qty"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_check_item"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView

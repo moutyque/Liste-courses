@@ -10,16 +10,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
-import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
-class UnclassifiedItemsAdapter(
+class ItemsAdapter(
     private val context: Context,
-    private var list: List<Item>,
-    private val viewModel: MainViewModel
+    private var list: MutableList<Item>,
+    private val canChangeUnit: Boolean
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), IListGetter<Item> {
+    lateinit var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ItemsViewHolder(
@@ -47,7 +46,31 @@ class UnclassifiedItemsAdapter(
                 }
                 holder.itemView.iv_check_item.setOnClickListener {
                     model.isUsed = false
-                    viewModel.updateView(model)
+                    IOnAdapterChangeListener.onItemUpdate(model, position, ObjectChange.USED)
+                }
+                //Manage the view of the drop down list of unit
+                if (canChangeUnit) {
+                    holder.itemView.tv_unit.visibility = View.GONE
+                    holder.itemView.s_unit.visibility = View.VISIBLE
+
+                } else {
+                    holder.itemView.tv_unit.visibility = View.VISIBLE
+                    holder.itemView.s_unit.visibility = View.GONE
+                }
+                holder.itemView.tv_unit.text = model.unit.value
+
+                //Manage qty
+                holder.itemView.tv_qty.text = model.qty.toString()
+                holder.itemView.iv_increase_qty.setOnClickListener {
+                    model.qty += model.unit.mutliplicator
+                    IOnAdapterChangeListener.onItemUpdate(model, position, ObjectChange.QTY)
+                }
+                holder.itemView.iv_decrease_qty.setOnClickListener {
+                    model.qty -= model.unit.mutliplicator
+                    if (model.qty < 0) {
+                        model.qty = 0;
+                    }
+                    IOnAdapterChangeListener.onItemUpdate(model, position, ObjectChange.QTY)
                 }
 
                 holder.itemView.tv_name.setOnLongClickListener(View.OnLongClickListener { view ->
@@ -76,5 +99,9 @@ class UnclassifiedItemsAdapter(
     }
 
     class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    override fun getList(): MutableList<Item> {
+        return list
+    }
 
 }

@@ -15,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
 import small.app.liste_courses.MainActivity
 import small.app.liste_courses.adapters.DepartmentAdapter
-import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
+import small.app.liste_courses.adapters.IOnAdapterChangeListener
+import small.app.liste_courses.adapters.ItemsAdapter
+import small.app.liste_courses.adapters.ObjectChange
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
@@ -36,7 +38,7 @@ class MainFragment : Fragment() {
 
     private lateinit var model: MainViewModel
 
-    private lateinit var unclassifiedAdapter: UnclassifiedItemsAdapter
+    private lateinit var unclassifiedAdapter: ItemsAdapter
 
     private lateinit var departmentsAdapter: DepartmentAdapter
 
@@ -60,6 +62,7 @@ class MainFragment : Fragment() {
         model = MainViewModel(activity.repo)
         binding.model = model
 
+        //Mange the autocompletion field
         binding.actvSelectionItem.validator = object : AutoCompleteTextView.Validator {
             override fun isValid(text: CharSequence?): Boolean {
                 return !text?.contains("\n")!!
@@ -91,7 +94,7 @@ class MainFragment : Fragment() {
                 Item(name = name)
             }
             item.isUsed = true
-
+            item.order = model.unclassifiedItems.size.toLong()
 
             model.createItem(item)
 
@@ -99,19 +102,7 @@ class MainFragment : Fragment() {
         }
 
 
-        //Create the items adapter
-        unclassifiedAdapter =
-            UnclassifiedItemsAdapter(
-                requireContext(),
-                model.unclassifiedItems,
-                model
-            )
-
-
-        //Setup the items recycler view
-        binding.rvUnclassifiedItems.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
+        setUpUnclassifiedItemsRV()
 
         //Update the list of items to be displayed in the rv and in the autocompletion
         model.updateItemsList()
@@ -126,21 +117,7 @@ class MainFragment : Fragment() {
 
         model.updateDepartmentsList()
 
-        //Create the department adapter
-        departmentsAdapter = DepartmentAdapter(
-            requireContext(),
-            model.departments,
-            model
-        )
-
-        //Setup departments recycler view
-        binding.rvDepartment.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        binding.rvDepartment.adapter = departmentsAdapter
-
-        val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
+        setupDepartmentsRV()
 
         model.newDepartment.observe(viewLifecycleOwner, Observer { newValue ->
             if (newValue) {
@@ -166,23 +143,170 @@ class MainFragment : Fragment() {
         }
 
 
-        /*val ddHelper = ItemTouchHelper(DragAndDropHelper())
-
-         ddHelper.attachToRecyclerView(binding.rvDepartment)
-         ddHelper.attachToRecyclerView(binding.rvUnclassifiedItems)*/
-
-
-
-
-
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    private fun setupDepartmentsRV() {
+        //Create the department adapter
+        departmentsAdapter = DepartmentAdapter(
+            requireContext(),
+            model.departments
+        )
+
+        val departmentChange = object : IOnAdapterChangeListener<Department, DepartmentAdapter> {
+
+            private lateinit var adapter: DepartmentAdapter
+            override fun onObjectCreated(a: Department) {
+            }
+
+            override fun onItemUpdate(a: Department, position: Int, code: ObjectChange) {
+                when (code) {
+                    ObjectChange.CLASSIFIED -> {
+                        //A new item has been classified in this department
+                        model.updateDepartmentsList(a)
+                    }
+                }
+            }
+
+            override fun onItemDelete(a: Department) {
+            }
+
+            override fun setAdapter(adapter: DepartmentAdapter) {
+                this.adapter = adapter
+            }
+
+            override fun getAdapter(): DepartmentAdapter {
+                return adapter
+            }
+
+
+        }
+
+        departmentsAdapter.IOnDepartmentChangeListener = departmentChange
+
+        val classifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter> {
+
+            private lateinit var depItemsAdapter: ItemsAdapter
+
+            override fun onObjectCreated(a: Item) {
+                model.updateItemsList(a)
+            }
+
+            override fun onItemUpdate(a: Item, position: Int, code: ObjectChange) {
+                when (code) {
+
+                    ObjectChange.CLASSIFIED -> {
+                        model.updateView(a) // Need to refresh the two lists
+                    }
+                    ObjectChange.QTY -> {
+                        model.updateItem(a)
+                        getAdapter().notifyItemChanged(position)
+                    }
+                    ObjectChange.USED -> {
+                        //Validate inside a department
+                        model.updateItem(a)
+                        //model.updateDepartmentsList()//TODO : ok mais perfo ?
+                        //getAdapter().getList().removeAt(position)
+                        getAdapter().notifyDataSetChanged()
+                    }
+                    else -> Log.e("ItemChange", "Unknown or unused code has been send : $code")
+                }
+                //model.updateView(a)
+            }
+
+
+            override fun onItemDelete(a: Item) {
+            }
+
+            override fun setAdapter(adapter: ItemsAdapter) {
+                depItemsAdapter = adapter
+            }
+
+            override fun getAdapter(): ItemsAdapter {
+                return depItemsAdapter
+            }
+        }
+
+        departmentsAdapter.IOnItemChangeListener = classifiedItemChange
+
+        //Setup departments recycler view
+        binding.rvDepartment.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        binding.rvDepartment.adapter = departmentsAdapter
+
+        val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
+    }
+
+    private fun setUpUnclassifiedItemsRV() {
+        //Create the items adapter
+        unclassifiedAdapter =
+            ItemsAdapter(
+                requireContext(),
+                model.unclassifiedItems,
+                false
+            )
+
+        val unclassifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter> {
+
+            private lateinit var itemsAdapter: ItemsAdapter
+
+            override fun onObjectCreated(a: Item) {
+                model.updateItemsList(a)
+            }
+
+            override fun onItemUpdate(a: Item, position: Int, code: ObjectChange) {
+                when (code) {
+                    ObjectChange.USED -> {
+                        if (a.isClassified) {
+                            model.updateView(a) //Full refresh cause we also need to refresh the department
+                        } else {//New item added to the unclassified list
+                            model.updateItem(a)
+                            getAdapter().notifyItemChanged(position)
+                        }
+                    }
+                    ObjectChange.CLASSIFIED -> {
+                        model.updateView(a) // Need to refresh the two lists
+                    }
+                    ObjectChange.QTY -> {
+                        model.updateItem(a)
+                        getAdapter().notifyItemChanged(position)
+                    }
+                    else -> Log.e("ItemChange", "Unknown code has been send : $code")
+                }
+                //model.updateView(a)
+            }
+
+
+            override fun onItemDelete(a: Item) {
+            }
+
+            override fun setAdapter(adapter: ItemsAdapter) {
+                itemsAdapter = adapter
+            }
+
+            override fun getAdapter(): ItemsAdapter {
+                return itemsAdapter
+            }
+        }
+        unclassifiedItemChange.setAdapter(unclassifiedAdapter)
+
+        unclassifiedAdapter.IOnAdapterChangeListener = unclassifiedItemChange
+
+
+        //Setup the items recycler view
+        binding.rvUnclassifiedItems.layoutManager =
+            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
 
     fun updateDepartmentList(item: Any) {
         if (item is Department)
             model.updateDepartmentsList(item)
     }
+
     class SimpleItemTouchHelperCallback(adapter: DepartmentAdapter) :
         ItemTouchHelper.Callback() {
         private val mAdapter: DepartmentAdapter
@@ -207,20 +331,23 @@ class MainFragment : Fragment() {
             recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            Log.d("DDSwipe","In the onMove methode from ${viewHolder.adapterPosition} to ${target.adapterPosition}")
+            Log.d(
+                "DDSwipe",
+                "In the onMove methode from ${viewHolder.adapterPosition} to ${target.adapterPosition}"
+            )
 
             mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-            mAdapter.notifyItemMoved(viewHolder.adapterPosition,target.adapterPosition)
+            mAdapter.notifyItemMoved(viewHolder.adapterPosition, target.adapterPosition)
             return true
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            Log.d("DDSwipe","In the onSwipe")
+            Log.d("DDSwipe", "In the onSwipe")
         }
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
-            if(actionState == ItemTouchHelper.ACTION_STATE_DRAG){
+            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                 viewHolder?.itemView?.alpha = 0.5f
             }
         }

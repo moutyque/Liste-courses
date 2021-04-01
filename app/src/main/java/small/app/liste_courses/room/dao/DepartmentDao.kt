@@ -11,13 +11,13 @@ interface DepartmentDao {
     fun getAll(): List<Department>
 
 
-    @Query("SELECT * FROM Department WHERE name==:departmentName")
-    fun getItemsFromDepartment(departmentName : String): DepartmentWithItems
+    @Query("SELECT * FROM Department WHERE name==:departmentName ORDER BY `order`")
+    fun getItemsFromDepartment(departmentName: String): DepartmentWithItems
 
-    @Query("SELECT * FROM Department")
+    @Query("SELECT * FROM Department ORDER BY `order`")
     fun getAllDepartment(): DepartmentWithItems
 
-    @Query("SELECT * FROM Department WHERE name == :name")
+    @Query("SELECT * FROM Department WHERE name == :name ORDER BY `order`")
     fun findByName(name: String): Department
 
     @Transaction

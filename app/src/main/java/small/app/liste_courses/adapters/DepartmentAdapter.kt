@@ -8,30 +8,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.model.Department
-import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
-import java.text.FieldPosition
 import java.util.*
 
 
 class DepartmentAdapter(
     private val context: Context,
-    private var list: List<Department>,
-    private var viewModel: MainViewModel
+    private var list: MutableList<Department>
 ) :
-    RecyclerView.Adapter<ViewHolder>() {
+    RecyclerView.Adapter<ViewHolder>(), IListGetter<Department> {
 
-    var onDropAction: Unit? = null
+    lateinit var IOnItemChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter>
+    lateinit var IOnDepartmentChangeListener: IOnAdapterChangeListener<Department, DepartmentAdapter>
 
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder{
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return DepartmentViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_department,
@@ -82,7 +78,11 @@ class DepartmentAdapter(
                         if (localState is Item) {
                             Log.d("DDD", "Dropped ${localState.name}")
                             model.classify(localState)
-                            viewModel.updateDepartmentsList(model)
+                            IOnDepartmentChangeListener.onItemUpdate(
+                                model,
+                                position,
+                                ObjectChange.CLASSIFIED
+                            )
                         }
                         //val dragData = item.text
                         // Toast.makeText(context, dragData, Toast.LENGTH_LONG).show()
@@ -125,26 +125,30 @@ class DepartmentAdapter(
 
             holder.itemView.rv_items.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            holder.itemView.rv_items.adapter = UnclassifiedItemsAdapter(
+            val itemsAdapter = ItemsAdapter(
                 context,
-                model.items.filter { it -> it.isUsed },
-                viewModel
+                model.items.filter { it.isUsed }.toMutableList(),
+                false
             )
 
-
-
+            IOnItemChangeListener.setAdapter(itemsAdapter)
+            itemsAdapter.IOnAdapterChangeListener = IOnItemChangeListener
+            holder.itemView.rv_items.adapter = itemsAdapter
 
         }
     }
 
     fun onItemMove(initialPosition: Int, targetPosition: Int) {
-    Collections.swap(list,initialPosition,targetPosition)
+        Collections.swap(list, initialPosition, targetPosition)
 
     }
 
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
+    override fun getList(): MutableList<Department> {
+        return list
+    }
 
 
 }

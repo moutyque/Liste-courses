@@ -43,6 +43,13 @@ class MainViewModel(val repo: Repository) : ViewModel() {
 
     }
 
+    fun updateItem(item: Item) {
+        backgroundScope.launch {
+            repo.saveItem(item)
+        }
+
+    }
+
     fun updateItemsList(item: Item?) {
         var itemsList: List<Item> = ArrayList()
         val job = backgroundScope.launch {
@@ -54,7 +61,6 @@ class MainViewModel(val repo: Repository) : ViewModel() {
             //Update unclassified item list
             unclassifiedItems.clear()
             unclassifiedItems.addAll(repo.getUnclassifiedItem())
-
 
             Log.d("MainFragment", "autoCompleteItems size ${itemsList.size}")
             Log.d("MainFragment", "unclassifiedItems size ${unclassifiedItems.size}")

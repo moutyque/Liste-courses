@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import small.app.liste_courses.room.converters.Converter
 import small.app.liste_courses.room.dao.DepartmentDao
 import small.app.liste_courses.room.dao.ItemDao
 import small.app.liste_courses.room.entities.Department
@@ -18,7 +20,7 @@ import java.util.concurrent.Executors
     version = 1,
     exportSchema = false
 )
-
+@TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDAO(): ItemDao
     abstract fun departmentDAO(): DepartmentDao

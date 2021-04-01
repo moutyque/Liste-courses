@@ -1,7 +1,12 @@
-Repartitiopn vertical du mainfragment
-Untié sur les items avec + et -
 Quid des departments vide (à la création, pour remettre des items)
+    => Nouvel attribut isVisible, true à la création et lorsqsu'on le re insere via l'auto completion (a ajouter), lors du remove du dernier item masquer de noveau
+
 Mettre les unités dans le second fragment
 
 Idée : mode visions ou les items sont présenté les uns apres les autres.
 Voir si possible d'ajouter une barre quand l'écran est vérouillé
+
+
+
+
+
