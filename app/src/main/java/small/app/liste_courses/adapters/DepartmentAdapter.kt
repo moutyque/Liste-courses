@@ -1,6 +1,5 @@
 package small.app.liste_courses.adapters
 
-import android.annotation.SuppressLint
 import android.content.ClipDescription
 import android.content.Context
 import android.util.Log
@@ -10,8 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
-import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
+import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
 import java.util.*
@@ -23,8 +22,8 @@ class DepartmentAdapter(
 ) :
     RecyclerView.Adapter<DepartmentAdapter.DepartmentViewHolder>(), IListGetter<Department> {
 
-    lateinit var IOnItemChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder>
-    lateinit var IOnDepartmentChangeListener: IOnAdapterChangeListener<Department, DepartmentAdapter, DepartmentViewHolder>
+    lateinit var itemChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder>
+    lateinit var departmentChangeListener: IOnAdapterChangeListener<Department, DepartmentAdapter, DepartmentViewHolder>
 
     var canMove = false
 
@@ -77,7 +76,7 @@ class DepartmentAdapter(
                     if (localState is Item) {
                         Log.d("DDD", "Dropped ${localState.name}")
                         model.classify(localState)
-                        IOnDepartmentChangeListener.onItemUpdate(
+                        departmentChangeListener.onItemUpdate(
                             model,
                             position,
                             list,
@@ -140,8 +139,8 @@ class DepartmentAdapter(
         holder.itemView.rv_items.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
 
-        IOnItemChangeListener.setAdapter(itemsAdapter)
-        itemsAdapter.IOnAdapterChangeListener = IOnItemChangeListener
+        itemChangeListener.setAdapter(itemsAdapter)
+        itemsAdapter.IOnAdapterChangeListener = itemChangeListener
         holder.itemView.rv_items.adapter = itemsAdapter
 
     }

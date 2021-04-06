@@ -8,32 +8,30 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
 import small.app.liste_courses.MainActivity
 import small.app.liste_courses.adapters.DepartmentAdapter
-import small.app.liste_courses.adapters.IOnAdapterChangeListener
+import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.ObjectChange
+import small.app.liste_courses.adapters.listenners.DepartmentChangeListener
+import small.app.liste_courses.adapters.listenners.ClassifiedItemChangeListener
+import small.app.liste_courses.adapters.listenners.UnclassifiedItemChangeListener
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
 
-/**
- * A simple [Fragment] subclass.
- * Use the [MainFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 //TODO : Si perte de focus clear le nom ?
 //TODO : ne pas autoriser les retour à la ligne dans le nom de l'item
 class MainFragment : Fragment() {
 
-    lateinit var binding: FragmentMainBinding
+    private lateinit var binding: FragmentMainBinding
     private lateinit var activity: MainActivity
 
     private lateinit var model: MainViewModel
@@ -52,7 +50,7 @@ class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         //Create the binding
         binding = FragmentMainBinding.inflate(inflater)
@@ -74,7 +72,7 @@ class MainFragment : Fragment() {
 
         }
         //Setup the autocomplete item list
-        model.autoCompleteItems.observe(viewLifecycleOwner, Observer { list ->
+        model.autoCompleteItems.observe(viewLifecycleOwner, { list ->
             val toTypedArray: Array<String> = list.map { i -> i.name }.toTypedArray()
             val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
                 requireContext(),
@@ -90,7 +88,7 @@ class MainFragment : Fragment() {
             val name = binding.actvSelectionItem.text.toString().trim()
             if(name.isNotEmpty()){
                 val item = if (model.autoCompleteItems.value!!.map { i -> i.name }.contains(name)) {
-                    model.autoCompleteItems.value!!.filter { item -> item.name == name }.get(0)
+                    model.autoCompleteItems.value!!.filter { item -> item.name == name }[0]
                 } else {
                     Item(name = name)
                 }
@@ -160,95 +158,15 @@ class MainFragment : Fragment() {
             model.departments
         )
 
-        val departmentChange = object : IOnAdapterChangeListener<Department, DepartmentAdapter,DepartmentAdapter.DepartmentViewHolder> {
-
-            private lateinit var adapter: DepartmentAdapter
-            override fun onObjectCreated(a: Department) {
-            }
-
-            override fun onItemUpdate(a: Department, position: Int, list: MutableList<Department>,code: ObjectChange) {
-                when (code) {
-                    ObjectChange.CLASSIFIED -> {
-                        //A new item has been classified in this department
-                        model.updateDepartmentsList(a)
-                    }
-                }
-            }
-
-            override fun onItemDelete(a: Department) {
-            }
-
-            override fun setAdapter(adapter: DepartmentAdapter) {
-                this.adapter = adapter
-            }
-
-            override fun getAdapter(): DepartmentAdapter {
-                return adapter
-            }
 
 
-        }
+        departmentsAdapter.IOnDepartmentChangeListener = DepartmentChangeListener(model)
 
-        departmentsAdapter.IOnDepartmentChangeListener = departmentChange
-
-        val classifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter,ItemsAdapter.ItemsViewHolder> {
-
-            private lateinit var depItemsAdapter: ItemsAdapter
-
-            override fun onObjectCreated(a: Item) {
-                model.updateItemsList(a)
-            }
-
-            override fun onItemUpdate(a: Item, position: Int,list: MutableList<Item>, code: ObjectChange) {
-                Log.d("classifiedItemChange","item list size : ${getAdapter().getList().size}")
-                when (code) {
-
-                    ObjectChange.CLASSIFIED -> {
-                        model.updateView(a) // Need to refresh the two lists
-                        getAdapter().notifyDataSetChanged()
-                    }
-                    ObjectChange.QTY -> {
-                        Log.d("classifiedItemChange","Qty change on ${a.name} , new qty ${a.qty}")
-                        model.updateItem(a)
-                        val get = list[position]
-                        if(get != a){
-                            list.remove(get)
-                            list.add(position,a)
-                        }
-                        getAdapter().notifyDataSetChanged()
-                        //getAdapter().notifyItemChanged(position)
-
-                    }
-                    ObjectChange.USED -> {
-                        //Validate inside a department
-                        model.updateItem(a)
-                        //model.updateDepartmentsList()//TODO : ok mais perfo ?
-                        //getAdapter().getList().removeAt(position)
-                        //getAdapter().notifyDataSetChanged()
-                    }
-                    else -> Log.e("ItemChange", "Unknown or unused code has been send : $code")
-                }
-                //model.updateView(a)
-            }
-
-
-            override fun onItemDelete(a: Item) {
-            }
-
-            override fun setAdapter(adapter: ItemsAdapter) {
-                depItemsAdapter = adapter
-            }
-
-            override fun getAdapter(): ItemsAdapter {
-                return depItemsAdapter
-            }
-        }
-
-        departmentsAdapter.IOnItemChangeListener = classifiedItemChange
+        departmentsAdapter.IOnItemChangeListener = ClassifiedItemChangeListener(model)
 
         //Setup departments recycler view
         binding.rvDepartment.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvDepartment.adapter = departmentsAdapter
 
         val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
@@ -265,53 +183,10 @@ class MainFragment : Fragment() {
                 false
             )
 
-        val unclassifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
-
-            private lateinit var itemsAdapter: ItemsAdapter
-
-            override fun onObjectCreated(a: Item) {
-                model.updateItemsList(a)
-            }
-
-            override fun onItemUpdate(a: Item, position: Int, list: MutableList<Item>,code: ObjectChange) {
-                when (code) {
-                    ObjectChange.USED -> {
-                        if (a.isClassified) {
-                            model.updateView(a) //Full refresh cause we also need to refresh the department
-                        } else {//New item added to the unclassified list
-                            model.updateItem(a)
-                            getAdapter().notifyItemChanged(position)
-                        }
-                    }
-                    ObjectChange.CLASSIFIED -> {
-                        Log.d("Classify","Item : ${a.name}")
-                        model.updateView(a) // Need to refresh the two lists
-                    }
-                    ObjectChange.QTY -> {
-                        model.updateItem(a)
-                        getAdapter().notifyItemChanged(position)
-                    }
-
-                    else -> Log.e("ItemChange", "Unknown code has been send : $code")
-                }
-                //model.updateView(a)
-            }
 
 
-            override fun onItemDelete(a: Item) {
-            }
 
-            override fun setAdapter(adapter: ItemsAdapter) {
-                itemsAdapter = adapter
-            }
-
-            override fun getAdapter(): ItemsAdapter {
-                return itemsAdapter
-            }
-        }
-        unclassifiedItemChange.setAdapter(unclassifiedAdapter)
-
-        unclassifiedAdapter.IOnAdapterChangeListener = unclassifiedItemChange
+        unclassifiedAdapter.IOnAdapterChangeListener = UnclassifiedItemChangeListener(model,unclassifiedAdapter)
 
 
         //Setup the items recycler view
@@ -320,14 +195,10 @@ class MainFragment : Fragment() {
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
 
-    fun updateDepartmentList(item: Any) {
-        if (item is Department)
-            model.updateDepartmentsList(item)
-    }
 
     class SimpleItemTouchHelperCallback(adapter: DepartmentAdapter) :
         ItemTouchHelper.Callback() {
-        private val mAdapter: DepartmentAdapter
+        private val mAdapter: DepartmentAdapter = adapter
         override fun isLongPressDragEnabled(): Boolean {
             Log.d("SimpleItemTouchHelperCallback","Can u click")
             return mAdapter.canMove
@@ -372,13 +243,10 @@ class MainFragment : Fragment() {
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
 
             super.clearView(recyclerView, viewHolder)
-            viewHolder?.itemView?.alpha = 1.0f
+            viewHolder.itemView.alpha = 1.0f
         }
 
 
-        init {
-            mAdapter = adapter
-        }
     }
 
 }

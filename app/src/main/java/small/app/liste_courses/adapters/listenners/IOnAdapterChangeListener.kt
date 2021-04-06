@@ -1,6 +1,7 @@
-package small.app.liste_courses.adapters
+package small.app.liste_courses.adapters.listenners
 
 import androidx.recyclerview.widget.RecyclerView
+import small.app.liste_courses.adapters.ObjectChange
 
 /**
  * Inteface to of action inside a recyclerview

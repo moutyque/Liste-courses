@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
+import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
 import small.app.liste_courses.room.entities.Item
 
 class ItemsAdapter(
@@ -19,7 +20,7 @@ class ItemsAdapter(
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IListGetter<Item> {
 
-    var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter,ItemsViewHolder>? = null
+    var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsViewHolder>? = null
         set(value) {
             field = value
             field?.setAdapter(this)
