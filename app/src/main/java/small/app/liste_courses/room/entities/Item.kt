@@ -1,12 +1,13 @@
 package small.app.liste_courses.room.entities
 
+import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import small.app.liste_courses.SIUnit
 
 @Entity
 data class Item(
-    @PrimaryKey val name: String,
+    @PrimaryKey @NonNull val name: String,
     var isClassified: Boolean = false,
     var isUsed: Boolean = false,
     var departmentId: String = "",

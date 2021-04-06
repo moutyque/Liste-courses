@@ -87,18 +87,21 @@ class MainFragment : Fragment() {
         //Setup btn to add an new item
         binding.ibAddItem.setOnClickListener {
             //Create or get the item
-            val name = binding.actvSelectionItem.text.toString()
-            val item = if (model.autoCompleteItems.value!!.map { i -> i.name }.contains(name)) {
-                model.autoCompleteItems.value!!.filter { item -> item.name == name }.get(0)
-            } else {
-                Item(name = name)
+            val name = binding.actvSelectionItem.text.toString().trim()
+            if(name.isNotEmpty()){
+                val item = if (model.autoCompleteItems.value!!.map { i -> i.name }.contains(name)) {
+                    model.autoCompleteItems.value!!.filter { item -> item.name == name }.get(0)
+                } else {
+                    Item(name = name)
+                }
+                item.isUsed = true
+                item.order = model.unclassifiedItems.size.toLong()
+
+                model.createItem(item)
+
+                binding.actvSelectionItem.setText("")
             }
-            item.isUsed = true
-            item.order = model.unclassifiedItems.size.toLong()
 
-            model.createItem(item)
-
-            binding.actvSelectionItem.setText("")
         }
 
 
@@ -106,7 +109,7 @@ class MainFragment : Fragment() {
 
         //Update the list of items to be displayed in the rv and in the autocompletion
         model.updateItemsList()
-        model.newItems.observe(viewLifecycleOwner, Observer { newValue ->
+        model.newItems.observe(viewLifecycleOwner, { newValue ->
             if (newValue) {
                 mainScope.launch {
                     unclassifiedAdapter.notifyDataSetChanged()
@@ -119,7 +122,7 @@ class MainFragment : Fragment() {
 
         setupDepartmentsRV()
 
-        model.newDepartment.observe(viewLifecycleOwner, Observer { newValue ->
+        model.newDepartment.observe(viewLifecycleOwner,  { newValue ->
             if (newValue) {
                 mainScope.launch {
                     model.departments.sortBy { d -> d.order }
@@ -131,15 +134,18 @@ class MainFragment : Fragment() {
 
         binding.ibAddDepartment.setOnClickListener {
             //Create the new department
-            // Need to check if it exist first because we don't want to override an existing department
-            val dep = Department(
-                binding.etDepartmentName.text.toString(),
-                ArrayList(),
-                model.departments.size
-            )
-            model.updateDepartmentsList(dep)
+            if(binding.etDepartmentName.text.toString().trim().isNotEmpty()){
+                // Need to check if it exist first because we don't want to override an existing department
+                val dep = Department(
+                    binding.etDepartmentName.text.toString(),
+                    ArrayList(),
+                    model.departments.size
+                )
+                model.updateDepartmentsList(dep)
 
-            binding.etDepartmentName.setText("")
+                binding.etDepartmentName.setText("")
+            }
+
         }
 
 
@@ -154,13 +160,13 @@ class MainFragment : Fragment() {
             model.departments
         )
 
-        val departmentChange = object : IOnAdapterChangeListener<Department, DepartmentAdapter> {
+        val departmentChange = object : IOnAdapterChangeListener<Department, DepartmentAdapter,DepartmentAdapter.DepartmentViewHolder> {
 
             private lateinit var adapter: DepartmentAdapter
             override fun onObjectCreated(a: Department) {
             }
 
-            override fun onItemUpdate(a: Department, position: Int, code: ObjectChange) {
+            override fun onItemUpdate(a: Department, position: Int, list: MutableList<Department>,code: ObjectChange) {
                 when (code) {
                     ObjectChange.CLASSIFIED -> {
                         //A new item has been classified in this department
@@ -185,7 +191,7 @@ class MainFragment : Fragment() {
 
         departmentsAdapter.IOnDepartmentChangeListener = departmentChange
 
-        val classifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter> {
+        val classifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter,ItemsAdapter.ItemsViewHolder> {
 
             private lateinit var depItemsAdapter: ItemsAdapter
 
@@ -193,22 +199,32 @@ class MainFragment : Fragment() {
                 model.updateItemsList(a)
             }
 
-            override fun onItemUpdate(a: Item, position: Int, code: ObjectChange) {
+            override fun onItemUpdate(a: Item, position: Int,list: MutableList<Item>, code: ObjectChange) {
+                Log.d("classifiedItemChange","item list size : ${getAdapter().getList().size}")
                 when (code) {
 
                     ObjectChange.CLASSIFIED -> {
                         model.updateView(a) // Need to refresh the two lists
+                        getAdapter().notifyDataSetChanged()
                     }
                     ObjectChange.QTY -> {
+                        Log.d("classifiedItemChange","Qty change on ${a.name} , new qty ${a.qty}")
                         model.updateItem(a)
-                        getAdapter().notifyItemChanged(position)
+                        val get = list[position]
+                        if(get != a){
+                            list.remove(get)
+                            list.add(position,a)
+                        }
+                        getAdapter().notifyDataSetChanged()
+                        //getAdapter().notifyItemChanged(position)
+
                     }
                     ObjectChange.USED -> {
                         //Validate inside a department
                         model.updateItem(a)
                         //model.updateDepartmentsList()//TODO : ok mais perfo ?
                         //getAdapter().getList().removeAt(position)
-                        getAdapter().notifyDataSetChanged()
+                        //getAdapter().notifyDataSetChanged()
                     }
                     else -> Log.e("ItemChange", "Unknown or unused code has been send : $code")
                 }
@@ -249,7 +265,7 @@ class MainFragment : Fragment() {
                 false
             )
 
-        val unclassifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter> {
+        val unclassifiedItemChange = object : IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
 
             private lateinit var itemsAdapter: ItemsAdapter
 
@@ -257,7 +273,7 @@ class MainFragment : Fragment() {
                 model.updateItemsList(a)
             }
 
-            override fun onItemUpdate(a: Item, position: Int, code: ObjectChange) {
+            override fun onItemUpdate(a: Item, position: Int, list: MutableList<Item>,code: ObjectChange) {
                 when (code) {
                     ObjectChange.USED -> {
                         if (a.isClassified) {
@@ -268,12 +284,14 @@ class MainFragment : Fragment() {
                         }
                     }
                     ObjectChange.CLASSIFIED -> {
+                        Log.d("Classify","Item : ${a.name}")
                         model.updateView(a) // Need to refresh the two lists
                     }
                     ObjectChange.QTY -> {
                         model.updateItem(a)
                         getAdapter().notifyItemChanged(position)
                     }
+
                     else -> Log.e("ItemChange", "Unknown code has been send : $code")
                 }
                 //model.updateView(a)
@@ -311,8 +329,11 @@ class MainFragment : Fragment() {
         ItemTouchHelper.Callback() {
         private val mAdapter: DepartmentAdapter
         override fun isLongPressDragEnabled(): Boolean {
-            return true
+            Log.d("SimpleItemTouchHelperCallback","Can u click")
+            return mAdapter.canMove
         }
+
+
 
         override fun isItemViewSwipeEnabled(): Boolean {
             return true
@@ -331,11 +352,6 @@ class MainFragment : Fragment() {
             recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            Log.d(
-                "DDSwipe",
-                "In the onMove methode from ${viewHolder.adapterPosition} to ${target.adapterPosition}"
-            )
-
             mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
             mAdapter.notifyItemMoved(viewHolder.adapterPosition, target.adapterPosition)
             return true
@@ -349,6 +365,7 @@ class MainFragment : Fragment() {
             super.onSelectedChanged(viewHolder, actionState)
             if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                 viewHolder?.itemView?.alpha = 0.5f
+                mAdapter.canMove = false
             }
         }
 

@@ -59,12 +59,11 @@ class MainViewModel(val repo: Repository) : ViewModel() {
             //Update auto complete list
             itemsList = repo.getUnusedItems()
             //Update unclassified item list
+            val newUItemsList = repo.getUnclassifiedItem()
+
+            //TODO: see if there is a better way to update the list by comapring the items and the only call the needed notifychange on hte rv
             unclassifiedItems.clear()
-            unclassifiedItems.addAll(repo.getUnclassifiedItem())
-
-            Log.d("MainFragment", "autoCompleteItems size ${itemsList.size}")
-            Log.d("MainFragment", "unclassifiedItems size ${unclassifiedItems.size}")
-
+            unclassifiedItems.addAll(newUItemsList)
 
         }
         job.invokeOnCompletion {

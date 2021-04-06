@@ -1,6 +1,7 @@
 package small.app.liste_courses.room
 
 import android.content.Context
+import android.util.Log
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
 
@@ -11,9 +12,9 @@ class Repository(context: Context) {
 
         val list = ArrayList<Department>()
         val all = db.departmentDAO().getAll()
+        Log.d("Repository","There is ${all.size} departments ")
         for (d in all) {
-            list.add(getDepartmentByName(d.name))
-
+            list.add(d.toDepartment())
         }
         list.sortBy { d -> d.order }
         return list.toList()
@@ -31,14 +32,7 @@ class Repository(context: Context) {
     }
 
 
-    suspend fun getDepartmentByName(name: String): Department {
-        val dep = db.departmentDAO().getItemsFromDepartment(name)
-        return Department(
-            name = dep.department.name,
-            items = dep.items.sortedBy { it -> it.order },
-            order = dep.department.order
-        )
-    }
+
 
     suspend fun getUnusedItems(): List<Item> {
         return db.itemDAO().getAllWithUsage(false)
@@ -68,4 +62,13 @@ class Repository(context: Context) {
 
     }
 
+    suspend fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
+        val dep = db.departmentDAO().getItemsFromDepartment(this.name)
+        Log.d("Repository","In department $name there is ${dep.items.count()} items")
+        return Department(
+            name = dep.department.name,
+            items = dep.items.sortedBy { it -> it.order },
+            order = dep.department.order
+        )
+    }
 }
