@@ -11,20 +11,18 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import small.app.liste_courses.MainActivity
-import small.app.liste_courses.adapters.DepartmentAdapter
-import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
+import small.app.liste_courses.Scope.mainScope
+import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
-import small.app.liste_courses.adapters.ObjectChange
-import small.app.liste_courses.adapters.listenners.DepartmentChangeListener
 import small.app.liste_courses.adapters.listenners.ClassifiedItemChangeListener
+import small.app.liste_courses.adapters.listenners.DepartmentChangeListener
 import small.app.liste_courses.adapters.listenners.UnclassifiedItemChangeListener
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
-
 
 
 //TODO : Si perte de focus clear le nom ?
@@ -38,9 +36,8 @@ class MainFragment : Fragment() {
 
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
-    private lateinit var departmentsAdapter: DepartmentAdapter
+    private lateinit var departmentsAdapter: DepartmentsAdapter
 
-    private val mainScope = CoroutineScope(Job() + Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         activity = requireActivity() as MainActivity
@@ -57,7 +54,7 @@ class MainFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         //Create the model
-        model = MainViewModel(activity.repo)
+        model = MainViewModel(activity.repo, this)
         binding.model = model
 
         //Mange the autocompletion field
@@ -86,16 +83,13 @@ class MainFragment : Fragment() {
         binding.ibAddItem.setOnClickListener {
             //Create or get the item
             val name = binding.actvSelectionItem.text.toString().trim()
-            if(name.isNotEmpty()){
-                val item = if (model.autoCompleteItems.value!!.map { i -> i.name }.contains(name)) {
-                    model.autoCompleteItems.value!!.filter { item -> item.name == name }[0]
-                } else {
-                    Item(name = name)
-                }
+
+            if (name.isNotEmpty()) {
+                val item = Item(name = name)
                 item.isUsed = true
                 item.order = model.unclassifiedItems.size.toLong()
 
-                model.createItem(item)
+                model.useItem(item)
 
                 binding.actvSelectionItem.setText("")
             }
@@ -107,11 +101,11 @@ class MainFragment : Fragment() {
 
         //Update the list of items to be displayed in the rv and in the autocompletion
         model.updateItemsList()
-        model.newItems.observe(viewLifecycleOwner, { newValue ->
+        model.itemsChange.observe(viewLifecycleOwner, { newValue ->
             if (newValue) {
                 mainScope.launch {
                     unclassifiedAdapter.notifyDataSetChanged()
-                    model.newItems.value = false
+                    model.itemsChange.value = false
                 }
             }
         })
@@ -120,28 +114,40 @@ class MainFragment : Fragment() {
 
         setupDepartmentsRV()
 
-        model.newDepartment.observe(viewLifecycleOwner,  { newValue ->
+        model.departmentsChange.observe(viewLifecycleOwner, { newValue ->
             if (newValue) {
                 mainScope.launch {
                     model.departments.sortBy { d -> d.order }
                     departmentsAdapter.notifyDataSetChanged()
-                    model.newDepartment.value = false
+                    model.departmentsChange.value = false
                 }
             }
         })
 
+        // binding.actDepartmentName.
+        model.autoCompleteDepartment.observe(viewLifecycleOwner, { list ->
+            //List is the filter list of all the not visible department
+            val toTypedArray: Array<String> = list.map { i -> i.name }.toTypedArray()
+            val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line, toTypedArray
+            )
+            binding.actDepartmentName.setAdapter(adapter)
+        })
+        //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
             //Create the new department
-            if(binding.etDepartmentName.text.toString().trim().isNotEmpty()){
+            if (binding.actDepartmentName.text.toString().trim().isNotEmpty()) {
                 // Need to check if it exist first because we don't want to override an existing department
                 val dep = Department(
-                    binding.etDepartmentName.text.toString(),
+                    binding.actDepartmentName.text.toString(),
+                    true,
                     ArrayList(),
                     model.departments.size
                 )
                 model.updateDepartmentsList(dep)
 
-                binding.etDepartmentName.setText("")
+                binding.actDepartmentName.setText("")
             }
 
         }
@@ -153,16 +159,16 @@ class MainFragment : Fragment() {
 
     private fun setupDepartmentsRV() {
         //Create the department adapter
-        departmentsAdapter = DepartmentAdapter(
+        departmentsAdapter = DepartmentsAdapter(
             requireContext(),
             model.departments
         )
 
 
 
-        departmentsAdapter.IOnDepartmentChangeListener = DepartmentChangeListener(model)
+        departmentsAdapter.departmentsChangeListener = DepartmentChangeListener(model)
 
-        departmentsAdapter.IOnItemChangeListener = ClassifiedItemChangeListener(model)
+        departmentsAdapter.itemChangeListener = ClassifiedItemChangeListener(model)
 
         //Setup departments recycler view
         binding.rvDepartment.layoutManager =
@@ -186,7 +192,8 @@ class MainFragment : Fragment() {
 
 
 
-        unclassifiedAdapter.IOnAdapterChangeListener = UnclassifiedItemChangeListener(model,unclassifiedAdapter)
+        unclassifiedAdapter.IOnAdapterChangeListener =
+            UnclassifiedItemChangeListener(model, unclassifiedAdapter)
 
 
         //Setup the items recycler view
@@ -195,15 +202,22 @@ class MainFragment : Fragment() {
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
 
+    fun updateUnclassifiedItems(position: Int) {
 
-    class SimpleItemTouchHelperCallback(adapter: DepartmentAdapter) :
+        //unclassifiedAdapter.notifyItemInserted(position)
+        unclassifiedAdapter.notifyDataSetChanged()
+        
+
+    }
+
+
+    class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :
         ItemTouchHelper.Callback() {
-        private val mAdapter: DepartmentAdapter = adapter
+        private val mAdapter: DepartmentsAdapter = adapter
         override fun isLongPressDragEnabled(): Boolean {
-            Log.d("SimpleItemTouchHelperCallback","Can u click")
+            Log.d("SimpleItemTouchHelperCallback", "Can u click")
             return mAdapter.canMove
         }
-
 
 
         override fun isItemViewSwipeEnabled(): Boolean {

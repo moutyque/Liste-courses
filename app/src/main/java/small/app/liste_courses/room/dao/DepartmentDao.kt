@@ -15,7 +15,10 @@ interface DepartmentDao {
     fun getItemsFromDepartment(departmentName: String): DepartmentWithItems
 
     @Query("SELECT * FROM Department ORDER BY `order`")
-    fun getAllDepartment(): DepartmentWithItems
+    fun getAllDepartment(): List<DepartmentWithItems>
+
+    @Query("SELECT * FROM Department WHERE isUsed==:used ORDER BY `order`")
+    fun getUsedDepartment(used: Boolean = true): List<DepartmentWithItems>
 
     @Query("SELECT * FROM Department WHERE name == :name ORDER BY `order`")
     fun findByName(name: String): Department

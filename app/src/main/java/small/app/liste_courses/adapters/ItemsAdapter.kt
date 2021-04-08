@@ -20,7 +20,8 @@ class ItemsAdapter(
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IListGetter<Item> {
 
-    var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsViewHolder>? = null
+    var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsViewHolder>? =
+        null
         set(value) {
             field = value
             field?.setAdapter(this)
@@ -39,8 +40,8 @@ class ItemsAdapter(
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         val model = list[position]
         Log.d("IAdapter", model.name)
-        Log.d("IAdapter"," $position")
-        if ( model.name.isNotEmpty()) {
+        Log.d("IAdapter", " $position")
+        if (model.name.isNotEmpty()) {
             if (model.isUsed) {
                 holder.itemView.tv_name.text = model.name
                 Log.d("IAdapter", "TvName start binding: ${holder.itemView.width}")
@@ -57,7 +58,12 @@ class ItemsAdapter(
                     Log.d("IAdapter", "Remove at position : $position")
                     //list.removeAt(position)
                     //Update db
-                    IOnAdapterChangeListener!!.onItemUpdate(model, position, list,ObjectChange.USED)
+                    IOnAdapterChangeListener!!.onObjectUpdate(
+                        model,
+                        position,
+                        list,
+                        ObjectChange.USED
+                    )
                     list.remove(model)
                     this.notifyItemRemoved(position)
 
@@ -67,7 +73,7 @@ class ItemsAdapter(
                     holder.itemView.tv_unit.visibility = View.GONE
                     holder.itemView.s_unit.visibility = View.VISIBLE
 
-                   // holder.itemView.tv_qty.
+                    // holder.itemView.tv_qty.
 
                 } else {
                     holder.itemView.tv_unit.visibility = View.VISIBLE
@@ -80,14 +86,14 @@ class ItemsAdapter(
 
                 holder.itemView.iv_increase_qty.setOnClickListener {
                     model.qty += model.unit.mutliplicator
-                    Log.d("IAdapter","List size ${list.size}")
+                    Log.d("IAdapter", "List size ${list.size}")
 
                     updateQty(position, model)
                 }
                 holder.itemView.iv_decrease_qty.setOnClickListener {
                     model.qty -= model.unit.mutliplicator
                     if (model.qty < 0) {
-                        model.qty = 0;
+                        model.qty = 0
                     }
 
                     updateQty(position, model)
@@ -109,7 +115,7 @@ class ItemsAdapter(
 
     private fun updateQty(position: Int, model: Item) {
         Log.d("IAdapter", "before change qty : ${list[position].qty}")
-        IOnAdapterChangeListener!!.onItemUpdate(model, position, list, ObjectChange.QTY)
+        IOnAdapterChangeListener!!.onObjectUpdate(model, position, list, ObjectChange.QTY)
         this.notifyItemChanged(position)
         Log.d("IAdapter", "after change qty : ${list[position].qty}")
     }
@@ -118,22 +124,24 @@ class ItemsAdapter(
         return list.size
     }
 
-    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view) , View.OnLongClickListener, View.OnClickListener{
+    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
+        View.OnClickListener {
 
-        var model : Item? = null
+        var model: Item? = null
 
-            init {
-                view.setOnClickListener(this)
-                view.setOnLongClickListener(this)
-            }
+        init {
+            view.setOnClickListener(this)
+            view.setOnLongClickListener(this)
+        }
+
         override fun onLongClick(v: View?): Boolean {
             v?.apply {
                 Log.d("ItemsViewHolder", "Click hold on $v!!")
                 Log.d("ItemsViewHolder", "Is textview visible ${v.tv_name.visibility}")
                 //v.tv_name.width = ViewGroup.LayoutParams.WRAP_CONTENT
 
-                v.tv_name.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                v.tv_name.layout(0, 0, v.tv_name.getMeasuredWidth(), v.tv_name.getMeasuredHeight());
+                v.tv_name.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                v.tv_name.layout(0, 0, v.tv_name.measuredWidth, v.tv_name.measuredHeight)
 
                 val clipText = "This is our ClipData text"
                 val item = ClipData.Item(clipText)
@@ -149,14 +157,20 @@ class ItemsAdapter(
         }
 
         override fun onClick(v: View?) {
-            Log.d("ItemsViewHolder", "Click quick")        }
+            Log.d("ItemsViewHolder", "Click quick")
+        }
 
 
     }
 
     override fun getList(): MutableList<Item> {
-        Log.d("IAdapter","Get the list of size ${list.size}")
+        Log.d("IAdapter", "Get the list of size ${list.size}")
         return list
+    }
+
+    override fun addToList(i: Item) {
+        list.add(i)
+        list.sortBy { i -> i.order }
     }
 
 }

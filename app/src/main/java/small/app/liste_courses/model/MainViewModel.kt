@@ -3,27 +3,46 @@ package small.app.liste_courses.model
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import small.app.liste_courses.Scope.backgroundScope
+import small.app.liste_courses.Scope.mainScope
+import small.app.liste_courses.fragments.MainFragment
 import small.app.liste_courses.room.Repository
 import small.app.liste_courses.room.entities.Item
 
-class MainViewModel(val repo: Repository) : ViewModel() {
+class MainViewModel(private val repo: Repository, private val fragment: MainFragment) :
+    ViewModel() {
 
-    private val backgroundScope = CoroutineScope(Job() + Dispatchers.IO)
-    private val mainScope = CoroutineScope(Job() + Dispatchers.Main)
 
     var autoCompleteItems = MutableLiveData<List<Item>>()
+    var autoCompleteDepartment = MutableLiveData<List<Department>>()
 
-    var unclassifiedItems: ArrayList<Item> = ArrayList()
+    //Must be a list because it is passed to an adapter
+    var unclassifiedItems: MutableList<Item> = ArrayList()
 
-    var departments: ArrayList<Department> = ArrayList()
+    //Must be a list because it is passed to an adapter
+    var departments: MutableList<Department> = ArrayList()
 
-    val newItems = MutableLiveData(false)
+    val itemsChange = MutableLiveData(false)
 
-    val newDepartment = MutableLiveData(false)
+    val departmentsChange = MutableLiveData(false)
+
+
+    init {
+        backgroundScope.launch {
+            unclassifiedItems.addAll(repo.getUnclassifiedItem().toMutableList())
+
+            val usedDepartment = repo.getUsedDepartment()
+            departments.addAll(usedDepartment.map { departmentWithItems ->
+                Department(
+                    name = departmentWithItems.department.name,
+                    isUsed = departmentWithItems.department.isUsed,
+                    items = departmentWithItems.items.toMutableList(),
+                    order = departmentWithItems.department.order
+                )
+            }.toMutableList())
+        }
+    }
 
     /**
      * Remove an item from autoComplete and perhaps add it to unclassifiedItem
@@ -35,7 +54,9 @@ class MainViewModel(val repo: Repository) : ViewModel() {
 
     fun createItem(item: Item) {
         val job = backgroundScope.launch {
-            repo.createItem(item)
+            repo.useItem(item)
+            unclassifiedItems.add(item)
+
         }
         job.invokeOnCompletion {
             updateView()
@@ -69,7 +90,26 @@ class MainViewModel(val repo: Repository) : ViewModel() {
         job.invokeOnCompletion {
             mainScope.launch {
                 autoCompleteItems.value = itemsList
-                newItems.value = true
+                itemsChange.value = true
+            }
+
+        }
+    }
+
+    fun updateDepartment(d: Department) {
+        val job = backgroundScope.launch {
+            repo.saveDepartment(d)
+            d.items.forEach {
+                repo.saveItem(it)
+            }
+            departments.add(d)
+        }
+
+        job.invokeOnCompletion {
+
+            mainScope.launch {
+                autoCompleteDepartment.value = departments.filter { d -> !d.isUsed }
+                departmentsChange.value = true
             }
 
         }
@@ -87,22 +127,18 @@ class MainViewModel(val repo: Repository) : ViewModel() {
                     department.name
                 ) || department.items.isNotEmpty())
             ) {
-                repo.saveDepartment(department)
                 localNewItem = department.items.isNotEmpty()
-                //Save item in case there is a new one in the department : can be optimize
-                department.items.forEach {
-                    repo.saveItem(it)
-                }
+                updateDepartment(department)
             }
+
             departments.clear()
             departments.addAll(repo.getAllDepartment())
-            departments.sortBy { department -> department.order }
             updateItemsList()
         }
         job.invokeOnCompletion {
+
             mainScope.launch {
-                newDepartment.value = true
-                if (localNewItem) newItems.value = true
+                if (localNewItem) itemsChange.value = true
             }
 
         }
@@ -128,4 +164,25 @@ class MainViewModel(val repo: Repository) : ViewModel() {
         updateItemsList(item)
         updateDepartmentsList(department)
     }
+
+    fun useItem(item: Item) {
+        val launch = backgroundScope.launch {
+            repo.useItem(item)
+        }
+        launch.invokeOnCompletion {
+            if (item.isClassified) {
+
+            } else {
+                unclassifiedItems.add(item)
+                unclassifiedItems.sortBy { i -> i.order }
+                mainScope.launch {
+                    fragment.updateUnclassifiedItems(unclassifiedItems.indexOf(item))
+                }
+
+            }
+        }
+
+    }
+
+
 }

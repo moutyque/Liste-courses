@@ -10,20 +10,21 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
+import small.app.liste_courses.adapters.listenners.DecoratedClassifiedItemChangeListener
 import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
 import java.util.*
 
 
-class DepartmentAdapter(
+class DepartmentsAdapter(
     private val context: Context,
     private var list: MutableList<Department>
 ) :
-    RecyclerView.Adapter<DepartmentAdapter.DepartmentViewHolder>(), IListGetter<Department> {
+    RecyclerView.Adapter<DepartmentsAdapter.DepartmentViewHolder>(), IListGetter<Department> {
 
     lateinit var itemChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder>
-    lateinit var departmentChangeListener: IOnAdapterChangeListener<Department, DepartmentAdapter, DepartmentViewHolder>
+    lateinit var departmentsChangeListener: IOnAdapterChangeListener<Department, DepartmentsAdapter, DepartmentViewHolder>
 
     var canMove = false
 
@@ -76,7 +77,7 @@ class DepartmentAdapter(
                     if (localState is Item) {
                         Log.d("DDD", "Dropped ${localState.name}")
                         model.classify(localState)
-                        departmentChangeListener.onItemUpdate(
+                        departmentsChangeListener.onObjectUpdate(
                             model,
                             position,
                             list,
@@ -127,20 +128,22 @@ class DepartmentAdapter(
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
 
-
         val itemsList = model.items.filter { it.isUsed }//.toMutableList()
-        Log.d("DAdapter","Items for this adapter $itemsList")
+        Log.d("DAdapter", "Items for this adapter $itemsList")
         val itemsAdapter = ItemsAdapter(
             context,
             itemsList.toMutableList(),
             false
         )
 
-        holder.itemView.rv_items.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        holder.itemView.rv_items.layoutManager =
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
 
         itemChangeListener.setAdapter(itemsAdapter)
-        itemsAdapter.IOnAdapterChangeListener = itemChangeListener
+        //Add a new change listener
+        itemsAdapter.IOnAdapterChangeListener =
+            DecoratedClassifiedItemChangeListener(this, position, itemChangeListener)
         holder.itemView.rv_items.adapter = itemsAdapter
 
     }
@@ -156,6 +159,11 @@ class DepartmentAdapter(
 
     override fun getList(): MutableList<Department> {
         return list
+    }
+
+    override fun addToList(i: Department) {
+        list.add(i)
+        list.sortBy { d -> d.order }
     }
 
 

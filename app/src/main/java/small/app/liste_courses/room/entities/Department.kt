@@ -7,7 +7,9 @@ import androidx.room.PrimaryKey
 @Entity
 data class Department(
     @PrimaryKey @NonNull val name: String,
+    var isUsed: Boolean,
     var order: Int
+
 ) {
     fun classify(item: Item) {
         item.departmentId = name

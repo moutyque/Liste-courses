@@ -1,19 +1,26 @@
 package small.app.liste_courses.adapters.listenners
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.ObjectChange
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
-class UnclassifiedItemChangeListener (val model : MainViewModel,var itemsAdapter: ItemsAdapter) : IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
+class UnclassifiedItemChangeListener(val model: MainViewModel, var itemsAdapter: ItemsAdapter) :
+    IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
 
 
     override fun onObjectCreated(a: Item) {
         model.updateItemsList(a)
     }
 
-    override fun onItemUpdate(a: Item, position: Int, list: MutableList<Item>,code: ObjectChange) {
+    override fun onObjectUpdate(
+        a: Item,
+        position: Int,
+        list: MutableList<Item>,
+        code: ObjectChange
+    ) {
         when (code) {
             ObjectChange.USED -> {
                 if (a.isClassified) {
@@ -24,7 +31,7 @@ class UnclassifiedItemChangeListener (val model : MainViewModel,var itemsAdapter
                 }
             }
             ObjectChange.CLASSIFIED -> {
-                Log.d("Classify","Item : ${a.name}")
+                Log.d("Classify", "Item : ${a.name}")
                 model.updateView(a) // Need to refresh the two lists
             }
             ObjectChange.QTY -> {
@@ -38,7 +45,7 @@ class UnclassifiedItemChangeListener (val model : MainViewModel,var itemsAdapter
     }
 
 
-    override fun onItemDelete(a: Item) {
+    override fun onObjectDelete(a: Item) {
     }
 
     override fun setAdapter(adapter: ItemsAdapter) {
@@ -47,5 +54,9 @@ class UnclassifiedItemChangeListener (val model : MainViewModel,var itemsAdapter
 
     override fun getAdapter(): ItemsAdapter {
         return itemsAdapter
+    }
+
+    override fun getModel(): ViewModel {
+        return model
     }
 }

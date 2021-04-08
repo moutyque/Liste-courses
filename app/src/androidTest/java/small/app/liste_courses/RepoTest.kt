@@ -84,7 +84,7 @@ class RepoTest {
 
             val item: Item = Item("POMME")
             dep.classify(item)
-            repo.createItem(item)
+            repo.useItem(item)
 
             var it = repo.getUnclassifiedItem()[0]
             Assert.assertEquals(
@@ -117,7 +117,7 @@ class RepoTest {
             )
 
             val clone: Item = Item("POMME")
-            repo.createItem(clone)
+            repo.useItem(clone)
 
 
             Assert.assertEquals(

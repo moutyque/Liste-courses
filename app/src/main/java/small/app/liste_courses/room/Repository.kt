@@ -3,6 +3,7 @@ package small.app.liste_courses.room
 import android.content.Context
 import android.util.Log
 import small.app.liste_courses.model.Department
+import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
 
 class Repository(context: Context) {
@@ -12,7 +13,7 @@ class Repository(context: Context) {
 
         val list = ArrayList<Department>()
         val all = db.departmentDAO().getAll()
-        Log.d("Repository","There is ${all.size} departments ")
+        Log.d("Repository", "There is ${all.size} departments ")
         for (d in all) {
             list.add(d.toDepartment())
         }
@@ -22,7 +23,13 @@ class Repository(context: Context) {
 
     suspend fun saveDepartment(d: Department) {
         db.departmentDAO()
-            .insertAll(small.app.liste_courses.room.entities.Department(d.name, d.order))
+            .insertAll(
+                small.app.liste_courses.room.entities.Department(
+                    d.name,
+                    d.isUsed,
+                    d.order
+                )
+            )
         db.itemDAO().insertAll(*d.items.toTypedArray())
     }
 
@@ -30,8 +37,6 @@ class Repository(context: Context) {
         val itemsFromDepartment = db.departmentDAO().getItemsFromDepartment(name)
         return itemsFromDepartment != null
     }
-
-
 
 
     suspend fun getUnusedItems(): List<Item> {
@@ -50,7 +55,7 @@ class Repository(context: Context) {
         db.itemDAO().insertAll(i)
     }
 
-    suspend fun createItem(i: Item) {
+    suspend fun useItem(i: Item) {
         var savedItem = db.itemDAO().findByName(i.name)
         if (savedItem == null) {
             db.itemDAO().insertAll(i)
@@ -64,11 +69,29 @@ class Repository(context: Context) {
 
     suspend fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
         val dep = db.departmentDAO().getItemsFromDepartment(this.name)
-        Log.d("Repository","In department $name there is ${dep.items.count()} items")
+        Log.d("Repository", "In department $name there is ${dep.items.count()} items")
         return Department(
             name = dep.department.name,
-            items = dep.items.sortedBy { it -> it.order },
+            isUsed = dep.department.isUsed,
+            items = dep.items.sortedBy { it -> it.order } as MutableList<Item>,
             order = dep.department.order
         )
     }
+
+    suspend fun findItem(name: String): Item? {
+        return db.itemDAO().findByName(name)
+    }
+
+    suspend fun findDepartment(name: String): Department? {
+        val findByName = db.departmentDAO().findByName(name)
+        if (findByName == null) {
+            return null
+        }
+        return findByName.toDepartment()
+    }
+
+    suspend fun getUsedDepartment(): List<DepartmentWithItems> {
+        return db.departmentDAO().getUsedDepartment()
+    }
+
 }

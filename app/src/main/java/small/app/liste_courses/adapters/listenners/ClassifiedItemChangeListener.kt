@@ -1,12 +1,14 @@
 package small.app.liste_courses.adapters.listenners
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.ObjectChange
 import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
-class ClassifiedItemChangeListener(val model : MainViewModel) : IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
+class ClassifiedItemChangeListener(val model: MainViewModel) :
+    IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder> {
 
     lateinit var depItemsAdapter: ItemsAdapter
 
@@ -14,8 +16,13 @@ class ClassifiedItemChangeListener(val model : MainViewModel) : IOnAdapterChange
         model.updateItemsList(a)
     }
 
-    override fun onItemUpdate(a: Item, position: Int,list: MutableList<Item>, code: ObjectChange) {
-        Log.d("classifiedItemChange","item list size : ${getAdapter().getList().size}")
+    override fun onObjectUpdate(
+        a: Item,
+        position: Int,
+        list: MutableList<Item>,
+        code: ObjectChange
+    ) {
+        Log.d("classifiedItemChange", "item list size : ${getAdapter().getList().size}")
         when (code) {
 
             ObjectChange.CLASSIFIED -> {
@@ -23,12 +30,12 @@ class ClassifiedItemChangeListener(val model : MainViewModel) : IOnAdapterChange
                 getAdapter().notifyDataSetChanged()
             }
             ObjectChange.QTY -> {
-                Log.d("classifiedItemChange","Qty change on ${a.name} , new qty ${a.qty}")
+                Log.d("classifiedItemChange", "Qty change on ${a.name} , new qty ${a.qty}")
                 model.updateItem(a)
                 val get = list[position]
-                if(get != a){
+                if (get != a) {
                     list.remove(get)
-                    list.add(position,a)
+                    list.add(position, a)
                 }
                 getAdapter().notifyDataSetChanged()
                 //getAdapter().notifyItemChanged(position)
@@ -47,7 +54,7 @@ class ClassifiedItemChangeListener(val model : MainViewModel) : IOnAdapterChange
     }
 
 
-    override fun onItemDelete(a: Item) {
+    override fun onObjectDelete(a: Item) {
     }
 
     override fun setAdapter(adapter: ItemsAdapter) {
@@ -56,5 +63,9 @@ class ClassifiedItemChangeListener(val model : MainViewModel) : IOnAdapterChange
 
     override fun getAdapter(): ItemsAdapter {
         return depItemsAdapter
+    }
+
+    override fun getModel(): ViewModel {
+        return model
     }
 }

@@ -37,8 +37,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
+                    android:completionThreshold="1"
                     android:hint="@string/autocompletetextview"
 
+                    android:maxLines="1"
                     android:visibility="visible"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_item"
                     app:layout_constraintStart_toStartOf="parent"
@@ -87,16 +89,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText
-                    android:id="@+id/et_departmentName"
+                <AutoCompleteTextView
+                    android:id="@+id/act_departmentName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
+                    android:completionThreshold="1"
                     android:hint="New department name"
+                    android:maxLines="1"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_department"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
 
                 <ImageButton
                     android:id="@+id/ib_add_department"

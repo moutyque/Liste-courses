@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         repo = Repository(context = this)
 
+        Utils.repo = repo
 
     }
 }
