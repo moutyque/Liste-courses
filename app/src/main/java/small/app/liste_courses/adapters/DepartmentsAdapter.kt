@@ -97,7 +97,7 @@ class DepartmentsAdapter(
 
 
         val itemsAdapter = DepartmentItemsAdapter(
-            model.name,
+            departments[position].items,
             context,
             false,
             object : ILastItemUsed{
