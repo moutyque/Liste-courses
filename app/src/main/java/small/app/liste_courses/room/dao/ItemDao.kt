@@ -26,4 +26,7 @@ interface ItemDao {
     @Transaction
     @Delete
     fun delete(item: Item)
+
+    @Query("SELECT * FROM Item WHERE departmentId == :depName ORDER BY `order`")
+    fun findByDepName(depName: String): List<Item>
 }

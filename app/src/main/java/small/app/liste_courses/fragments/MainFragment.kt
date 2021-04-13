@@ -11,14 +11,19 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import kotlinx.coroutines.launch
 import small.app.liste_courses.MainActivity
+import small.app.liste_courses.Scope.backgroundScope
 import small.app.liste_courses.Scope.mainScope
+import small.app.liste_courses.Utils
 import small.app.liste_courses.adapters.DepartmentsAdapter
+import small.app.liste_courses.adapters.IList
 import small.app.liste_courses.adapters.ItemsAdapter
-import small.app.liste_courses.adapters.listenners.ClassifiedItemChangeListener
-import small.app.liste_courses.adapters.listenners.DepartmentChangeListener
-import small.app.liste_courses.adapters.listenners.UnclassifiedItemChangeListener
+import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
+import small.app.liste_courses.adapters.listeners.ILastItemUsed
+
+import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.MainViewModel
@@ -26,7 +31,6 @@ import small.app.liste_courses.room.entities.Item
 
 
 //TODO : Si perte de focus clear le nom ?
-//TODO : ne pas autoriser les retour à la ligne dans le nom de l'item
 class MainFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
@@ -87,10 +91,7 @@ class MainFragment : Fragment() {
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
-                item.order = model.unclassifiedItems.size.toLong()
-
-                model.useItem(item)
-
+                Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
 
@@ -100,29 +101,27 @@ class MainFragment : Fragment() {
         setUpUnclassifiedItemsRV()
 
         //Update the list of items to be displayed in the rv and in the autocompletion
-        model.updateItemsList()
-        model.itemsChange.observe(viewLifecycleOwner, { newValue ->
-            if (newValue) {
-                mainScope.launch {
-                    unclassifiedAdapter.notifyDataSetChanged()
-                    model.itemsChange.value = false
-                }
-            }
-        })
+//        model.itemsChange.observe(viewLifecycleOwner, { newValue ->
+//            if (newValue) {
+//                mainScope.launch {
+//                    unclassifiedAdapter.notifyDataSetChanged()
+//                    model.itemsChange.value = false
+//                }
+//            }
+//        })
 
-        model.updateDepartmentsList()
 
         setupDepartmentsRV()
 
-        model.departmentsChange.observe(viewLifecycleOwner, { newValue ->
-            if (newValue) {
-                mainScope.launch {
-                    model.departments.sortBy { d -> d.order }
-                    departmentsAdapter.notifyDataSetChanged()
-                    model.departmentsChange.value = false
-                }
-            }
-        })
+//        model.departmentsChange.observe(viewLifecycleOwner, { newValue ->
+//            if (newValue) {
+//                mainScope.launch {
+//                    model.departments.sortBy { d -> d.order }
+//                    departmentsAdapter.notifyDataSetChanged()
+//                    model.departmentsChange.value = false
+//                }
+//            }
+//        })
 
         // binding.actDepartmentName.
         model.autoCompleteDepartment.observe(viewLifecycleOwner, { list ->
@@ -134,18 +133,35 @@ class MainFragment : Fragment() {
             )
             binding.actDepartmentName.setAdapter(adapter)
         })
+
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
             //Create the new department
-            if (binding.actDepartmentName.text.toString().trim().isNotEmpty()) {
+            val depName = binding.actDepartmentName.text.toString().trim()
+            if (depName.isNotEmpty()) {
                 // Need to check if it exist first because we don't want to override an existing department
-                val dep = Department(
-                    binding.actDepartmentName.text.toString(),
-                    true,
-                    ArrayList(),
-                    model.departments.size
-                )
-                model.updateDepartmentsList(dep)
+                var order = 0
+                var depDb: Department? = null
+                val job = backgroundScope.launch {
+                    order = Utils.repo.getAllDepartment().size
+                    depDb = Utils.repo.findDepartment(depName)
+                }
+                job.invokeOnCompletion {
+
+                    val dep = if (depDb == null) {
+                        Department(
+                            depName,
+                            true,
+                            ArrayList(),
+                            order
+                        )
+                    } else {
+                        depDb
+                    }
+                    if(!departmentsAdapter.contains(dep!!))  departmentsAdapter.addDepartment(dep!!)
+                }
+
+                //model.updateDepartmentsList(dep)
 
                 binding.actDepartmentName.setText("")
             }
@@ -160,15 +176,9 @@ class MainFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
-            requireContext(),
-            model.departments
+            requireContext()
         )
 
-
-
-        departmentsAdapter.departmentsChangeListener = DepartmentChangeListener(model)
-
-        departmentsAdapter.itemChangeListener = ClassifiedItemChangeListener(model)
 
         //Setup departments recycler view
         binding.rvDepartment.layoutManager =
@@ -183,17 +193,15 @@ class MainFragment : Fragment() {
     private fun setUpUnclassifiedItemsRV() {
         //Create the items adapter
         unclassifiedAdapter =
-            ItemsAdapter(
+            UnclassifiedItemsAdapter(
                 requireContext(),
-                model.unclassifiedItems,
-                false
+                false,
+                object : ILastItemUsed{
+                    override fun onLastItemUse() {
+                        Log.d("UnclassifiedAdapter","The last item has been used")
+                    }
+                }
             )
-
-
-
-
-        unclassifiedAdapter.IOnAdapterChangeListener =
-            UnclassifiedItemChangeListener(model, unclassifiedAdapter)
 
 
         //Setup the items recycler view
@@ -206,7 +214,7 @@ class MainFragment : Fragment() {
 
         //unclassifiedAdapter.notifyItemInserted(position)
         unclassifiedAdapter.notifyDataSetChanged()
-        
+
 
     }
 

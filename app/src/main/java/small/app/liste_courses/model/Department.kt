@@ -1,5 +1,6 @@
 package small.app.liste_courses.model
 
+import androidx.recyclerview.widget.SortedList
 import small.app.liste_courses.room.entities.Item
 
 data class Department(
@@ -9,21 +10,18 @@ data class Department(
     var order: Int
 ) {
 
-    //Not sure if usefull
-    /*init {
-        for (item in items) {
-            item.isClassified = true
-        }
-    }*/
 
     fun classify(item: Item) {
-        val list = ArrayList(items)
-        item.isClassified = true
-        item.isUsed = true
-        item.departmentId = name
-        item.order = items.size.toLong()
-        list.add(item)
-        items = list.toMutableList()
+
+         this.items.add(item)
+        val position =  items.indexOf(item)
+        with(items[position]){
+            isClassified = true
+            isUsed = true
+            departmentId = this@Department.name
+            order = items.size.toLong()
+        }
+
     }
 
 }

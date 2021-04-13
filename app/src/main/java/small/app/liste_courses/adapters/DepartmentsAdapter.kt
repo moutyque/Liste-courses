@@ -1,32 +1,64 @@
 package small.app.liste_courses.adapters
 
-import android.content.ClipDescription
 import android.content.Context
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.SortedList
+
 import kotlinx.android.synthetic.main.item_department.view.*
+import kotlinx.coroutines.launch
 import small.app.liste_courses.R
-import small.app.liste_courses.adapters.listenners.DecoratedClassifiedItemChangeListener
-import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
+import small.app.liste_courses.Scope
+import small.app.liste_courses.Utils
+import small.app.liste_courses.Utils.repo
+import small.app.liste_courses.adapters.listeners.ILastItemUsed
+import small.app.liste_courses.adapters.listeners.ItemsDropListener
+
+import small.app.liste_courses.adapters.sortedListAdapterCallback.DepartmentCallBack
 import small.app.liste_courses.model.Department
-import small.app.liste_courses.room.entities.Item
-import java.util.*
 
 
 class DepartmentsAdapter(
-    private val context: Context,
-    private var list: MutableList<Department>
+    private val context: Context
 ) :
-    RecyclerView.Adapter<DepartmentsAdapter.DepartmentViewHolder>(), IListGetter<Department> {
+    RecyclerView.Adapter<DepartmentsAdapter.DepartmentViewHolder>(), IList<Department> {
 
-    lateinit var itemChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsAdapter.ItemsViewHolder>
-    lateinit var departmentsChangeListener: IOnAdapterChangeListener<Department, DepartmentsAdapter, DepartmentViewHolder>
 
     var canMove = false
+
+    var departments: SortedList<Department> =
+        SortedList(Department::class.java, DepartmentCallBack(this))
+
+    init {
+
+        Scope.backgroundScope.launch {
+            val usedDepartment = repo.getUsedDepartment()
+            with(departments) {
+                beginBatchedUpdates()
+                addAll(usedDepartment.map { departmentWithItems ->
+//                    val sortedList: SortedList<Item> =
+//                        SortedList(Item::class.java, ItemCallBack(null))
+//                    with(sortedList) {
+//                        beginBatchedUpdates()
+//                        addAll(departmentWithItems.items)
+//                        endBatchedUpdates()
+//                    }
+
+                    Department(
+                        name = departmentWithItems.department.name,
+                        isUsed = departmentWithItems.department.isUsed,
+                        items = departmentWithItems.items.filter { i->i.isUsed }.toMutableList(),
+                        order = departmentWithItems.department.order
+                    )
+                }.toMutableList())
+                endBatchedUpdates()
+            }
+
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
         return DepartmentViewHolder(
@@ -39,77 +71,13 @@ class DepartmentsAdapter(
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return departments.size()
     }
 
     override fun onBindViewHolder(holder: DepartmentViewHolder, position: Int) {
-        val model = list[position]
+        val model = departments[position]
 
         holder.itemView.tv_dep_name.text = model.name
-
-//Manage the drop action
-
-        // Creates a new drag event listener
-        val dragListen = View.OnDragListener { v, event ->
-
-            // Handles each of the expected events
-            when (event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    // Determines if this View can accept the dragged data
-                    event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                }
-                DragEvent.ACTION_DRAG_ENTERED -> {
-
-                    true
-                }
-
-                DragEvent.ACTION_DRAG_LOCATION ->
-                    // Ignore the event
-                    true
-                DragEvent.ACTION_DRAG_EXITED -> {
-
-                    true
-                }
-                DragEvent.ACTION_DROP -> {
-                    Log.d("DDD", "Has drop $v")
-                    val localState = event.localState
-
-                    if (localState is Item) {
-                        Log.d("DDD", "Dropped ${localState.name}")
-                        model.classify(localState)
-                        departmentsChangeListener.onObjectUpdate(
-                            model,
-                            position,
-                            list,
-                            ObjectChange.CLASSIFIED
-                        )
-                    }
-                    true
-                }
-
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    // Does a getResult(), and displays what happened.
-                    when (event.result) {
-                        true ->
-                            Toast.makeText(context, "The drop was handled.", Toast.LENGTH_LONG)
-                        else ->
-                            Toast.makeText(context, "The drop didn't work.", Toast.LENGTH_LONG)
-                    }.show()
-
-                    // returns true; the value is ignored.
-                    true
-                }
-                else -> {
-                    // An unknown action type was received.
-                    Log.e("DragDrop Example", "Unknown action type received by OnDragListener.")
-                    false
-                }
-            }
-        }
-
-
-        holder.itemView.setOnDragListener(dragListen)
-
         //Perform the D&D action on department only if we click on the department title and not and the item list
         holder.itemView.tv_dep_name.setOnTouchListener { v, event ->
             Log.d("ClickOnDep", "I touched $event")
@@ -128,42 +96,87 @@ class DepartmentsAdapter(
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
 
-        val itemsList = model.items.filter { it.isUsed }//.toMutableList()
-        Log.d("DAdapter", "Items for this adapter $itemsList")
-        val itemsAdapter = ItemsAdapter(
+        val itemsAdapter = DepartmentItemsAdapter(
+            model.name,
             context,
-            itemsList.toMutableList(),
-            false
-        )
+            false,
+            object : ILastItemUsed{
+                override fun onLastItemUse() {
+                    departments[position].isUsed = false
+                    Utils.saveDepartment(departments[position])
+                    departments.removeItemAt(position)
+                }
 
+            }
+        )
         holder.itemView.rv_items.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-
-
-        itemChangeListener.setAdapter(itemsAdapter)
-        //Add a new change listener
-        itemsAdapter.IOnAdapterChangeListener =
-            DecoratedClassifiedItemChangeListener(this, position, itemChangeListener)
         holder.itemView.rv_items.adapter = itemsAdapter
+        val dragListen = ItemsDropListener(itemsAdapter,model)
+        holder.itemView.setOnDragListener(dragListen)
 
     }
 
 
     fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        Collections.swap(list, initialPosition, targetPosition)
+        with(departments) {
+            beginBatchedUpdates()
+            var init = departments.get(initialPosition)
+            val target = departments.get(targetPosition)
+            departments.remove(init)
+            departments.remove(target)
+            val tmp = init.order
+            init.order = target.order
+            target.order = tmp
+            departments.add(init)
+            departments.add(target)
+            endBatchedUpdates()
+        }
 
     }
 
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
-    override fun getList(): MutableList<Department> {
-        return list
+    fun addDepartment(d: Department) {
+
+        Utils.saveDepartment(d)
+
+
+        Scope.mainScope.launch {
+            with(departments) {
+                beginBatchedUpdates()
+                add(d)
+                endBatchedUpdates()
+            }
+        }
     }
 
-    override fun addToList(i: Department) {
-        list.add(i)
-        list.sortBy { d -> d.order }
+    override fun add(i: Department) {
+        Scope.mainScope.launch {
+            departments.add(i)
+        }
+
+    }
+
+    override fun remove(i: Department) {
+        Scope.mainScope.launch {
+            departments.remove(i)
+        }
+    }
+
+    override fun contains(i: Department): Boolean {
+        return departments.indexOf(i) > -1
+    }
+
+
+    override fun findIndex(i: Department) : Int{
+        for(index in 0 until departments.size()){
+            if(departments[index].name == i.name){
+            return index
+            }
+        }
+        return -1
     }
 
 

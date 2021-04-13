@@ -4,28 +4,28 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
-import small.app.liste_courses.adapters.listenners.IOnAdapterChangeListener
+import small.app.liste_courses.Utils
+import small.app.liste_courses.adapters.listeners.ILastItemUsed
+import small.app.liste_courses.adapters.listeners.ItemsDragListener
+
+
+import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
+import small.app.liste_courses.model.DragItem
 import small.app.liste_courses.room.entities.Item
-
-class ItemsAdapter(
+//TODO : update the itemsadapter to synchronzie the items list inside each each department from department adapter and the list of items inside ItemsAdapter
+abstract class ItemsAdapter(
     private val context: Context,
-    private var list: MutableList<Item>,
-    private val canChangeUnit: Boolean
+    private val canChangeUnit: Boolean,
+    val lastItemUsed: ILastItemUsed
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IListGetter<Item> {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
-    var IOnAdapterChangeListener: IOnAdapterChangeListener<Item, ItemsAdapter, ItemsViewHolder>? =
-        null
-        set(value) {
-            field = value
-            field?.setAdapter(this)
-        }
+    val list = SortedList(Item::class.java, ItemCallBack(this))
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -44,7 +44,7 @@ class ItemsAdapter(
         if (model.name.isNotEmpty()) {
             if (model.isUsed) {
                 holder.itemView.tv_name.text = model.name
-                Log.d("IAdapter", "TvName start binding: ${holder.itemView.width}")
+
                 if (model.isClassified) {
                     holder.itemView.iv_check_item.visibility = View.VISIBLE
 
@@ -56,24 +56,14 @@ class ItemsAdapter(
                     model.isUsed = false
                     //Update RV
                     Log.d("IAdapter", "Remove at position : $position")
-                    //list.removeAt(position)
-                    //Update db
-                    IOnAdapterChangeListener!!.onObjectUpdate(
-                        model,
-                        position,
-                        list,
-                        ObjectChange.USED
-                    )
-                    list.remove(model)
-                    this.notifyItemRemoved(position)
+                    Utils.unuseItem(model, this)
+
 
                 }
                 //Manage the view of the drop down list of unit
                 if (canChangeUnit) {
                     holder.itemView.tv_unit.visibility = View.GONE
                     holder.itemView.s_unit.visibility = View.VISIBLE
-
-                    // holder.itemView.tv_qty.
 
                 } else {
                     holder.itemView.tv_unit.visibility = View.VISIBLE
@@ -86,51 +76,56 @@ class ItemsAdapter(
 
                 holder.itemView.iv_increase_qty.setOnClickListener {
                     model.qty += model.unit.mutliplicator
-                    Log.d("IAdapter", "List size ${list.size}")
-
                     updateQty(position, model)
+
                 }
                 holder.itemView.iv_decrease_qty.setOnClickListener {
                     model.qty -= model.unit.mutliplicator
                     if (model.qty < 0) {
                         model.qty = 0
                     }
-
                     updateQty(position, model)
+
                 }
-//holder.itemView.tv_name
+
                 holder.model = model
+                holder.adapter = this
                 holder.onLongClick(holder.itemView)
+
+
+                // Creates a new drag event listener
+                val dragListen = ItemsDragListener(this)
+                holder.itemView.setOnDragListener(dragListen)
+
+
             } else {
                 holder.itemView.visibility = View.GONE
 
             }
-
-
         }
-        Log.d("IAdapter", "TvName end binding: ${holder.itemView.tv_name.width}")
-
-
     }
 
     private fun updateQty(position: Int, model: Item) {
-        Log.d("IAdapter", "before change qty : ${list[position].qty}")
-        IOnAdapterChangeListener!!.onObjectUpdate(model, position, list, ObjectChange.QTY)
+        //TODO : issue with the adapters, need to also update the department list inside the department adapter
+        //list.beginBatchedUpdates()
+        list[position].qty = model.qty
         this.notifyItemChanged(position)
-        Log.d("IAdapter", "after change qty : ${list[position].qty}")
+        Utils.saveItem(list[position])
+        //list.endBatchedUpdates()
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return list.size()
     }
 
-    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
-        View.OnClickListener {
+    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener {
 
+        var longPressed = false
         var model: Item? = null
+        var adapter: ItemsAdapter? = null
 
         init {
-            view.setOnClickListener(this)
+
             view.setOnLongClickListener(this)
         }
 
@@ -149,28 +144,37 @@ class ItemsAdapter(
                 val data = ClipData(clipText, mimeTypes, item)
 
                 val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
-                v.startDragAndDrop(data, dragShadowBuilder, model, 0)
+                v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
+                longPressed = true
                 return true
             }
 
             return false
         }
 
-        override fun onClick(v: View?) {
-            Log.d("ItemsViewHolder", "Click quick")
-        }
-
 
     }
 
-    override fun getList(): MutableList<Item> {
-        Log.d("IAdapter", "Get the list of size ${list.size}")
-        return list
-    }
+    override fun add(i: Item) {
 
-    override fun addToList(i: Item) {
+        if (i.order == -1L) i.order = list.size().toLong()
         list.add(i)
-        list.sortBy { i -> i.order }
     }
 
+    override fun remove(i: Item) {
+        list.remove(i)
+    }
+
+    override fun contains(i: Item): Boolean {
+        return list.indexOf(i) > -1
+    }
+
+    override fun findIndex(i: Item): Int {
+        for (index in 0 until list.size()) {
+            if (list[index].name == i.name) {
+                return index
+            }
+        }
+        return -1
+    }
 }

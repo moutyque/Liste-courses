@@ -1,8 +1,12 @@
 package small.app.liste_courses.adapters
 
-interface IListGetter<T> {
+interface IList<T> {
 
-    fun getList(): MutableList<T>
+    fun add(i: T)
 
-    fun addToList(i: T)
+    fun remove(i:T)
+
+    fun contains(i : T) : Boolean
+
+    fun findIndex(i:T): Int
 }

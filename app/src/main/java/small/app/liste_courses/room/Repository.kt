@@ -2,6 +2,9 @@ package small.app.liste_courses.room
 
 import android.content.Context
 import android.util.Log
+import androidx.recyclerview.widget.SortedList
+import small.app.liste_courses.adapters.sortedListAdapterCallback.DepartmentCallBack
+import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
@@ -30,7 +33,11 @@ class Repository(context: Context) {
                     d.order
                 )
             )
-        db.itemDAO().insertAll(*d.items.toTypedArray())
+       for(i in 0 until d.items.size){
+           saveItem(d.items[i])
+        }
+
+
     }
 
     suspend fun departmentExist(name: String): Boolean {
@@ -58,10 +65,10 @@ class Repository(context: Context) {
     suspend fun useItem(i: Item) {
         var savedItem = db.itemDAO().findByName(i.name)
         if (savedItem == null) {
-            db.itemDAO().insertAll(i)
+            saveItem(i)
         } else {
             savedItem.isUsed = true
-            db.itemDAO().insertAll(savedItem)
+            saveItem(savedItem)
         }
 
 
@@ -73,7 +80,7 @@ class Repository(context: Context) {
         return Department(
             name = dep.department.name,
             isUsed = dep.department.isUsed,
-            items = dep.items.sortedBy { it -> it.order } as MutableList<Item>,
+            items = dep.items.toMutableList(),
             order = dep.department.order
         )
     }
@@ -92,6 +99,10 @@ class Repository(context: Context) {
 
     suspend fun getUsedDepartment(): List<DepartmentWithItems> {
         return db.departmentDAO().getUsedDepartment()
+    }
+
+    fun findDepartmentItems(depName: String) : List<Item>{
+        return db.itemDAO().findByDepName(depName)
     }
 
 }
