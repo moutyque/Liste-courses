@@ -6,7 +6,7 @@ import small.app.liste_courses.room.Repository
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var repo: Repository
+    private lateinit var repo: Repository
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

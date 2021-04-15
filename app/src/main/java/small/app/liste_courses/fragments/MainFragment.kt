@@ -6,27 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import kotlinx.coroutines.launch
 import small.app.liste_courses.MainActivity
 import small.app.liste_courses.Scope.backgroundScope
-import small.app.liste_courses.Scope.mainScope
 import small.app.liste_courses.Utils
+import small.app.liste_courses.Utils.repo
 import small.app.liste_courses.adapters.DepartmentsAdapter
-import small.app.liste_courses.adapters.IList
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
-import small.app.liste_courses.adapters.listeners.ILastItemUsed
-
-import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
+import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.model.Department
-import small.app.liste_courses.model.MainViewModel
 import small.app.liste_courses.room.entities.Item
 
 
@@ -36,7 +30,6 @@ class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
     private lateinit var activity: MainActivity
 
-    private lateinit var model: MainViewModel
 
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
@@ -57,37 +50,35 @@ class MainFragment : Fragment() {
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        //Create the model
-        model = MainViewModel(activity.repo, this)
-        binding.model = model
 
-        //Mange the autocompletion field
-        binding.actvSelectionItem.validator = object : AutoCompleteTextView.Validator {
-            override fun isValid(text: CharSequence?): Boolean {
-                return !text?.contains("\n")!!
-            }
+        val itemsName: ArrayList<String> = ArrayList()
+        val suggestedItemsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            itemsName
+        )
 
-            override fun fixText(invalidText: CharSequence?): CharSequence {
-                return invalidText!!.toString().replace("\n", "")
-            }
-
-        }
         //Setup the autocomplete item list
-        model.autoCompleteItems.observe(viewLifecycleOwner, { list ->
-            val toTypedArray: Array<String> = list.map { i -> i.name }.toTypedArray()
-            val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line, toTypedArray
-            )
-            binding.actvSelectionItem.setAdapter(adapter)
-        })
+        binding.actvSelectionItem.onFocusChangeListener =
+            View.OnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    var arr: Array<String>? = null
+                    val job = backgroundScope.launch {
+                        arr = repo.getUnusedItems().map { item -> item.name }.toTypedArray()
+                    }
+                    job.invokeOnCompletion {
+                        suggestedItemsAdapter.clear()
+                        suggestedItemsAdapter.addAll(*arr!!)
+                    }
+                }
+            }
 
+        binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
 
         //Setup btn to add an new item
         binding.ibAddItem.setOnClickListener {
             //Create or get the item
             val name = binding.actvSelectionItem.text.toString().trim()
-
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
@@ -96,43 +87,31 @@ class MainFragment : Fragment() {
             }
 
         }
-
-
         setUpUnclassifiedItemsRV()
-
-        //Update the list of items to be displayed in the rv and in the autocompletion
-//        model.itemsChange.observe(viewLifecycleOwner, { newValue ->
-//            if (newValue) {
-//                mainScope.launch {
-//                    unclassifiedAdapter.notifyDataSetChanged()
-//                    model.itemsChange.value = false
-//                }
-//            }
-//        })
-
-
         setupDepartmentsRV()
 
-//        model.departmentsChange.observe(viewLifecycleOwner, { newValue ->
-//            if (newValue) {
-//                mainScope.launch {
-//                    model.departments.sortBy { d -> d.order }
-//                    departmentsAdapter.notifyDataSetChanged()
-//                    model.departmentsChange.value = false
-//                }
-//            }
-//        })
+        val departmentsName: ArrayList<String> = ArrayList()
+        val suggestedDepartmentsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            departmentsName
+        )
+        binding.actDepartmentName.setAdapter(suggestedDepartmentsAdapter)
+        binding.actDepartmentName.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    var arr: Array<String>? = null
+                    val job = backgroundScope.launch {
+                        arr = repo.getUnusedDepartments().map { dep -> dep.department.name }
+                            .toTypedArray()
+                    }
+                    job.invokeOnCompletion {
+                        suggestedDepartmentsAdapter.clear()
+                        suggestedDepartmentsAdapter.addAll(*arr!!)
+                    }
+                }
+            }
 
-        // binding.actDepartmentName.
-        model.autoCompleteDepartment.observe(viewLifecycleOwner, { list ->
-            //List is the filter list of all the not visible department
-            val toTypedArray: Array<String> = list.map { i -> i.name }.toTypedArray()
-            val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line, toTypedArray
-            )
-            binding.actDepartmentName.setAdapter(adapter)
-        })
 
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
@@ -143,22 +122,20 @@ class MainFragment : Fragment() {
                 var order = 0
                 var depDb: Department? = null
                 val job = backgroundScope.launch {
-                    order = Utils.repo.getAllDepartment().size
-                    depDb = Utils.repo.findDepartment(depName)
+                    order = repo.getAllDepartment().size
+                    depDb = repo.findDepartment(depName)
                 }
                 job.invokeOnCompletion {
 
-                    val dep = if (depDb == null) {
-                        Department(
+                    val dep: Department = depDb
+                        ?: Department(
                             depName,
                             true,
                             ArrayList(),
                             order
                         )
-                    } else {
-                        depDb
-                    }
-                    if(!departmentsAdapter.contains(dep!!))  departmentsAdapter.addDepartment(dep!!)
+                    Utils.keepUsedItems(dep)
+                    if (!departmentsAdapter.contains(dep)) departmentsAdapter.addDepartment(dep)
                 }
 
                 //model.updateDepartmentsList(dep)
@@ -196,9 +173,18 @@ class MainFragment : Fragment() {
             UnclassifiedItemsAdapter(
                 requireContext(),
                 false,
-                object : ILastItemUsed{
+                object : IItemUsed {
                     override fun onLastItemUse() {
-                        Log.d("UnclassifiedAdapter","The last item has been used")
+                        Log.d("UnclassifiedAdapter", "The last item has been used")
+                    }
+
+                    override fun onItemUse() {
+                        unclassifiedAdapter.list.beginBatchedUpdates()
+                        for (i in 0 until unclassifiedAdapter.list.size()) {
+                            unclassifiedAdapter.list[i].order = i.toLong()
+                            Utils.saveItem(unclassifiedAdapter.list[i])
+                        }
+                        unclassifiedAdapter.list.endBatchedUpdates()
                     }
                 }
             )
@@ -208,14 +194,6 @@ class MainFragment : Fragment() {
         binding.rvUnclassifiedItems.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
-    }
-
-    fun updateUnclassifiedItems(position: Int) {
-
-        //unclassifiedAdapter.notifyItemInserted(position)
-        unclassifiedAdapter.notifyDataSetChanged()
-
-
     }
 
 
@@ -236,9 +214,9 @@ class MainFragment : Fragment() {
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder
         ): Int {
-            val swipeFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            val swapFlags = ItemTouchHelper.UP
             val dragFlags = ItemTouchHelper.START or ItemTouchHelper.END
-            return makeMovementFlags(dragFlags, swipeFlags)
+            return makeMovementFlags(dragFlags, 0)
         }
 
         override fun onMove(
@@ -251,7 +229,12 @@ class MainFragment : Fragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            //TODO : Mieght need to implement it later
             Log.d("DDSwipe", "In the onSwipe")
+        }
+
+        override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+            return 0.0f
         }
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {

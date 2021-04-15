@@ -5,7 +5,6 @@ import small.app.liste_courses.Scope.backgroundScope
 import small.app.liste_courses.Scope.mainScope
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
-import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.Repository
 import small.app.liste_courses.room.entities.Item
@@ -33,7 +32,7 @@ object Utils {
         }
     }
 
-    fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
+    private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
         backgroundScope.launch {
             if (!exist) repo.saveItem(item)
         }
@@ -59,56 +58,43 @@ object Utils {
         job.invokeOnCompletion {
             mainScope.launch {
                 if (d != null) {
+                    //Remove unuseItem
                     val dep = d!!
+                    keepUsedItems(dep)
+
                     val index = departmentsAdapter.findIndex(dep)
                     if (index > -1) {//Department already displayed
                         departmentsAdapter.departments[index].items.add(item)
-                       saveDepartment(departmentsAdapter.departments[index])
+                        saveDepartment(departmentsAdapter.departments[index])
                         departmentsAdapter.notifyItemChanged(index)
                     } else {
-
+                        dep.isUsed = true
                         dep.items.add(item)
                         departmentsAdapter.add(dep)
+                        saveDepartment(dep)
 
                     }
-                   // departmentsAdapter.notifyDataSetChanged()
                 }
             }
         }
     }
 
+    fun keepUsedItems(dep: Department) {
+        val filter = dep.items.filter { it.isUsed }
+        dep.items.clear()
+        dep.items.addAll(filter)
+    }
+
     fun classifyItem(item: Item, source: ItemsAdapter, target: ItemsAdapter) {
-        val job = backgroundScope.launch {
+
+        source.remove(item)
+        target.add(item)
+        backgroundScope.launch {
             //Save the new item : change in department name and in order (maybe)
             repo.saveItem(item)
-            //Remove the item from the previous list
         }
-        job.invokeOnCompletion {
-            mainScope.launch {
-                source.remove(item)
-                target.add(item)
-            }
-        }
+
     }
-
-    /*fun addItem(item: Item, target: ItemsAdapter) {
-
-        val job = backgroundScope.launch {
-            repo.saveItem(item)
-
-        }
-        job.invokeOnCompletion {
-            mainScope.launch {
-                target.add(item)
-            }
-        }
-    }
-
-    fun removeItem(item: Item, source: ItemsAdapter) {
-        mainScope.launch {
-            source.remove(item)
-        }
-    }*/
 
 
     fun unuseItem(item: Item, itemsAdapter: ItemsAdapter) {
@@ -120,15 +106,16 @@ object Utils {
                 itemsAdapter.list.beginBatchedUpdates()
                 itemsAdapter.remove(item)
                 //Hide department if last item hidden
-                if(itemsAdapter.list.size()==0){
-                    itemsAdapter.lastItemUsed.onLastItemUse()
+                if (itemsAdapter.list.size() == 0) {
+                    itemsAdapter.itemUsed.onLastItemUse()
+                } else {
+                    itemsAdapter.itemUsed.onItemUse()
                 }
                 itemsAdapter.list.endBatchedUpdates()
             }
 
         }
     }
-
 
 
     fun saveItem(item: Item) {

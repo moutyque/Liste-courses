@@ -11,7 +11,4 @@ data class Department(
     var order: Int
 
 ) {
-    fun classify(item: Item) {
-        item.departmentId = name
-    }
 }

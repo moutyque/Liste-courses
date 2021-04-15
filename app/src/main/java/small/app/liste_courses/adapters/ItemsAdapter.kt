@@ -1,27 +1,27 @@
 package small.app.liste_courses.adapters
 
+
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.Utils
-import small.app.liste_courses.adapters.listeners.ILastItemUsed
-import small.app.liste_courses.adapters.listeners.ItemsDragListener
-
-
+import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.model.DragItem
 import small.app.liste_courses.room.entities.Item
-//TODO : update the itemsadapter to synchronzie the items list inside each each department from department adapter and the list of items inside ItemsAdapter
+
 abstract class ItemsAdapter(
     private val context: Context,
     private val canChangeUnit: Boolean,
-    val lastItemUsed: ILastItemUsed
+    val itemUsed: IItemUsed
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
@@ -58,7 +58,6 @@ abstract class ItemsAdapter(
                     Log.d("IAdapter", "Remove at position : $position")
                     Utils.unuseItem(model, this)
 
-
                 }
                 //Manage the view of the drop down list of unit
                 if (canChangeUnit) {
@@ -94,8 +93,8 @@ abstract class ItemsAdapter(
 
 
                 // Creates a new drag event listener
-                val dragListen = ItemsDragListener(this)
-                holder.itemView.setOnDragListener(dragListen)
+                //val dragListen = ItemsDragListener(this)
+                //holder.itemView.setOnDragListener(dragListen)
 
 
             } else {
@@ -106,12 +105,9 @@ abstract class ItemsAdapter(
     }
 
     private fun updateQty(position: Int, model: Item) {
-        //TODO : issue with the adapters, need to also update the department list inside the department adapter
-        //list.beginBatchedUpdates()
         list[position].qty = model.qty
         this.notifyItemChanged(position)
         Utils.saveItem(list[position])
-        //list.endBatchedUpdates()
     }
 
     override fun getItemCount(): Int {
@@ -120,7 +116,7 @@ abstract class ItemsAdapter(
 
     class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener {
 
-        var longPressed = false
+        private var longPressed = false
         var model: Item? = null
         var adapter: ItemsAdapter? = null
 
@@ -131,9 +127,6 @@ abstract class ItemsAdapter(
 
         override fun onLongClick(v: View?): Boolean {
             v?.apply {
-                Log.d("ItemsViewHolder", "Click hold on $v!!")
-                Log.d("ItemsViewHolder", "Is textview visible ${v.tv_name.visibility}")
-                //v.tv_name.width = ViewGroup.LayoutParams.WRAP_CONTENT
 
                 v.tv_name.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
                 v.tv_name.layout(0, 0, v.tv_name.measuredWidth, v.tv_name.measuredHeight)

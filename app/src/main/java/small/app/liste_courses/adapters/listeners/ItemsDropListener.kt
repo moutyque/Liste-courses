@@ -8,7 +8,8 @@ import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.model.Department
 import small.app.liste_courses.model.DragItem
 
-class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep : Department) : View.OnDragListener {
+class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep: Department) :
+    View.OnDragListener {
     override fun onDrag(v: View?, event: DragEvent?): Boolean {
         // Handles each of the expected events
         when (event!!.action) {
@@ -20,7 +21,8 @@ class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep 
                     Log.d("DAdapter", "Dropped ${droppedItem.item.name}")
 
                     dep.classify(droppedItem.item)
-                    Utils.classifyItem(droppedItem.item,droppedItem.adapter, itemsAdapter)
+                    Utils.classifyItem(droppedItem.item, droppedItem.adapter, itemsAdapter)
+                    droppedItem.adapter.itemUsed.onItemUse()
                 }
                 return true
             }

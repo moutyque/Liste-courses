@@ -2,7 +2,6 @@ package small.app.liste_courses.adapters.sortedListAdapterCallback
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedListAdapterCallback
-import small.app.liste_courses.model.Department
 import small.app.liste_courses.room.entities.Item
 
 class ItemCallBack (adapter: RecyclerView.Adapter<*>?) : SortedListAdapterCallback<Item>(

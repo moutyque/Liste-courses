@@ -2,21 +2,22 @@ package small.app.liste_courses.adapters
 
 import android.content.Context
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.SortedList
-
 import kotlinx.android.synthetic.main.item_department.view.*
 import kotlinx.coroutines.launch
 import small.app.liste_courses.R
 import small.app.liste_courses.Scope
 import small.app.liste_courses.Utils
 import small.app.liste_courses.Utils.repo
-import small.app.liste_courses.adapters.listeners.ILastItemUsed
+import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
-
 import small.app.liste_courses.adapters.sortedListAdapterCallback.DepartmentCallBack
 import small.app.liste_courses.model.Department
 
@@ -39,18 +40,11 @@ class DepartmentsAdapter(
             with(departments) {
                 beginBatchedUpdates()
                 addAll(usedDepartment.map { departmentWithItems ->
-//                    val sortedList: SortedList<Item> =
-//                        SortedList(Item::class.java, ItemCallBack(null))
-//                    with(sortedList) {
-//                        beginBatchedUpdates()
-//                        addAll(departmentWithItems.items)
-//                        endBatchedUpdates()
-//                    }
 
                     Department(
                         name = departmentWithItems.department.name,
                         isUsed = departmentWithItems.department.isUsed,
-                        items = departmentWithItems.items.filter { i->i.isUsed }.toMutableList(),
+                        items = departmentWithItems.items.filter { i -> i.isUsed }.toMutableList(),
                         order = departmentWithItems.department.order
                     )
                 }.toMutableList())
@@ -97,14 +91,18 @@ class DepartmentsAdapter(
 
 
         val itemsAdapter = DepartmentItemsAdapter(
-            model.name,
+            model.items.toList(),
             context,
             false,
-            object : ILastItemUsed{
+            object : IItemUsed {
                 override fun onLastItemUse() {
-                    departments[position].isUsed = false
-                    Utils.saveDepartment(departments[position])
-                    departments.removeItemAt(position)
+                    departments[0].isUsed = false
+                    Utils.saveDepartment(departments[0])
+                    departments.removeItemAt(0)
+                }
+
+                override fun onItemUse() {
+
                 }
 
             }
@@ -112,26 +110,32 @@ class DepartmentsAdapter(
         holder.itemView.rv_items.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         holder.itemView.rv_items.adapter = itemsAdapter
-        val dragListen = ItemsDropListener(itemsAdapter,model)
+        val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
 
     }
 
 
     fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        with(departments) {
-            beginBatchedUpdates()
-            var init = departments.get(initialPosition)
-            val target = departments.get(targetPosition)
-            departments.remove(init)
-            departments.remove(target)
-            val tmp = init.order
-            init.order = target.order
-            target.order = tmp
-            departments.add(init)
-            departments.add(target)
-            endBatchedUpdates()
+        if (initialPosition > -1 && targetPosition > -1) {
+            with(departments) {
+                beginBatchedUpdates()
+                val init = get(initialPosition)
+                val target = get(targetPosition)
+                //remove(init)
+                //remove(target)
+                val tmp = init.order
+                init.order = target.order
+                target.order = tmp
+                //add(init)
+                //add(target)
+
+                Utils.saveDepartment(init)
+                Utils.saveDepartment(target)
+                endBatchedUpdates()
+            }
         }
+
 
     }
 
@@ -139,7 +143,7 @@ class DepartmentsAdapter(
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
     fun addDepartment(d: Department) {
-
+        d.isUsed = true
         Utils.saveDepartment(d)
 
 
@@ -170,10 +174,10 @@ class DepartmentsAdapter(
     }
 
 
-    override fun findIndex(i: Department) : Int{
-        for(index in 0 until departments.size()){
-            if(departments[index].name == i.name){
-            return index
+    override fun findIndex(i: Department): Int {
+        for (index in 0 until departments.size()) {
+            if (departments[index].name == i.name) {
+                return index
             }
         }
         return -1
