@@ -16,7 +16,7 @@ import small.app.liste_courses.room.entities.Item
 import java.util.concurrent.Executors
 
 @Database(
-    entities = arrayOf(Item::class, Department::class),
+    entities = [Item::class, Department::class],
     version = 1,
     exportSchema = false
 )
@@ -26,15 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun departmentDAO(): DepartmentDao
 }
 
-private val IOScope = CoroutineScope(Job() + Dispatchers.IO)
 private val IO_EXECUTOR = Executors.newSingleThreadExecutor()
-
-/**
- * Utility method to run blocks on a dedicated background thread, used for io/database work.
- */
-fun ioThread(f: () -> Unit) {
-    IO_EXECUTOR.execute(f)
-}
 
 @Volatile
 private lateinit var INSTANCE: AppDatabase

@@ -17,7 +17,7 @@ interface ItemDao {
     fun getAllWithUsageAndClassification(isUsed: Boolean, isClassified: Boolean): List<Item>
 
     @Query("SELECT * FROM Item WHERE name == :ref ORDER BY `order`")
-    fun findByName(ref: String): Item
+    fun findByName(ref: String): Item?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

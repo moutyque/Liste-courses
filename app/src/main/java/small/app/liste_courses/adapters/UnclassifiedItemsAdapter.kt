@@ -2,16 +2,14 @@ package small.app.liste_courses.adapters
 
 import android.content.Context
 import kotlinx.coroutines.launch
-import small.app.liste_courses.Scope
 import small.app.liste_courses.Scope.backgroundScope
 import small.app.liste_courses.Utils
-import small.app.liste_courses.adapters.listeners.ILastItemUsed
-import small.app.liste_courses.room.entities.Item
+import small.app.liste_courses.adapters.listeners.IItemUsed
 
 class UnclassifiedItemsAdapter(context: Context, canChangeUnit: Boolean,
-                               lastItemUsed: ILastItemUsed
+                               itemUsed: IItemUsed
 ) : ItemsAdapter(context,
-    canChangeUnit, lastItemUsed
+    canChangeUnit, itemUsed
 ) {
 
     init {
@@ -19,10 +17,6 @@ class UnclassifiedItemsAdapter(context: Context, canChangeUnit: Boolean,
          backgroundScope.launch {
             list.addAll(Utils.repo.getUnclassifiedItem())
         }
-
-
-
-
 
     }
 

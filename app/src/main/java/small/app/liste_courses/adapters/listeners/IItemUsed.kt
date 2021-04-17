@@ -1,7 +1,9 @@
 package small.app.liste_courses.adapters.listeners
 
-interface ILastItemUsed {
+interface IItemUsed {
 
     fun onLastItemUse()
+
+    fun onItemUse()
 
 }

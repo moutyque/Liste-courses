@@ -1,6 +1,5 @@
 package small.app.liste_courses.model
 
-import androidx.recyclerview.widget.SortedList
 import small.app.liste_courses.room.entities.Item
 
 data class Department(
@@ -13,9 +12,9 @@ data class Department(
 
     fun classify(item: Item) {
 
-         this.items.add(item)
-        val position =  items.indexOf(item)
-        with(items[position]){
+        this.items.add(item)
+        val position = items.indexOf(item)
+        with(items[position]) {
             isClassified = true
             isUsed = true
             departmentId = this@Department.name
