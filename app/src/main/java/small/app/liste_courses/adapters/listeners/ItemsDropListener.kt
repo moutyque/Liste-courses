@@ -3,10 +3,10 @@ package small.app.liste_courses.adapters.listeners
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
-import small.app.liste_courses.Utils
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.adapters.ItemsAdapter
-import small.app.liste_courses.model.Department
-import small.app.liste_courses.model.DragItem
+import small.app.liste_courses.models.Department
+import small.app.liste_courses.models.DragItem
 
 class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep: Department) :
     View.OnDragListener {

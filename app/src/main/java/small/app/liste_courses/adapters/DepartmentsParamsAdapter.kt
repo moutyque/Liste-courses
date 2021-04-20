@@ -8,38 +8,41 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
-import kotlinx.coroutines.launch
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.IActions
-import small.app.liste_courses.objects.Scope
-import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
 import small.app.liste_courses.models.Department
+import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.room.entities.Item
+
+/*
+TODO : Display all department and all items under it
+TODO : Manage modification of qty and unit
+TODO : Manage items order
+TODO : Manager department order
+
+TODO : update main fragment
+ */
+class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false):
+    DepartmentsAbstractAdapter(context, onlyUsed) , IActions{
 
 
-class DepartmentsAdapter(
-    context: Context, onlyUsed: Boolean = true
-) :
-    DepartmentsAbstractAdapter(context, onlyUsed) {
-
-
-    lateinit var  synchroAction: IActions
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
-
-        return DepartmentViewHolder(
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): RecyclerView.ViewHolder {
+        return DepartmentsParamsViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.item_department,
+                R.layout.item_departmnet_param,
                 parent,
                 false
             )
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position]
 
         holder.itemView.tv_dep_name.text = model.name
@@ -83,55 +86,21 @@ class DepartmentsAdapter(
         holder.itemView.rv_items.adapter = itemsAdapter
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
-
     }
 
 
-    fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        if (initialPosition > -1 && targetPosition > -1) {
-            with(list) {
-                beginBatchedUpdates()
-                val init = get(initialPosition)
-                val target = get(targetPosition)
+    class DepartmentsParamsViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView)
 
-                val tmp = init.order
-                init.order = target.order
-                target.order = tmp
-
-                Utils.saveDepartment(init)
-                Utils.saveDepartment(target)
-                endBatchedUpdates()
-            }
-        }
-
-
+    override fun onNewDepartment(d: Department) {
+        add(d)
     }
 
-
-    class DepartmentViewHolder(view: View) : ViewHolder(view)
-    fun addDepartment(d: Department) {
-        d.isUsed = true
-        Utils.saveDepartment(d)
-        Scope.mainScope.launch {
-            synchroAction.onNewDepartment(d)
-
-
-            with(list) {
-                beginBatchedUpdates()
-                add(d)
-                endBatchedUpdates()
-            }
-        }
+    override fun onItemChange(i: Item) {
+        TODO("Not yet implemented")
     }
 
-    override fun add(i: Department) {
-            list.add(i)
+    override fun onItemClassify(i: Item) {
+        TODO("Not yet implemented")
     }
-
-    override fun remove(i: Department) {
-            list.remove(i)
-    }
-
-
-
 }

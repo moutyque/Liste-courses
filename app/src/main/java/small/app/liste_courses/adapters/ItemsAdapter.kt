@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
-import small.app.liste_courses.Utils
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
-import small.app.liste_courses.model.DragItem
+import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.room.entities.Item
 
 abstract class ItemsAdapter(
@@ -25,7 +25,7 @@ abstract class ItemsAdapter(
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
-    val list = SortedList(Item::class.java, ItemCallBack(this))
+    val list = mutableListOf<Item>()//SortedList(Item::class.java, ItemCallBack(this))
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -37,65 +37,68 @@ abstract class ItemsAdapter(
         )
     }
 
+
+
+    private fun fillView(holder: ItemsViewHolder,item :Item){
+        holder.itemView.tv_name.text = item.name
+        if (item.isClassified) {
+            holder.itemView.iv_check_item.visibility = View.VISIBLE
+
+        } else {
+            holder.itemView.iv_check_item.visibility = View.GONE
+        }
+
+        //Manage the view of the drop down list of unit
+        if (canChangeUnit) {
+            holder.itemView.tv_unit.visibility = View.GONE
+            holder.itemView.s_unit.visibility = View.VISIBLE
+
+        } else {
+            holder.itemView.tv_unit.visibility = View.VISIBLE
+            holder.itemView.s_unit.visibility = View.GONE
+        }
+        holder.itemView.tv_unit.text = item.unit.value
+
+        //Manage qty
+        holder.itemView.tv_qty.text = item.qty.toString()
+    }
+
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         val model = list[position]
         Log.d("IAdapter", model.name)
         Log.d("IAdapter", " $position")
         if (model.name.isNotEmpty()) {
+
             if (model.isUsed) {
-                holder.itemView.tv_name.text = model.name
 
-                if (model.isClassified) {
-                    holder.itemView.iv_check_item.visibility = View.VISIBLE
-
-                } else {
-                    holder.itemView.iv_check_item.visibility = View.GONE
-                }
-
+                fillView(holder,model)
                 holder.itemView.iv_check_item.setOnClickListener {
                     model.isUsed = false
                     //Update RV
                     Log.d("IAdapter", "Remove at position : $position")
                     Utils.unuseItem(model, this)
-
                 }
-                //Manage the view of the drop down list of unit
-                if (canChangeUnit) {
-                    holder.itemView.tv_unit.visibility = View.GONE
-                    holder.itemView.s_unit.visibility = View.VISIBLE
-
-                } else {
-                    holder.itemView.tv_unit.visibility = View.VISIBLE
-                    holder.itemView.s_unit.visibility = View.GONE
-                }
-                holder.itemView.tv_unit.text = model.unit.value
-
-                //Manage qty
-                holder.itemView.tv_qty.text = model.qty.toString()
 
                 holder.itemView.iv_increase_qty.setOnClickListener {
                     model.qty += model.unit.mutliplicator
-                    updateQty(position, model)
-
+                    updateQty(model)
                 }
                 holder.itemView.iv_decrease_qty.setOnClickListener {
                     model.qty -= model.unit.mutliplicator
                     if (model.qty < 0) {
                         model.qty = 0
                     }
-                    updateQty(position, model)
-
+                    //Utils.saveItem(model)
+                    updateQty(model)
                 }
 
                 holder.model = model
                 holder.adapter = this
                 holder.onLongClick(holder.itemView)
 
-
                 // Creates a new drag event listener
                 //val dragListen = ItemsDragListener(this)
                 //holder.itemView.setOnDragListener(dragListen)
-
 
             } else {
                 holder.itemView.visibility = View.GONE
@@ -105,13 +108,19 @@ abstract class ItemsAdapter(
     }
 
     private fun updateQty(position: Int, model: Item) {
-        list[position].qty = model.qty
-        this.notifyItemChanged(position)
+       /* list[position].qty = model.qty
+        this.notifyItemChanged(position)*/
         Utils.saveItem(list[position])
     }
 
+    private fun updateQty(model: Item) {
+        /* list[position].qty = model.qty
+         this.notifyItemChanged(position)*/
+        Utils.saveItem(model)
+    }
+
     override fun getItemCount(): Int {
-        return list.size()
+        return list.size
     }
 
     class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener {
@@ -121,7 +130,6 @@ abstract class ItemsAdapter(
         var adapter: ItemsAdapter? = null
 
         init {
-
             view.setOnLongClickListener(this)
         }
 
@@ -149,13 +157,12 @@ abstract class ItemsAdapter(
     }
 
     override fun add(i: Item) {
-
-        if (i.order == -1L) i.order = list.size().toLong()
-        list.add(i)
+        //if (i.order == -1L) i.order = list.size().toLong()
+        //list.add(i)
     }
 
     override fun remove(i: Item) {
-        list.remove(i)
+       // list.remove(i)
     }
 
     override fun contains(i: Item): Boolean {
@@ -163,11 +170,15 @@ abstract class ItemsAdapter(
     }
 
     override fun findIndex(i: Item): Int {
-        for (index in 0 until list.size()) {
+        for (index in 0 until list.size) {
             if (list[index].name == i.name) {
                 return index
             }
         }
         return -1
+    }
+
+    open fun updateList(list: List<Item>?) {
+
     }
 }

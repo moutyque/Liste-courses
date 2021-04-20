@@ -1,4 +1,4 @@
-package small.app.liste_courses.model
+package small.app.liste_courses.models
 
 import small.app.liste_courses.room.entities.Item
 

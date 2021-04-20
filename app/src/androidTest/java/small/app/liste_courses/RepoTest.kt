@@ -13,7 +13,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import small.app.liste_courses.model.Department
+import small.app.liste_courses.models.Department
 import small.app.liste_courses.room.Repository
 
 import small.app.liste_courses.room.entities.Item
@@ -39,7 +39,7 @@ class RepoTest {
         list.add(Item("POMME"))
         list.add(Item("BANANNE"))
         list.add(Item("POIRE"))
-        val newDep = small.app.liste_courses.model.Department("FRUITS", list, 0)
+        val newDep = small.app.liste_courses.models.Department("FRUITS", list, 0)
 
         backgroundScope.launch {
             repo.saveDepartment(newDep)

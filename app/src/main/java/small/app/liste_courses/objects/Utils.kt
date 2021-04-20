@@ -1,15 +1,16 @@
-package small.app.liste_courses
+package small.app.liste_courses.objects
 
 import kotlinx.coroutines.launch
-import small.app.liste_courses.Scope.backgroundScope
-import small.app.liste_courses.Scope.mainScope
+import small.app.liste_courses.objects.Scope.backgroundScope
+import small.app.liste_courses.objects.Scope.mainScope
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
-import small.app.liste_courses.model.Department
+import small.app.liste_courses.models.Department
 import small.app.liste_courses.room.Repository
 import small.app.liste_courses.room.entities.Item
 
 object Utils {
+
 
     lateinit var repo: Repository
 
@@ -27,20 +28,21 @@ object Utils {
             } else {
                 //Can exist and not use, for example default option
                 useUnclassifiedItem(item, unclassifiedItemsAdapter, dbItem != null)
-                //Remove the item from the unclassified auto complete list
+                //Remove the item from the unclassified auto complete listpm
             }
         }
     }
 
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
         backgroundScope.launch {
-            if (!exist) repo.saveItem(item)
+            //if (!exist)
+                repo.saveItem(item)
         }
 
-        mainScope.launch {
+        /*mainScope.launch {
             //New item
             itemsAdapter.add(item)
-        }
+        }*/
     }
 
     private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
@@ -64,8 +66,8 @@ object Utils {
 
                     val index = departmentsAdapter.findIndex(dep)
                     if (index > -1) {//Department already displayed
-                        departmentsAdapter.departments[index].items.add(item)
-                        saveDepartment(departmentsAdapter.departments[index])
+                        departmentsAdapter.list[index].items.add(item)
+                        saveDepartment(departmentsAdapter.list[index])
                         departmentsAdapter.notifyItemChanged(index)
                     } else {
                         dep.isUsed = true
@@ -103,7 +105,7 @@ object Utils {
         }
         job.invokeOnCompletion {
             mainScope.launch {
-                itemsAdapter.list.beginBatchedUpdates()
+                /*itemsAdapter.list.beginBatchedUpdates()
                 itemsAdapter.remove(item)
                 //Hide department if last item hidden
                 if (itemsAdapter.list.size() == 0) {
@@ -111,7 +113,7 @@ object Utils {
                 } else {
                     itemsAdapter.itemUsed.onItemUse()
                 }
-                itemsAdapter.list.endBatchedUpdates()
+                itemsAdapter.list.endBatchedUpdates()*/
             }
 
         }

@@ -2,9 +2,14 @@ package small.app.liste_courses.room
 
 import android.content.Context
 import android.util.Log
-import small.app.liste_courses.model.Department
+import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.SortedListAdapterCallback
+import small.app.liste_courses.models.Department
 import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
+import java.util.*
+import kotlin.collections.ArrayList
 
 class Repository(context: Context) {
     private val db = getInstance(context)
@@ -41,7 +46,7 @@ class Repository(context: Context) {
         return db.itemDAO().getAllWithUsage(false)
     }
 
-    fun getUnclassifiedItem(): List<Item> {
+    fun getUnclassifiedItem(): LiveData<List<Item>> {
         return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
     }
 
@@ -76,6 +81,10 @@ class Repository(context: Context) {
 
     fun getUsedDepartment(): List<DepartmentWithItems> {
         return db.departmentDAO().getUsedDepartment()
+    }
+
+    fun getDepartments():List<DepartmentWithItems>{
+        return db.departmentDAO().getDepartments()
     }
 
 }

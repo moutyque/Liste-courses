@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    
     <LinearLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:visibility="visible"
-        tools:context=".fragments.MainFragment"
+        tools:context=".fragments.ListFragment"
         tools:visibility="visible">
 
         <LinearLayout
@@ -32,7 +33,7 @@
                     android:layout_weight="0.8"
                     android:completionThreshold="1"
                     android:hint="@string/autocompletetextview"
-
+                    android:lines="1"
                     android:maxLines="1"
                     android:visibility="visible"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_item"
@@ -90,6 +91,8 @@
                     android:completionThreshold="1"
                     android:hint="New department name"
                     android:maxLines="1"
+                    android:lines="1"
+
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_department"
                     app:layout_constraintStart_toStartOf="parent"
@@ -136,4 +139,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
+
+
 </layout>

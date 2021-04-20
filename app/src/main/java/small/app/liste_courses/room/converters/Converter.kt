@@ -1,7 +1,7 @@
 package small.app.liste_courses.room.converters
 
 import androidx.room.TypeConverter
-import small.app.liste_courses.SIUnit
+import small.app.liste_courses.objects.SIUnit
 
 class Converter {
 

@@ -1,4 +1,4 @@
-package small.app.liste_courses
+package small.app.liste_courses.objects
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

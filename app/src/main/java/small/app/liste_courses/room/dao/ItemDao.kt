@@ -1,5 +1,7 @@
 package small.app.liste_courses.room.dao
 
+import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.SortedList
 import androidx.room.*
 import small.app.liste_courses.room.entities.Item
 
@@ -14,7 +16,7 @@ interface ItemDao {
     fun getAllWithUsage(isUsed: Boolean): List<Item>
 
     @Query("SELECT * FROM Item WHERE isUsed == :isUsed AND isClassified == :isClassified ORDER BY `order`")
-    fun getAllWithUsageAndClassification(isUsed: Boolean, isClassified: Boolean): List<Item>
+    fun getAllWithUsageAndClassification(isUsed: Boolean, isClassified: Boolean): LiveData<List<Item>>
 
     @Query("SELECT * FROM Item WHERE name == :ref ORDER BY `order`")
     fun findByName(ref: String): Item?

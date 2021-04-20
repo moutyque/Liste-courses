@@ -7,39 +7,37 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import small.app.liste_courses.MainActivity
-import small.app.liste_courses.Scope.backgroundScope
-import small.app.liste_courses.Utils
-import small.app.liste_courses.Utils.repo
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
 import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.databinding.FragmentMainBinding
-import small.app.liste_courses.model.Department
+import small.app.liste_courses.models.Department
+import small.app.liste_courses.objects.Scope.backgroundScope
+import small.app.liste_courses.objects.SyncManager
+import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.objects.Utils.repo
 import small.app.liste_courses.room.entities.Item
+import small.app.liste_courses.viewmodels.ListFragmentViewModel
 
 
 //TODO : Si perte de focus clear le nom ?
-class MainFragment : Fragment() {
+class ListFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
-    private lateinit var activity: MainActivity
 
+    private lateinit var viewModel : ListFragmentViewModel
 
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
-    private lateinit var departmentsAdapter: DepartmentsAdapter
+    lateinit var departmentsAdapter: DepartmentsAdapter
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        activity = requireActivity() as MainActivity
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +48,7 @@ class MainFragment : Fragment() {
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
+        viewModel = ViewModelProvider(this).get(ListFragmentViewModel::class.java)
 
         val itemsName: ArrayList<String> = ArrayList()
         val suggestedItemsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
@@ -109,6 +108,8 @@ class MainFragment : Fragment() {
                         suggestedDepartmentsAdapter.clear()
                         suggestedDepartmentsAdapter.addAll(*arr!!)
                     }
+                }else{
+                    binding.actDepartmentName.setText("")
                 }
             }
 
@@ -136,6 +137,7 @@ class MainFragment : Fragment() {
                         )
                     Utils.keepUsedItems(dep)
                     if (!departmentsAdapter.contains(dep)) departmentsAdapter.addDepartment(dep)
+
                 }
 
                 //model.updateDepartmentsList(dep)
@@ -145,7 +147,7 @@ class MainFragment : Fragment() {
 
         }
 
-
+        SyncManager.setCreated(this)
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -179,22 +181,27 @@ class MainFragment : Fragment() {
                     }
 
                     override fun onItemUse() {
-                        unclassifiedAdapter.list.beginBatchedUpdates()
+                        /*unclassifiedAdapter.list.beginBatchedUpdates()
                         for (i in 0 until unclassifiedAdapter.list.size()) {
                             unclassifiedAdapter.list[i].order = i.toLong()
                             Utils.saveItem(unclassifiedAdapter.list[i])
                         }
-                        unclassifiedAdapter.list.endBatchedUpdates()
+                        unclassifiedAdapter.list.endBatchedUpdates()*/
                     }
                 }
             )
 
+        viewModel.getUnclassifiedItems().observe(viewLifecycleOwner,{list ->
+            unclassifiedAdapter.updateList(list)
+        })
 
         //Setup the items recycler view
         binding.rvUnclassifiedItems.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
+
+
 
 
     class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :
