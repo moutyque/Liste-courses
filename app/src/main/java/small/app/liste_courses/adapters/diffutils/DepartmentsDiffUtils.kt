@@ -1,11 +1,13 @@
 package small.app.liste_courses.adapters.diffutils
 
 import androidx.recyclerview.widget.DiffUtil
-import small.app.liste_courses.room.entities.Item
+import small.app.liste_courses.models.Department
 
-class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<Item>) :
+class DepartmentsDiffUtils(
+    private val oldList: List<Department>,
+    private val newList: List<Department>
+) :
     DiffUtil.Callback() {
-
     override fun getOldListSize(): Int {
         return oldList.size
     }
@@ -23,7 +25,6 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
         val new = newList[newItemPosition]
         return old.equals(new)
     }
-    //TODO : improve this method to check which modification has been done
 
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
         return newList[newItemPosition]

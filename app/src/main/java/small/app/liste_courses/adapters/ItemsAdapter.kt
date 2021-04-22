@@ -8,14 +8,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
-import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.adapters.listeners.IItemUsed
-import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.models.DragItem
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
 abstract class ItemsAdapter(
@@ -26,6 +26,7 @@ abstract class ItemsAdapter(
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
     val list = mutableListOf<Item>()//SortedList(Item::class.java, ItemCallBack(this))
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -38,8 +39,7 @@ abstract class ItemsAdapter(
     }
 
 
-
-    private fun fillView(holder: ItemsViewHolder,item :Item){
+    private fun fillView(holder: ItemsViewHolder, item: Item) {
         holder.itemView.tv_name.text = item.name
         if (item.isClassified) {
             holder.itemView.iv_check_item.visibility = View.VISIBLE
@@ -64,59 +64,64 @@ abstract class ItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        val model = list[position]
-        Log.d("IAdapter", model.name)
-        Log.d("IAdapter", " $position")
-        if (model.name.isNotEmpty()) {
+        with(list[position]) {
+            Log.d("IAdapter", name)
+            Log.d("IAdapter", " $position")
+            if (name.isNotEmpty()) {
 
-            if (model.isUsed) {
+                if (isUsed) {
+                    fillView(holder, this)
+                    holder.itemView.iv_check_item.setOnClickListener {
+                        this.isUsed = false
+                        //Update RV
+                        Log.d("IAdapter", "Remove at position : $position")
+                        Utils.saveItem(this)
+                        notifyItemChanged(position)
 
-                fillView(holder,model)
-                holder.itemView.iv_check_item.setOnClickListener {
-                    model.isUsed = false
-                    //Update RV
-                    Log.d("IAdapter", "Remove at position : $position")
-                    Utils.unuseItem(model, this)
-                }
-
-                holder.itemView.iv_increase_qty.setOnClickListener {
-                    model.qty += model.unit.mutliplicator
-                    updateQty(model)
-                }
-                holder.itemView.iv_decrease_qty.setOnClickListener {
-                    model.qty -= model.unit.mutliplicator
-                    if (model.qty < 0) {
-                        model.qty = 0
+                        //TODO : remove from list ?
+                        //Utils.unuseItem(this, this@ItemsAdapter)
                     }
-                    //Utils.saveItem(model)
-                    updateQty(model)
+
+                    holder.itemView.iv_increase_qty.setOnClickListener {
+                        qty += unit.mutliplicator
+                        Utils.saveItem(this)
+                        notifyItemChanged(position)
+
+                        //updateQty(qty, position)
+                    }
+                    holder.itemView.iv_decrease_qty.setOnClickListener {
+                        qty -= unit.mutliplicator
+                        if (qty < 0) {
+                            qty = 0
+                        }
+                        Utils.saveItem(this)
+                        notifyItemChanged(position)
+
+                        //updateQty(qty, position)
+                    }
+
+                    //Both variable are used to send the drag item
+                    holder.model = this
+                    holder.adapter = this@ItemsAdapter
+                    holder.onLongClick(holder.itemView)
+
+                    // Creates a new drag event listener
+                    //val dragListen = ItemsDragListener(this)
+                    //holder.itemView.setOnDragListener(dragListen)
+
+                } else {
+                    holder.itemView.visibility = View.GONE
+
                 }
-
-                holder.model = model
-                holder.adapter = this
-                holder.onLongClick(holder.itemView)
-
-                // Creates a new drag event listener
-                //val dragListen = ItemsDragListener(this)
-                //holder.itemView.setOnDragListener(dragListen)
-
-            } else {
-                holder.itemView.visibility = View.GONE
-
             }
+
         }
     }
 
-    private fun updateQty(position: Int, model: Item) {
-       /* list[position].qty = model.qty
-        this.notifyItemChanged(position)*/
+    private fun updateQty(qty: Long, position: Int) {
+        list[position].qty = qty
         Utils.saveItem(list[position])
-    }
-
-    private fun updateQty(model: Item) {
-        /* list[position].qty = model.qty
-         this.notifyItemChanged(position)*/
-        Utils.saveItem(model)
+        notifyItemChanged(position)
     }
 
     override fun getItemCount(): Int {
@@ -162,7 +167,7 @@ abstract class ItemsAdapter(
     }
 
     override fun remove(i: Item) {
-       // list.remove(i)
+        // list.remove(i)
     }
 
     override fun contains(i: Item): Boolean {
@@ -178,7 +183,37 @@ abstract class ItemsAdapter(
         return -1
     }
 
-    open fun updateList(list: List<Item>?) {
+    fun updateList(list: List<Item>?) {
+        if (list != null) {
+            list.sortedBy { item -> item.order }
+            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list))
+            this.list.clear()
+            this.list.addAll(list)
+            this.list.sortedBy { item -> item.order }
+            diffResult.dispatchUpdatesTo(this)
+        }
+
+    }
+
+    //TODO : improve this method to check which modification has been done
+    override fun onBindViewHolder(
+        holder: ItemsViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            payloads.filterIsInstance<Item>().forEach { item ->
+                run {
+                    fillView(holder, item)
+
+                }
+
+            }
+
+        }
 
     }
 }

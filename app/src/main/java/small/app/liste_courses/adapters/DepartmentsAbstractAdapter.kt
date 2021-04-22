@@ -2,20 +2,21 @@ package small.app.liste_courses.adapters
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import kotlinx.coroutines.launch
-import small.app.liste_courses.adapters.sortedListAdapterCallback.DepartmentCallBack
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope
-import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.room.entities.DepartmentWithItems
 
-abstract class DepartmentsAbstractAdapter(val context: Context, private val onlyUsed: Boolean = false) :
+abstract class DepartmentsAbstractAdapter(
+    val context: Context,
+    private val onlyUsed: Boolean = false
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), IList<Department> {
 
     var canMove = false
-    val list: SortedList<Department> =
-        SortedList(Department::class.java, DepartmentCallBack(this))
-
+    val list =
+        mutableListOf<Department>()//: SortedList<Department> =        SortedList(Department::class.java, DepartmentCallBack(this))
+/*
     init {
 
         Scope.backgroundScope.launch {
@@ -36,11 +37,11 @@ abstract class DepartmentsAbstractAdapter(val context: Context, private val only
             }
 
         }
-    }
+    }*/
 
 
     override fun getItemCount(): Int {
-        return list.size()
+        return list.size
     }
 
     override fun add(i: Department) {
@@ -59,12 +60,16 @@ abstract class DepartmentsAbstractAdapter(val context: Context, private val only
 
 
     override fun findIndex(i: Department): Int {
-        for (index in 0 until list.size()) {
+        for (index in 0 until list.size) {
             if (list[index].name == i.name) {
                 return index
             }
         }
         return -1
+    }
+
+    open fun updateList(departments: List<DepartmentWithItems>?) {
+
     }
 
 

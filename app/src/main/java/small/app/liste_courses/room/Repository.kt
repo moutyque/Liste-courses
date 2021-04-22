@@ -3,13 +3,10 @@ package small.app.liste_courses.room
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.recyclerview.widget.SortedList
-import androidx.recyclerview.widget.SortedListAdapterCallback
+import androidx.lifecycle.MutableLiveData
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
-import java.util.*
-import kotlin.collections.ArrayList
 
 class Repository(context: Context) {
     private val db = getInstance(context)
@@ -42,7 +39,7 @@ class Repository(context: Context) {
 
     }
 
-    fun getUnusedItems(): List<Item> {
+    fun getUnusedItems(): LiveData<List<Item>> {
         return db.itemDAO().getAllWithUsage(false)
     }
 
@@ -50,12 +47,42 @@ class Repository(context: Context) {
         return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
     }
 
-    fun getUnusedDepartments(): List<DepartmentWithItems> {
-        return db.departmentDAO().getUnusedDepartment()
-    }
-
     fun saveItem(i: Item) {
         db.itemDAO().insertAll(i)
+    }
+
+
+    fun getUnusedDepartments(): LiveData<List<Department>> {
+        return MutableLiveData(
+            db.departmentDAO().getUnusedDepartment().value.orEmpty().map {
+                it.toDepartment()
+            })
+    }
+
+    fun getDepartmentItems(depName : String): LiveData<List<Item>> {
+        return db.itemDAO().findByDepName(depName);
+    }
+
+    fun findItem(name: String): Item? {
+        return db.itemDAO().findByName(name)
+    }
+
+    fun findDepartment(name: String): Department? {
+        val findByName = db.departmentDAO().findByName(name)
+        return findByName?.toDepartment()
+    }
+
+
+    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>> {
+        return db.departmentDAO().getUsedDepartment()
+    }
+
+    fun getDepartments(): LiveData<List<Department>> {
+
+        return MutableLiveData(
+            db.departmentDAO().getDepartments().value.orEmpty().map {
+                it.toDepartment()
+            })
     }
 
 
@@ -70,21 +97,5 @@ class Repository(context: Context) {
         )
     }
 
-    fun findItem(name: String): Item? {
-        return db.itemDAO().findByName(name)
-    }
-
-    fun findDepartment(name: String): Department? {
-        val findByName = db.departmentDAO().findByName(name)
-        return findByName?.toDepartment()
-    }
-
-    fun getUsedDepartment(): List<DepartmentWithItems> {
-        return db.departmentDAO().getUsedDepartment()
-    }
-
-    fun getDepartments():List<DepartmentWithItems>{
-        return db.departmentDAO().getDepartments()
-    }
 
 }

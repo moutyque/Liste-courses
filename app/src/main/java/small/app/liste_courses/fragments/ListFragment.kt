@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +23,7 @@ import small.app.liste_courses.objects.SyncManager
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.objects.Utils.repo
 import small.app.liste_courses.room.entities.Item
-import small.app.liste_courses.viewmodels.ListFragmentViewModel
+import small.app.liste_courses.viewmodels.FragmentViewModel
 
 
 //TODO : Si perte de focus clear le nom ?
@@ -32,7 +31,7 @@ class ListFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
 
-    private lateinit var viewModel : ListFragmentViewModel
+    private lateinit var viewModel: FragmentViewModel
 
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
@@ -48,7 +47,7 @@ class ListFragment : Fragment() {
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel = ViewModelProvider(this).get(ListFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
 
         val itemsName: ArrayList<String> = ArrayList()
         val suggestedItemsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
@@ -58,20 +57,20 @@ class ListFragment : Fragment() {
         )
 
         //Setup the autocomplete item list
-        binding.actvSelectionItem.onFocusChangeListener =
-            View.OnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
-                    var arr: Array<String>? = null
-                    val job = backgroundScope.launch {
-                        arr = repo.getUnusedItems().map { item -> item.name }.toTypedArray()
-                    }
-                    job.invokeOnCompletion {
-                        suggestedItemsAdapter.clear()
-                        suggestedItemsAdapter.addAll(*arr!!)
-                    }
-                }
-            }
-
+        /* binding.actvSelectionItem.onFocusChangeListener =
+             View.OnFocusChangeListener { v, hasFocus ->
+                 if (hasFocus) {
+                     var arr: Array<String>? = null
+                     val job = backgroundScope.launch {
+                         arr = repo.getUnusedItems().map { item -> item.name }.toTypedArray()
+                     }
+                     job.invokeOnCompletion {
+                         suggestedItemsAdapter.clear()
+                         suggestedItemsAdapter.addAll(*arr!!)
+                     }
+                 }
+             }
+ */
         binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
 
         //Setup btn to add an new item
@@ -96,7 +95,8 @@ class ListFragment : Fragment() {
             departmentsName
         )
         binding.actDepartmentName.setAdapter(suggestedDepartmentsAdapter)
-        binding.actDepartmentName.onFocusChangeListener =
+
+/*        binding.actDepartmentName.onFocusChangeListener =
             View.OnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
                     var arr: Array<String>? = null
@@ -111,7 +111,7 @@ class ListFragment : Fragment() {
                 }else{
                     binding.actDepartmentName.setText("")
                 }
-            }
+            }*/
 
 
         //Setup btn to add an new department
@@ -135,9 +135,10 @@ class ListFragment : Fragment() {
                             ArrayList(),
                             order
                         )
-                    Utils.keepUsedItems(dep)
-                    if (!departmentsAdapter.contains(dep)) departmentsAdapter.addDepartment(dep)
+                    dep.isUsed = true
+                    Utils.saveDepartment(dep)
 
+                    // Utils.keepUsedItems(dep)
                 }
 
                 //model.updateDepartmentsList(dep)
@@ -155,7 +156,8 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
-            requireContext()
+            requireContext(),
+            viewModel = viewModel
         )
 
 
@@ -167,6 +169,11 @@ class ListFragment : Fragment() {
         val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
+
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
+            departmentsAdapter.updateList(it)
+        })
+
     }
 
     private fun setUpUnclassifiedItemsRV() {
@@ -191,17 +198,16 @@ class ListFragment : Fragment() {
                 }
             )
 
-        viewModel.getUnclassifiedItems().observe(viewLifecycleOwner,{list ->
-            unclassifiedAdapter.updateList(list)
+        viewModel.getUnclassifiedItems().observe(viewLifecycleOwner, { items ->
+            unclassifiedAdapter.updateList(items)
         })
+
 
         //Setup the items recycler view
         binding.rvUnclassifiedItems.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
-
-
 
 
     class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :

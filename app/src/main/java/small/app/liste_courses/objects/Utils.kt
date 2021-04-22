@@ -1,11 +1,11 @@
 package small.app.liste_courses.objects
 
 import kotlinx.coroutines.launch
-import small.app.liste_courses.objects.Scope.backgroundScope
-import small.app.liste_courses.objects.Scope.mainScope
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.models.Department
+import small.app.liste_courses.objects.Scope.backgroundScope
+import small.app.liste_courses.objects.Scope.mainScope
 import small.app.liste_courses.room.Repository
 import small.app.liste_courses.room.entities.Item
 
@@ -36,7 +36,8 @@ object Utils {
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
         backgroundScope.launch {
             //if (!exist)
-                repo.saveItem(item)
+            item.order = itemsAdapter.list.size.toLong()
+            saveItem(item)
         }
 
         /*mainScope.launch {
@@ -89,8 +90,8 @@ object Utils {
 
     fun classifyItem(item: Item, source: ItemsAdapter, target: ItemsAdapter) {
 
-        source.remove(item)
-        target.add(item)
+        //source.remove(item)
+        //target.add(item)
         backgroundScope.launch {
             //Save the new item : change in department name and in order (maybe)
             repo.saveItem(item)

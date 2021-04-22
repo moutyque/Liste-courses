@@ -11,4 +11,13 @@ data class DepartmentWithItems(
     )
     val items: List<Item>
 
-)
+) {
+    fun toDepartment(): small.app.liste_courses.models.Department {
+        return small.app.liste_courses.models.Department(
+            name = this.department.name,
+            isUsed = this.department.isUsed,
+            items = this.items.toMutableList(),
+            order = this.department.order
+        )
+    }
+}

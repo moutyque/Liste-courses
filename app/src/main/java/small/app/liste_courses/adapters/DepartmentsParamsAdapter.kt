@@ -25,8 +25,8 @@ TODO : Manager department order
 
 TODO : update main fragment
  */
-class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false):
-    DepartmentsAbstractAdapter(context, onlyUsed) , IActions{
+class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
+    DepartmentsAbstractAdapter(context, onlyUsed), IActions {
 
 
     override fun onCreateViewHolder(
@@ -65,14 +65,13 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false):
 
 
         val itemsAdapter = DepartmentItemsAdapter(
-            model.items.toList(),
             context,
             false,
             object : IItemUsed {
                 override fun onLastItemUse() {
                     list[0].isUsed = false
                     Utils.saveDepartment(list[0])
-                    list.removeItemAt(0)
+                    list.removeAt(0)
                 }
 
                 override fun onItemUse() {

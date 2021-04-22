@@ -15,28 +15,6 @@ class UnclassifiedItemsAdapter(
     canChangeUnit, itemUsed
 ) {
 
-   /* init {
-
-         backgroundScope.launch {
-            list.addAll(Utils.repo.getUnclassifiedItem())
-        }
-
-    }
-*/
-    override fun updateList(list: List<Item>?) {
-        if(list!=null){
-            list.sortedBy { item ->  item.order}
-            //this.list.beginBatchedUpdates()
-            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list))
-            this.list.clear()
-            this.list.addAll(list)
-            this.list.sortedBy { item ->  item.order}
-            diffResult.dispatchUpdatesTo(this)
-            //this.list.endBatchedUpdates()
-        }
-
-    }
-
 
 
 

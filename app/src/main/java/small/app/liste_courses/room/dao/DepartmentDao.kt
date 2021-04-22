@@ -1,5 +1,6 @@
 package small.app.liste_courses.room.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import small.app.liste_courses.room.entities.Department
 import small.app.liste_courses.room.entities.DepartmentWithItems
@@ -15,16 +16,16 @@ interface DepartmentDao {
     fun getItemsFromDepartment(departmentName: String): DepartmentWithItems
 
     @Query("SELECT * FROM Department ORDER BY `order`")
-    fun getAllDepartment(): List<DepartmentWithItems>
+    fun getAllDepartment(): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE isUsed==:used ORDER BY `order`")
-    fun getUsedDepartment(used: Boolean = true): List<DepartmentWithItems>
+    fun getUsedDepartment(used: Boolean = true): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE isUsed==:used ORDER BY `order`")
-    fun getUnusedDepartment(used: Boolean = false): List<DepartmentWithItems>
+    fun getUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department  ORDER BY `order`")
-    fun getDepartments(): List<DepartmentWithItems>
+    fun getDepartments(): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE name == :name ORDER BY `order`")
     fun findByName(name: String): Department
