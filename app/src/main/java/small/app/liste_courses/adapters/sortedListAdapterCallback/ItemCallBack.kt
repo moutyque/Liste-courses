@@ -16,7 +16,7 @@ class ItemCallBack (adapter: RecyclerView.Adapter<*>?) : SortedListAdapterCallba
     }
 
     override fun areItemsTheSame(item1: Item?, item2: Item?): Boolean {
-        return item1 == item2
+        return item1!!.name== item2!!.name
     }
 
 }

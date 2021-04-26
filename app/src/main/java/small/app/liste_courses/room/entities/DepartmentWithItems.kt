@@ -16,6 +16,7 @@ data class DepartmentWithItems(
         return small.app.liste_courses.models.Department(
             name = this.department.name,
             isUsed = this.department.isUsed,
+            itemsCount = this.department.itemsCount,
             items = this.items.toMutableList(),
             order = this.department.order
         )

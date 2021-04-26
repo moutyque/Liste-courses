@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class Department(
     @PrimaryKey @NonNull val name: String,
     var isUsed: Boolean,
+    var itemsCount : Int,
     var order: Int
 
-) {
-}
+)

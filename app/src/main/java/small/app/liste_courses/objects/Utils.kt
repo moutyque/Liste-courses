@@ -88,16 +88,12 @@ object Utils {
         dep.items.addAll(filter)
     }
 
-    fun classifyItem(item: Item, source: ItemsAdapter, target: ItemsAdapter) {
-
-        //source.remove(item)
-        //target.add(item)
+    fun classifyItem(item: Item,  target: ItemsAdapter) {
         backgroundScope.launch {
-            //Save the new item : change in department name and in order (maybe)
+            //Save the new item
             repo.saveItem(item)
         }
-        target.notifyItemInserted(target.list.size-1)
-
+        target.notifyItemInserted(target.list.size()-1)
     }
 
 

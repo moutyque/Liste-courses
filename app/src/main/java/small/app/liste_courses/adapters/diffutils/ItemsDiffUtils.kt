@@ -1,17 +1,16 @@
 package small.app.liste_courses.adapters.diffutils
 
 import android.os.Bundle
-import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.SortedList
 import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.room.entities.Item
 
-class ItemsDiffUtils(private val oldList: MutableList<Item>, private val newList: List<Item>) :
+class ItemsDiffUtils(private val oldList: SortedList<Item>, private val newList: List<Item>) :
     DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
-        return oldList.size
+        return oldList.size()
     }
 
     override fun getNewListSize(): Int {

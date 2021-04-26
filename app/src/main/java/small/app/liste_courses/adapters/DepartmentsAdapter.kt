@@ -169,7 +169,7 @@ class DepartmentsAdapter(
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            payloads.filterIsInstance<DepartmentWithItems>().forEach { item ->
+            payloads.filterIsInstance<DepartmentWithItems>().forEach { _q ->
                 run {
 
                     fillView(position, holder)

@@ -3,10 +3,10 @@ package small.app.liste_courses.adapters.listeners
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
-import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.models.DragItem
+import small.app.liste_courses.objects.Utils
 
 class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep: Department) :
     View.OnDragListener {
@@ -21,8 +21,9 @@ class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep:
                     Log.d("DAdapter", "Dropped ${droppedItem.item.name}")
 
                     dep.classify(droppedItem.item)
-
-                    Utils.classifyItem(droppedItem.item, droppedItem.adapter, itemsAdapter)
+                    itemsAdapter.list.add(droppedItem.item)
+                    Utils.classifyItem(droppedItem.item, itemsAdapter)
+                    Utils.saveDepartment(dep)
                     droppedItem.adapter.itemUsed.onItemUse()
                 }
                 return true
