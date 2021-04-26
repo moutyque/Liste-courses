@@ -11,16 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.adapters.listeners.IItemUsed
-import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
+
 //TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
@@ -148,8 +147,6 @@ abstract class ItemsAdapter(
         override fun onLongClick(v: View?): Boolean {
             v?.apply {
 
-                v.tv_name.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-                v.tv_name.layout(0, 0, v.tv_name.measuredWidth, v.tv_name.measuredHeight)
 
                 val clipText = "This is our ClipData text"
                 val item = ClipData.Item(clipText)
