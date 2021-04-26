@@ -1,9 +1,13 @@
 package small.app.liste_courses.adapters.diffutils
 
+import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.SortedList
+import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.room.entities.Item
 
-class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<Item>) :
+class ItemsDiffUtils(private val oldList: MutableList<Item>, private val newList: List<Item>) :
     DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
@@ -15,7 +19,10 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
+
+        val old = oldList[oldItemPosition]
+        val new = newList[newItemPosition]
+        return old.name==new.name
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -26,6 +33,19 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
     //TODO : improve this method to check which modification has been done
 
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-        return newList[newItemPosition]
+        val new = newList[newItemPosition]
+        val old = oldList[oldItemPosition]
+        val bundle = Bundle()
+        if(new.name != old.name){
+            bundle.putString(Item_change.NAME.toString(),new.name)
+        }
+        if(new.qty!=old.qty){
+            bundle.putString(Item_change.QTY.toString(), new.qty.toString())
+        }
+        if(new.unit!=old.unit){
+            bundle.putString(Item_change.UNIT.toString(), new.unit.toString())
+        }
+
+        return bundle
     }
 }

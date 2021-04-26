@@ -36,7 +36,7 @@ object Utils {
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
         backgroundScope.launch {
             //if (!exist)
-            item.order = itemsAdapter.list.size.toLong()
+            //item.order = itemsAdapter.list.size.toLong()
             saveItem(item)
         }
 
@@ -96,6 +96,7 @@ object Utils {
             //Save the new item : change in department name and in order (maybe)
             repo.saveItem(item)
         }
+        target.notifyItemInserted(target.list.size-1)
 
     }
 

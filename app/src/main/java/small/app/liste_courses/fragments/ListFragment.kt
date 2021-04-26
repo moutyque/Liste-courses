@@ -19,7 +19,6 @@ import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
-import small.app.liste_courses.objects.SyncManager
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.objects.Utils.repo
 import small.app.liste_courses.room.entities.Item
@@ -80,12 +79,13 @@ class ListFragment : Fragment() {
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
+                item.order=System.currentTimeMillis()
                 Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
 
         }
-        setUpUnclassifiedItemsRV()
+        setupUnclassifiedItemsRV()
         setupDepartmentsRV()
 
         val departmentsName: ArrayList<String> = ArrayList()
@@ -148,7 +148,7 @@ class ListFragment : Fragment() {
 
         }
 
-        SyncManager.setCreated(this)
+        //SyncManager.setCreated(this)
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -170,13 +170,14 @@ class ListFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
+        //TODO: not call the first time we add an item to a department
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
             departmentsAdapter.updateList(it)
         })
 
     }
 
-    private fun setUpUnclassifiedItemsRV() {
+    private fun setupUnclassifiedItemsRV() {
         //Create the items adapter
         unclassifiedAdapter =
             UnclassifiedItemsAdapter(
@@ -242,7 +243,7 @@ class ListFragment : Fragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            //TODO : Mieght need to implement it later
+            //TODO : Might need to implement it later
             Log.d("DDSwipe", "In the onSwipe")
         }
 

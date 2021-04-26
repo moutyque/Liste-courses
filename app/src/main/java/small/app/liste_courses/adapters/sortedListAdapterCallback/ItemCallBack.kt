@@ -12,7 +12,7 @@ class ItemCallBack (adapter: RecyclerView.Adapter<*>?) : SortedListAdapterCallba
     }
 
     override fun areContentsTheSame(oldItem: Item?, newItem: Item?): Boolean {
-        return oldItem!!.name == newItem!!.name
+        return oldItem!!.equals(newItem!!)
     }
 
     override fun areItemsTheSame(item1: Item?, item2: Item?): Boolean {

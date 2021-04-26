@@ -1,8 +1,11 @@
 package small.app.liste_courses.adapters
 
 import android.content.Context
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
+import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope
 import small.app.liste_courses.room.entities.DepartmentWithItems
@@ -69,7 +72,14 @@ abstract class DepartmentsAbstractAdapter(
     }
 
     open fun updateList(departments: List<DepartmentWithItems>?) {
-
+        if (list != null) {
+            list.sortedBy { dep -> dep.order }
+            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, list),false)
+            this.list.clear()
+            this.list.addAll(list)
+            //this.list.sortedBy { item -> item.order }
+            diffResult.dispatchUpdatesTo(this)
+        }
     }
 
 

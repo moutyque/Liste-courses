@@ -4,20 +4,24 @@ package small.app.liste_courses.adapters
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.adapters.listeners.IItemUsed
+import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.models.DragItem
+import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
-
+//TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
     private val canChangeUnit: Boolean,
@@ -25,7 +29,7 @@ abstract class ItemsAdapter(
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
-    val list = mutableListOf<Item>()//SortedList(Item::class.java, ItemCallBack(this))
+    var list = mutableListOf<Item>()//SortedList(Item::class.java, ItemCallBack(this))
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
@@ -64,7 +68,8 @@ abstract class ItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        with(list[position]) {
+        val model = list[position]
+        with(model) {
             Log.d("IAdapter", name)
             Log.d("IAdapter", " $position")
             if (name.isNotEmpty()) {
@@ -76,8 +81,9 @@ abstract class ItemsAdapter(
                         //Update RV
                         Log.d("IAdapter", "Remove at position : $position")
                         Utils.saveItem(this)
-                        notifyItemChanged(position)
-
+                        list.removeAt(position)
+                        //list.removeItemAt(position)
+                        notifyItemRemoved(position)
                         //TODO : remove from list ?
                         //Utils.unuseItem(this, this@ItemsAdapter)
                     }
@@ -85,9 +91,9 @@ abstract class ItemsAdapter(
                     holder.itemView.iv_increase_qty.setOnClickListener {
                         qty += unit.mutliplicator
                         Utils.saveItem(this)
-                        notifyItemChanged(position)
+                        //The fact to call this recall the onBindViewHolder() better update the value
+                        holder.itemView.tv_qty.text = qty.toString()
 
-                        //updateQty(qty, position)
                     }
                     holder.itemView.iv_decrease_qty.setOnClickListener {
                         qty -= unit.mutliplicator
@@ -95,8 +101,9 @@ abstract class ItemsAdapter(
                             qty = 0
                         }
                         Utils.saveItem(this)
-                        notifyItemChanged(position)
+                        holder.itemView.tv_qty.text = qty.toString()
 
+                        //notifyItemChanged(position)
                         //updateQty(qty, position)
                     }
 
@@ -186,16 +193,16 @@ abstract class ItemsAdapter(
     fun updateList(list: List<Item>?) {
         if (list != null) {
             list.sortedBy { item -> item.order }
-            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list))
+            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list),false)
             this.list.clear()
             this.list.addAll(list)
-            this.list.sortedBy { item -> item.order }
+            //this.list.sortedBy { item -> item.order }
             diffResult.dispatchUpdatesTo(this)
         }
 
     }
 
-    //TODO : improve this method to check which modification has been done
+    //TODO : this methode is called even if there
     override fun onBindViewHolder(
         holder: ItemsViewHolder,
         position: Int,
@@ -203,11 +210,26 @@ abstract class ItemsAdapter(
     ) {
 
         if (payloads.isEmpty()) {
+            //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            payloads.filterIsInstance<Item>().forEach { item ->
+            payloads.filterIsInstance<Bundle>().forEach { bundle ->
                 run {
-                    fillView(holder, item)
+                    bundle.keySet().forEach { key ->
+                        run {
+                            if (key == Item_change.UNIT.toString()) {
+                                holder.itemView.tv_unit.text = bundle.get(key) as CharSequence?
+                            }
+
+                            if (key == Item_change.QTY.toString()) {
+                                holder.itemView.tv_qty.text = bundle.get(key) as CharSequence?
+                            }
+
+
+                        }
+                    }
+
+
 
                 }
 
