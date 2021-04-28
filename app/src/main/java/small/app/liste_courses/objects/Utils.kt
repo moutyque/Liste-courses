@@ -34,6 +34,12 @@ object Utils {
     }
 
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
+        mainScope.launch {
+            itemsAdapter.list.add(item)//SortedList update the view when inserted
+            itemsAdapter.notifyItemInserted(itemsAdapter.list.indexOf(item))
+        }
+
+
         backgroundScope.launch {
             //if (!exist)
             //item.order = itemsAdapter.list.size.toLong()
@@ -69,11 +75,11 @@ object Utils {
                     if (index > -1) {//Department already displayed
                         departmentsAdapter.list[index].items.add(item)
                         saveDepartment(departmentsAdapter.list[index])
-                        departmentsAdapter.notifyItemChanged(index)
+                        //departmentsAdapter.notifyItemChanged(index)
                     } else {
                         dep.isUsed = true
                         dep.items.add(item)
-                        departmentsAdapter.add(dep)
+                        departmentsAdapter.list.add(dep)
                         saveDepartment(dep)
 
                     }
@@ -82,18 +88,19 @@ object Utils {
         }
     }
 
-    fun keepUsedItems(dep: Department) {
+    private fun keepUsedItems(dep: Department) {
         val filter = dep.items.filter { it.isUsed }
         dep.items.clear()
         dep.items.addAll(filter)
     }
 
-    fun classifyItem(item: Item,  target: ItemsAdapter) {
+    fun classifyItem(item: Item, target: ItemsAdapter) {
         backgroundScope.launch {
             //Save the new item
             repo.saveItem(item)
         }
-        target.notifyItemInserted(target.list.size()-1)
+        target.list.add(item)
+        target.notifyItemInserted(target.list.size - 1)
     }
 
 

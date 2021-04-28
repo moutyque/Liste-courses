@@ -3,11 +3,8 @@ package small.app.liste_courses.adapters
 import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
-import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.models.Department
-import small.app.liste_courses.objects.Scope
 import small.app.liste_courses.room.entities.DepartmentWithItems
 
 abstract class DepartmentsAbstractAdapter(
@@ -47,15 +44,6 @@ abstract class DepartmentsAbstractAdapter(
         return list.size
     }
 
-    override fun add(i: Department) {
-        Scope.mainScope.launch {
-            list.add(i)
-        }
-
-    }
-
-    override fun remove(i: Department) {
-    }
 
     override fun contains(i: Department): Boolean {
         return list.indexOf(i) > -1
@@ -74,7 +62,7 @@ abstract class DepartmentsAbstractAdapter(
     open fun updateList(departments: List<DepartmentWithItems>?) {
         if (list != null) {
             list.sortedBy { dep -> dep.order }
-            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, list),false)
+            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, list), false)
             this.list.clear()
             this.list.addAll(list)
             //this.list.sortedBy { item -> item.order }

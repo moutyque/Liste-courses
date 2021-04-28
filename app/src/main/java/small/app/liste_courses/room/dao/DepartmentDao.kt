@@ -28,7 +28,7 @@ interface DepartmentDao {
     fun getDepartments(): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE name == :name ORDER BY `order`")
-    fun findByName(name: String): Department
+    fun findByName(name: String): Department?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

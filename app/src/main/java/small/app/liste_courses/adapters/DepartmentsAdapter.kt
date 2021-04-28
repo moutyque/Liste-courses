@@ -143,13 +143,6 @@ class DepartmentsAdapter(
         }
     }
 
-    override fun add(i: Department) {
-        list.add(i)
-    }
-
-    override fun remove(i: Department) {
-        list.remove(i)
-    }
 
     override fun updateList(inList: List<DepartmentWithItems>?) {
 

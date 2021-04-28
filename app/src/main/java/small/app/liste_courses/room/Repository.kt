@@ -60,7 +60,7 @@ class Repository(context: Context) {
             })
     }
 
-    fun getDepartmentItems(depName : String): LiveData<List<Item>> {
+    fun getDepartmentItems(depName: String): LiveData<List<Item>> {
         return db.itemDAO().findByDepName(depName)
     }
 
@@ -70,7 +70,7 @@ class Repository(context: Context) {
 
     fun findDepartment(name: String): Department? {
         val findByName = db.departmentDAO().findByName(name)
-        return findByName.toDepartment()
+        return findByName?.toDepartment() ?: null
     }
 
 
@@ -94,7 +94,7 @@ class Repository(context: Context) {
             name = dep.department.name,
             isUsed = dep.department.isUsed,
             items = dep.items.toMutableList(),
-            itemsCount =itemsCount,
+            itemsCount = itemsCount,
             order = dep.department.order
         )
     }

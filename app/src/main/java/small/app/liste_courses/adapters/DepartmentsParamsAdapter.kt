@@ -92,7 +92,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         RecyclerView.ViewHolder(itemView)
 
     override fun onNewDepartment(d: Department) {
-        add(d)
+        list.add(d)
     }
 
     override fun onItemChange(i: Item) {
