@@ -12,7 +12,7 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/department_width"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@drawable/border"
@@ -27,12 +27,17 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_items"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            tools:listitem="@layout/item_grossery_item" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                tools:listitem="@layout/item_grossery_item" />
+        </FrameLayout>
 
     </LinearLayout>
 
