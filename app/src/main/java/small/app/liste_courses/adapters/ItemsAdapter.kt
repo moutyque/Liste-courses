@@ -18,6 +18,7 @@ import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
+import small.app.liste_courses.objects.ItemsComparator
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
@@ -181,11 +182,11 @@ abstract class ItemsAdapter(
 
     fun updateList(list: List<Item>?) {
         if (list != null) {
-            list.sortedBy { item -> item.order }
+            list.sortedWith(ItemsComparator())
             val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
             this.list.clear()
             this.list.addAll(list)
-            this.list.sortedBy { item -> item.order }
+            this.list.sortedWith(ItemsComparator())
             diffResult.dispatchUpdatesTo(this)
         }
 

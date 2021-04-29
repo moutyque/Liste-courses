@@ -13,7 +13,7 @@ data class Item(
     var departmentId: String = "",
     var order: Long = -1,
     var qty: Long = 0,
-    var unit: SIUnit = SIUnit.EMPTY //TODO : can be replace later by an enum, for lather use think of imperial unit
+    var unit: SIUnit = SIUnit.EMPTY
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
