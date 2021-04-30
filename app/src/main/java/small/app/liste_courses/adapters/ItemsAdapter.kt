@@ -21,7 +21,6 @@ import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
-//TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
     private val canChangeUnit: Boolean
@@ -81,9 +80,8 @@ abstract class ItemsAdapter(
                         Log.d("IAdapter", "Remove at position : $position")
                         Utils.saveItem(this)
                         //list.removeAt(position)
-                        list.removeItemAt(position)
-                        notifyItemRemoved(position)
-                        //TODO : remove from list ?
+                        //list.removeItemAt(position)
+                        //notifyItemRemoved(position)
                         //Utils.unuseItem(this, this@ItemsAdapter)
                     }
 

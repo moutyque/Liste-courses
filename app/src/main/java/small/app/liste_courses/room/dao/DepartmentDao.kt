@@ -13,22 +13,22 @@ interface DepartmentDao {
 
 
     @Query("SELECT * FROM Department WHERE name==:departmentName ORDER BY `order`")
-    fun getItemsFromDepartment(departmentName: String): DepartmentWithItems
+    fun getItemsFromDepartment(departmentName: String): DepartmentWithItems?
 
     @Query("SELECT * FROM Department ORDER BY `order`")
     fun getAllDepartment(): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE isUsed==:used ORDER BY `order`")
-    fun getUsedDepartment(used: Boolean = true): LiveData<List<DepartmentWithItems>>
+    fun getUsedDepartment(used: Boolean = true): LiveData<List<DepartmentWithItems>>?
 
     @Query("SELECT * FROM Department WHERE isUsed==:used ORDER BY `order`")
-    fun getUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>>
+    fun getUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>>?
 
     @Query("SELECT * FROM Department  ORDER BY `order`")
     fun getDepartments(): LiveData<List<DepartmentWithItems>>
 
     @Query("SELECT * FROM Department WHERE name == :name ORDER BY `order`")
-    fun findByName(name: String): Department
+    fun findByName(name: String): Department?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
