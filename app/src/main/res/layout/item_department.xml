@@ -29,7 +29,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_items"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/department_width"
             android:layout_height="wrap_content"
             android:visibility="visible"
             tools:listitem="@layout/item_grossery_item" />
