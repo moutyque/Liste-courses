@@ -11,13 +11,13 @@ object SyncManager {
     private var isListCreated = false
     private var isParamCreated = false
 
-    fun setCreated(fragment: Fragment){
+    fun setCreated(fragment: Fragment) {
         when (fragment) {
             is ListFragment -> isListCreated = true
-            is ParamsFragment -> isParamCreated =true
+            is ParamsFragment -> isParamCreated = true
         }
-        if(isListCreated && isParamCreated){
-            listFrag.departmentsAdapter.synchroAction = paramFrag.departmentsAdapter
+        if (isListCreated && isParamCreated) {
+            // listFrag.departmentsAdapter.synchroAction = paramFrag.departmentsAdapter
         }
     }
 

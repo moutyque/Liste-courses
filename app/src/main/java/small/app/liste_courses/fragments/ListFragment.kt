@@ -35,7 +35,10 @@ class ListFragment : Fragment() {
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
     lateinit var departmentsAdapter: DepartmentsAdapter
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("ListFragment", "On create")
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,7 +82,7 @@ class ListFragment : Fragment() {
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
-                item.order=System.currentTimeMillis()
+                item.order = System.currentTimeMillis()
                 Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
@@ -157,8 +160,7 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
-            requireContext(),
-            viewModel = viewModel
+            requireContext()
         )
 
 
