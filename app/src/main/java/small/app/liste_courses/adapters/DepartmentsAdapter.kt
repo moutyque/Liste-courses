@@ -14,23 +14,16 @@ import kotlinx.android.synthetic.main.item_department.view.*
 import kotlinx.coroutines.launch
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
-import small.app.liste_courses.adapters.listeners.IActions
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
-import small.app.liste_courses.models.Department
-import small.app.liste_courses.objects.Scope
+import small.app.liste_courses.objects.Scope.backgroundScope
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.DepartmentWithItems
-import small.app.liste_courses.viewmodels.FragmentViewModel
 
 
 class DepartmentsAdapter(
-    context: Context, onlyUsed: Boolean = true, val viewModel: FragmentViewModel
+    context: Context, onlyUsed: Boolean = true
 ) :
     DepartmentsAbstractAdapter(context, onlyUsed) {
-
-
-    lateinit var synchroAction: IActions
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
 
@@ -45,7 +38,6 @@ class DepartmentsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         fillView(position, holder)
-
     }
 
     private fun fillView(
@@ -69,7 +61,6 @@ class DepartmentsAdapter(
             true
         }
         //Recycler view for the items in the department
-
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
         var itemsAdapter = holder.itemView.rv_items.adapter
@@ -77,19 +68,7 @@ class DepartmentsAdapter(
 
             itemsAdapter = DepartmentItemsAdapter(
                 context,
-                false,
-                object : IItemUsed {
-                    override fun onLastItemUse() {
-                        list[0].isUsed = false
-                        Utils.saveDepartment(list[0])
-                        list.removeAt(0)
-                    }
-
-                    override fun onItemUse() {
-
-                    }
-
-                }
+                false
             )
 
             holder.itemView.rv_items.layoutManager =
@@ -99,7 +78,6 @@ class DepartmentsAdapter(
 
         (itemsAdapter as DepartmentItemsAdapter).updateList(model.items.filter { it.isUsed })
 
-
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
     }
@@ -108,53 +86,35 @@ class DepartmentsAdapter(
     fun onItemMove(initialPosition: Int, targetPosition: Int) {
         if (initialPosition > -1 && targetPosition > -1) {
             with(list) {
-                // beginBatchedUpdates()
                 val init = get(initialPosition)
                 val target = get(targetPosition)
-
                 val tmp = init.order
                 init.order = target.order
                 target.order = tmp
-
                 Utils.saveDepartment(init)
                 Utils.saveDepartment(target)
-                //  endBatchedUpdates()
             }
         }
-
-
     }
 
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
-    private fun addDepartment(d: Department) {
-        d.isUsed = true
-        Utils.saveDepartment(d)
-        Scope.mainScope.launch {
-            synchroAction.onNewDepartment(d)
-
-
-            with(list) {
-                //beginBatchedUpdates()
-                add(d)
-                //endBatchedUpdates()
-            }
-        }
-    }
-
-    override fun add(i: Department) {
-        list.add(i)
-    }
-
-    override fun remove(i: Department) {
-        list.remove(i)
-    }
 
     override fun updateList(inList: List<DepartmentWithItems>?) {
 
         if (inList != null && inList.isNotEmpty()) {
             val departments = inList.map { it.toDepartment() }
+            val unUsed = departments.filter { d ->
+                d.items.isNotEmpty() && d.items.filter { it.isUsed }.isEmpty()
+            }
+
+            backgroundScope.launch {
+                unUsed.forEach { d ->
+                    d.isUsed = false
+                    Utils.saveDepartment(d)
+                }
+            }
             departments.sortedBy { item -> item.order }
             val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, departments))
             this.list.clear()
@@ -169,7 +129,7 @@ class DepartmentsAdapter(
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            payloads.filterIsInstance<DepartmentWithItems>().forEach { _q ->
+            payloads.filterIsInstance<DepartmentWithItems>().forEach { _ ->
                 run {
 
                     fillView(position, holder)
@@ -181,5 +141,10 @@ class DepartmentsAdapter(
 
 
     }
+
+    override fun getItemCount(): Int {
+        return list.size
+    }
+
 
 }

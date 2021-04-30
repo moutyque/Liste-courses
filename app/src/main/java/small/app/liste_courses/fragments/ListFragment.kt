@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
@@ -79,7 +78,7 @@ class ListFragment : Fragment() {
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
-                item.order=System.currentTimeMillis()
+                item.order = System.currentTimeMillis()
                 Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
@@ -157,8 +156,7 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
-            requireContext(),
-            viewModel = viewModel
+            requireContext()
         )
 
 
@@ -171,8 +169,7 @@ class ListFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
-        //TODO: not call the first time we add an item to a department
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
+        viewModel.getUsedDepartment()?.observe(viewLifecycleOwner, {
             departmentsAdapter.updateList(it)
         })
 
@@ -183,21 +180,7 @@ class ListFragment : Fragment() {
         unclassifiedAdapter =
             UnclassifiedItemsAdapter(
                 requireContext(),
-                false,
-                object : IItemUsed {
-                    override fun onLastItemUse() {
-                        Log.d("UnclassifiedAdapter", "The last item has been used")
-                    }
-
-                    override fun onItemUse() {
-                        /*unclassifiedAdapter.list.beginBatchedUpdates()
-                        for (i in 0 until unclassifiedAdapter.list.size()) {
-                            unclassifiedAdapter.list[i].order = i.toLong()
-                            Utils.saveItem(unclassifiedAdapter.list[i])
-                        }
-                        unclassifiedAdapter.list.endBatchedUpdates()*/
-                    }
-                }
+                false
             )
 
         viewModel.getUnclassifiedItems().observe(viewLifecycleOwner, { items ->
@@ -207,7 +190,9 @@ class ListFragment : Fragment() {
 
         //Setup the items recycler view
         binding.rvUnclassifiedItems.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            LinearLayoutManager(
+                requireContext(), RecyclerView.VERTICAL, false
+            )
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
 
@@ -229,7 +214,6 @@ class ListFragment : Fragment() {
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder
         ): Int {
-            val swapFlags = ItemTouchHelper.UP
             val dragFlags = ItemTouchHelper.START or ItemTouchHelper.END
             return makeMovementFlags(dragFlags, 0)
         }

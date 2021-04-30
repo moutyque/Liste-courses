@@ -63,17 +63,14 @@ object Utils {
                 if (d != null) {
                     //Remove unuseItem
                     val dep = d!!
-                    keepUsedItems(dep)
+                    // keepUsedItems(dep)
 
-                    val index = departmentsAdapter.findIndex(dep)
-                    if (index > -1) {//Department already displayed
-                        departmentsAdapter.list[index].items.add(item)
-                        saveDepartment(departmentsAdapter.list[index])
-                        departmentsAdapter.notifyItemChanged(index)
-                    } else {
+                    val index =
+                        departmentsAdapter.list.indexOf(dep)//departmentsAdapter.findIndex(dep)
+                    if (index < 0) {
                         dep.isUsed = true
-                        dep.items.add(item)
-                        departmentsAdapter.add(dep)
+                        //dep.items.add(item)
+                        //departmentsAdapter.add(dep)
                         saveDepartment(dep)
 
                     }
@@ -88,12 +85,12 @@ object Utils {
         dep.items.addAll(filter)
     }
 
-    fun classifyItem(item: Item,  target: ItemsAdapter) {
+    fun classifyItem(item: Item, target: ItemsAdapter) {
         backgroundScope.launch {
             //Save the new item
             repo.saveItem(item)
         }
-        target.notifyItemInserted(target.list.size()-1)
+        target.notifyItemInserted(target.list.size() - 1)
     }
 
 

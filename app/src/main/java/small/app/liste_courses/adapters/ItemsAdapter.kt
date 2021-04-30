@@ -15,20 +15,17 @@ import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
-//TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
-    private val canChangeUnit: Boolean,
-    val itemUsed: IItemUsed
+    private val canChangeUnit: Boolean
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
 
     var list = SortedList(Item::class.java, ItemCallBack(this))
 //mutableListOf<Item>()/
@@ -83,9 +80,8 @@ abstract class ItemsAdapter(
                         Log.d("IAdapter", "Remove at position : $position")
                         Utils.saveItem(this)
                         //list.removeAt(position)
-                        list.removeItemAt(position)
-                        notifyItemRemoved(position)
-                        //TODO : remove from list ?
+                        //list.removeItemAt(position)
+                        //notifyItemRemoved(position)
                         //Utils.unuseItem(this, this@ItemsAdapter)
                     }
 
@@ -167,32 +163,11 @@ abstract class ItemsAdapter(
 
     }
 
-    override fun add(i: Item) {
-        //if (i.order == -1L) i.order = list.size().toLong()
-        //list.add(i)
-    }
-
-    override fun remove(i: Item) {
-        // list.remove(i)
-    }
-
-    override fun contains(i: Item): Boolean {
-        return list.indexOf(i) > -1
-    }
-
-    override fun findIndex(i: Item): Int {
-        for (index in 0 until list.size()) {
-            if (list[index].name == i.name) {
-                return index
-            }
-        }
-        return -1
-    }
 
     fun updateList(list: List<Item>?) {
         if (list != null) {
             list.sortedBy { item -> item.order }
-            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list),false)
+            val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
             this.list.clear()
             this.list.addAll(list)
             //this.list.sortedBy { item -> item.order }
@@ -227,7 +202,6 @@ abstract class ItemsAdapter(
 
                         }
                     }
-
 
 
                 }

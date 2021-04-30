@@ -4,10 +4,10 @@ import small.app.liste_courses.room.entities.Item
 
 data class Department(
     val name: String,
-    var isUsed: Boolean,
-    var items: MutableList<Item>,
-    var itemsCount : Int,//Can be differents from items.size if some items are not displayed, this var is used to store the number of items not
-    var order: Int
+    var isUsed: Boolean = true,
+    var items: MutableList<Item> = mutableListOf(),
+    var itemsCount: Int = 0,//Can be differents from items.size if some items are not displayed, this var is used to store the number of items not
+    var order: Int = 0
 ) {
 
 
@@ -20,7 +20,6 @@ data class Department(
         }
         this.items.add(item)
         this.itemsCount++
-
 
 
     }
