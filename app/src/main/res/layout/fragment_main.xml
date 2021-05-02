@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    
+
     <LinearLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
@@ -58,24 +58,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_unclassified_items"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent" />
 
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_unclassified_items"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:visibility="visible" />
-
-                </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -100,8 +95,8 @@
                     android:layout_weight="0.8"
                     android:completionThreshold="1"
                     android:hint="New department name"
-                    android:maxLines="1"
                     android:lines="1"
+                    android:maxLines="1"
 
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_department"
@@ -149,7 +144,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
 
 </layout>

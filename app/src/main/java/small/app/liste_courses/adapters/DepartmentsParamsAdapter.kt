@@ -10,15 +10,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
+import small.app.liste_courses.adapters.listeners.IActions
+import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
-import small.app.liste_courses.room.entities.DepartmentWithItems
+import small.app.liste_courses.models.Department
+import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.room.entities.Item
 
+/*
+TODO : Display all department and all items under it
+TODO : Manage modification of qty and unit
+TODO : Manage items order
+TODO : Manager department order
 
+TODO : update main fragment
+ */
 class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
-    DepartmentsAbstractAdapter(context, onlyUsed) {
-    override fun updateList(inList: List<DepartmentWithItems>?) {
-        //TODO("Not yet implemented")
-    }
+    DepartmentsAbstractAdapter(context, onlyUsed), IActions {
 
 
     override fun onCreateViewHolder(
@@ -58,7 +66,19 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
         val itemsAdapter = DepartmentItemsAdapter(
             context,
-            false
+            false,
+            object : IItemUsed {
+                override fun onLastItemUse() {
+                    list[0].isUsed = false
+                    Utils.saveDepartment(list[0])
+                    list.removeAt(0)
+                }
+
+                override fun onItemUse() {
+
+                }
+
+            }
         )
         holder.itemView.rv_items.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -71,5 +91,15 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
     class DepartmentsParamsViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView)
 
+    override fun onNewDepartment(d: Department) {
+        list.add(d)
+    }
 
+    override fun onItemChange(i: Item) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onItemClassify(i: Item) {
+        TODO("Not yet implemented")
+    }
 }

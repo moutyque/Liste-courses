@@ -8,8 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.liste_courses.adapters.DepartmentsParamsAdapter
 import small.app.liste_courses.databinding.FragmentParamsBinding
+import small.app.liste_courses.objects.SyncManager
 
 
+/*
+TODO : update recycler view when :
+    new department
+    classify item
+    update item info
+ */
 class ParamsFragment : Fragment() {
 
     private lateinit var binding: FragmentParamsBinding
@@ -17,7 +24,7 @@ class ParamsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         // Inflate the layout for this fragment
         binding = FragmentParamsBinding.inflate(inflater)
         setupDepartmentsRV()
@@ -30,12 +37,15 @@ class ParamsFragment : Fragment() {
             requireContext()
         )
 
+
         //Setup departments recycler view
         binding.rvDepartments.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartments.adapter = departmentsAdapter
+        SyncManager.setCreated(this)
+
 
     }
 
-
+   
 }

@@ -34,6 +34,12 @@ object Utils {
     }
 
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
+        mainScope.launch {
+            itemsAdapter.list.add(item)//SortedList update the view when inserted
+            itemsAdapter.notifyItemInserted(itemsAdapter.list.indexOf(item))
+        }
+
+
         backgroundScope.launch {
             //if (!exist)
             //item.order = itemsAdapter.list.size.toLong()
@@ -63,14 +69,17 @@ object Utils {
                 if (d != null) {
                     //Remove unuseItem
                     val dep = d!!
-                    // keepUsedItems(dep)
+                    keepUsedItems(dep)
 
-                    val index =
-                        departmentsAdapter.list.indexOf(dep)//departmentsAdapter.findIndex(dep)
-                    if (index < 0) {
+                    val index = departmentsAdapter.findIndex(dep)
+                    if (index > -1) {//Department already displayed
+                        departmentsAdapter.list[index].items.add(item)
+                        saveDepartment(departmentsAdapter.list[index])
+                        //departmentsAdapter.notifyItemChanged(index)
+                    } else {
                         dep.isUsed = true
-                        //dep.items.add(item)
-                        //departmentsAdapter.add(dep)
+                        dep.items.add(item)
+                        departmentsAdapter.list.add(dep)
                         saveDepartment(dep)
 
                     }
@@ -79,7 +88,7 @@ object Utils {
         }
     }
 
-    fun keepUsedItems(dep: Department) {
+    private fun keepUsedItems(dep: Department) {
         val filter = dep.items.filter { it.isUsed }
         dep.items.clear()
         dep.items.addAll(filter)
@@ -90,7 +99,8 @@ object Utils {
             //Save the new item
             repo.saveItem(item)
         }
-        target.notifyItemInserted(target.list.size() - 1)
+        target.list.add(item)
+        target.notifyItemInserted(target.list.size - 1)
     }
 
 
