@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import small.app.liste_courses.adapters.DepartmentsAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
@@ -35,7 +34,10 @@ class ListFragment : Fragment() {
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
     lateinit var departmentsAdapter: DepartmentsAdapter
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("","Oncreate")
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -154,6 +156,12 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
+
+    override fun onResume() {
+        Log.d("","OnResume")
+        super.onResume()
+    }
+
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
@@ -183,21 +191,7 @@ class ListFragment : Fragment() {
         unclassifiedAdapter =
             UnclassifiedItemsAdapter(
                 requireContext(),
-                false,
-                object : IItemUsed {
-                    override fun onLastItemUse() {
-                        Log.d("UnclassifiedAdapter", "The last item has been used")
-                    }
-
-                    override fun onItemUse() {
-                        /*unclassifiedAdapter.list.beginBatchedUpdates()
-                        for (i in 0 until unclassifiedAdapter.list.size()) {
-                            unclassifiedAdapter.list[i].order = i.toLong()
-                            Utils.saveItem(unclassifiedAdapter.list[i])
-                        }
-                        unclassifiedAdapter.list.endBatchedUpdates()*/
-                    }
-                }
+                false
             )
 
         viewModel.getUnclassifiedItems().observe(viewLifecycleOwner, { items ->
@@ -210,6 +204,8 @@ class ListFragment : Fragment() {
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
+
+
 
 
     class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :

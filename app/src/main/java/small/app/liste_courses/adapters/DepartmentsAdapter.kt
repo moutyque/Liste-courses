@@ -11,14 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
-import kotlinx.coroutines.launch
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
-import small.app.liste_courses.adapters.listeners.IActions
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
-import small.app.liste_courses.models.Department
-import small.app.liste_courses.objects.Scope
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.viewmodels.FragmentViewModel
@@ -29,8 +24,6 @@ class DepartmentsAdapter(
 ) :
     DepartmentsAbstractAdapter(context, onlyUsed) {
 
-
-    lateinit var synchroAction: IActions
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
 
@@ -77,19 +70,7 @@ class DepartmentsAdapter(
 
             itemsAdapter = DepartmentItemsAdapter(
                 context,
-                false,
-                object : IItemUsed {
-                    override fun onLastItemUse() {
-                        list[0].isUsed = false
-                        Utils.saveDepartment(list[0])
-                        list.removeAt(0)
-                    }
-
-                    override fun onItemUse() {
-
-                    }
-
-                }
+                false
             )
 
             holder.itemView.rv_items.layoutManager =
@@ -128,20 +109,6 @@ class DepartmentsAdapter(
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
-    private fun addDepartment(d: Department) {
-        d.isUsed = true
-        Utils.saveDepartment(d)
-        Scope.mainScope.launch {
-            synchroAction.onNewDepartment(d)
-
-
-            with(list) {
-                //beginBatchedUpdates()
-                add(d)
-                //endBatchedUpdates()
-            }
-        }
-    }
 
 
     override fun updateList(inList: List<DepartmentWithItems>?) {

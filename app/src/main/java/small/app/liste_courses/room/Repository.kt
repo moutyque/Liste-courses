@@ -40,11 +40,11 @@ class Repository(context: Context) {
 
     }
 
-    fun getUnusedItems(): LiveData<List<Item>> {
+    fun getUnusedItems(): LiveData<List<Item>?> {
         return db.itemDAO().getAllWithUsage(false)
     }
 
-    fun getUnclassifiedItem(): LiveData<List<Item>> {
+    fun getUnclassifiedItem(): LiveData<List<Item>?> {
         return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
     }
 
@@ -60,7 +60,7 @@ class Repository(context: Context) {
             })
     }
 
-    fun getDepartmentItems(depName: String): LiveData<List<Item>> {
+    fun getDepartmentItems(depName: String): LiveData<List<Item>?> {
         return db.itemDAO().findByDepName(depName)
     }
 
@@ -74,7 +74,7 @@ class Repository(context: Context) {
     }
 
 
-    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>> {
+    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> {
         return db.departmentDAO().getUsedDepartment()
     }
 

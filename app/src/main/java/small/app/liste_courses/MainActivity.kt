@@ -1,11 +1,7 @@
 package small.app.liste_courses
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
 import com.google.android.material.tabs.TabLayout
 import small.app.liste_courses.adapters.PagerAdapter
 import small.app.liste_courses.databinding.ActivityMainBinding
@@ -19,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
         repo = Repository(context = this)
         Utils.repo = repo
 
@@ -27,17 +23,19 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        setContentView(binding.root)
-
-    }
-
-    override fun onResume() {
 
 
-        super.onResume()
-        binding.tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener{
+        binding.viewPager.offscreenPageLimit=2
+        binding.viewPager.adapter = PagerAdapter(
+            binding.tabLayout.tabCount, this, supportFragmentManager,
+            0
+        )
+
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                binding.viewPager.setCurrentItem(tab!!.position)
+                binding.viewPager.currentItem = tab!!.position
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -47,9 +45,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+        setContentView(binding.root)
 
-        binding.viewPager.adapter = PagerAdapter(binding.tabLayout.tabCount,supportFragmentManager,
-            0)
     }
 
 
