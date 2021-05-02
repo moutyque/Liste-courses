@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
-import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.ItemsComparator
@@ -25,14 +24,11 @@ import small.app.liste_courses.room.entities.Item
 //TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
-    private val canChangeUnit: Boolean,
-    val itemUsed: IItemUsed
+    private val canChangeUnit: Boolean
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
 
     var list = mutableListOf<Item>()
-    //SortedList(Item::class.java, ItemCallBack(this))
-//mutableListOf<Item>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -166,19 +162,6 @@ abstract class ItemsAdapter(
 
     }
 
-
-    override fun contains(i: Item): Boolean {
-        return list.indexOf(i) > -1
-    }
-
-    override fun findIndex(i: Item): Int {
-        for (index in 0 until list.size) {
-            if (list[index].name == i.name) {
-                return index
-            }
-        }
-        return -1
-    }
 
     fun updateList(list: List<Item>?) {
         if (list != null) {

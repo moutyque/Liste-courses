@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.liste_courses.adapters.DepartmentsParamsAdapter
 import small.app.liste_courses.databinding.FragmentParamsBinding
-import small.app.liste_courses.objects.SyncManager
 
 
 /*
@@ -42,7 +41,6 @@ class ParamsFragment : Fragment() {
         binding.rvDepartments.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartments.adapter = departmentsAdapter
-        SyncManager.setCreated(this)
 
 
     }

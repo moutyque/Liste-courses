@@ -15,11 +15,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
         repo = Repository(context = this)
         Utils.repo = repo
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        binding.viewPager.offscreenPageLimit=2
+        binding.viewPager.adapter = PagerAdapter(
+            binding.tabLayout.tabCount, this, supportFragmentManager,
+            0
+        )
+
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
+
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -33,6 +42,10 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+        setContentView(binding.root)
+
+
+    }
 
 
 

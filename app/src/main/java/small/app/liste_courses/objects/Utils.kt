@@ -71,11 +71,12 @@ object Utils {
                 if (d != null) {
                     //Remove unuseItem
                     val dep = d!!
-                    val index = departmentsAdapter.findIndex(dep)
-                    if (index < 0) {
+
+                    keepUsedItems(dep)
+                    val index = departmentsAdapter.list.indexOf(dep)
+                    if (index <0){
+
                         dep.isUsed = true
-                        dep.items.add(item)
-                        departmentsAdapter.list.add(dep)
                         saveDepartment(dep)
                     }
 
@@ -104,25 +105,6 @@ object Utils {
     }
 
 
-    fun unuseItem(item: Item, itemsAdapter: ItemsAdapter) {
-        val job = backgroundScope.launch {
-            repo.saveItem(item)
-        }
-        job.invokeOnCompletion {
-            mainScope.launch {
-                /*itemsAdapter.list.beginBatchedUpdates()
-                itemsAdapter.remove(item)
-                //Hide department if last item hidden
-                if (itemsAdapter.list.size() == 0) {
-                    itemsAdapter.itemUsed.onLastItemUse()
-                } else {
-                    itemsAdapter.itemUsed.onItemUse()
-                }
-                itemsAdapter.list.endBatchedUpdates()*/
-            }
-
-        }
-    }
 
 
     fun saveItem(item: Item) {

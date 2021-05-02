@@ -34,7 +34,10 @@ class ListFragment : Fragment() {
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
     lateinit var departmentsAdapter: DepartmentsAdapter
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("","Oncreate")
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -153,6 +156,12 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
+
+    override fun onResume() {
+        Log.d("","OnResume")
+        super.onResume()
+    }
+
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
@@ -195,6 +204,8 @@ class ListFragment : Fragment() {
             )
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
+
+
 
 
     class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :

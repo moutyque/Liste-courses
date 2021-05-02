@@ -24,7 +24,7 @@ class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep:
 
                     Utils.classifyItem(droppedItem.item, itemsAdapter)
                     Utils.saveDepartment(dep)
-                    droppedItem.adapter.itemUsed.onItemUse()
+
                 }
                 return true
             }

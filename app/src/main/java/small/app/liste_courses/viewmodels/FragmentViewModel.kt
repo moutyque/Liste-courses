@@ -11,7 +11,7 @@ import small.app.liste_courses.room.entities.Item
 class FragmentViewModel(application: Application) : AndroidViewModel(application) {
 
 
-    fun getUnclassifiedItems(): LiveData<List<Item>> {
+    fun getUnclassifiedItems(): LiveData<List<Item>?> {
         return Utils.repo.getUnclassifiedItem()
     }
 
@@ -20,11 +20,12 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>>? {
+
+    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> {
         return Utils.repo.getUsedDepartment()
     }
 
-    fun getDepartmentItems(depName: String): LiveData<List<Item>> {
+    fun getDepartmentItems(depName: String): LiveData<List<Item>?> {
         return Utils.repo.getDepartmentItems(depName)
     }
 

@@ -11,6 +11,4 @@ object Scope {
     val backgroundScope = CoroutineScope(Job() + Dispatchers.IO)
     val mainScope = CoroutineScope(Job() + Dispatchers.Main)
 
-    val listFrag = ListFragment()
-    val paramFrag = ParamsFragment()
 }
