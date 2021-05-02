@@ -1,7 +1,9 @@
 package small.app.liste_courses.adapters
 
 import android.content.Context
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.room.entities.DepartmentWithItems
 
@@ -9,7 +11,7 @@ abstract class DepartmentsAbstractAdapter(
     val context: Context,
     private val onlyUsed: Boolean = false
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), IList<Department> {
 
     var canMove = false
     val list =
@@ -43,20 +45,30 @@ abstract class DepartmentsAbstractAdapter(
     }
 
 
-    /* override fun contains(i: Department): Boolean {
-         return list.indexOf(i) > -1
-     }
+    override fun contains(i: Department): Boolean {
+        return list.indexOf(i) > -1
+    }
 
 
-     override fun findIndex(i: Department): Int {
-         for (index in 0 until list.size) {
-             if (list[index].name == i.name) {
-                 return index
-             }
-         }
-         return -1
-     }*/
+    override fun findIndex(i: Department): Int {
+        for (index in 0 until list.size) {
+            if (list[index].name == i.name) {
+                return index
+            }
+        }
+        return -1
+    }
 
-    abstract fun updateList(inList: List<DepartmentWithItems>?)
+    open fun updateList(departments: List<DepartmentWithItems>?) {
+        if (list != null) {
+            list.sortedBy { dep -> dep.order }
+            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, list), false)
+            this.list.clear()
+            this.list.addAll(list)
+            //this.list.sortedBy { item -> item.order }
+            diffResult.dispatchUpdatesTo(this)
+        }
+    }
+
 
 }

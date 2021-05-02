@@ -20,25 +20,33 @@ object Utils {
         unclassifiedItemsAdapter: ItemsAdapter,
         departmentsAdapter: DepartmentsAdapter
     ) {
-        backgroundScope.launch {
-            val dbItem = repo.findItem(item.name)
+        var dbItem: Item? = null
+        val job = backgroundScope.launch {
+            dbItem = repo.findItem(item.name)
+        }
+        job.invokeOnCompletion {
             //If exist and not classified
-            if (dbItem != null && dbItem.isClassified) {
-                useClassifiedItem(dbItem, departmentsAdapter)
+            if (dbItem != null && dbItem!!.isClassified) {
+                useClassifiedItem(dbItem!!, departmentsAdapter)
             } else {
                 //Can exist and not use, for example default option
                 useUnclassifiedItem(item, unclassifiedItemsAdapter, dbItem != null)
                 //Remove the item from the unclassified auto complete listpm
             }
         }
+
+
     }
 
     private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
-        backgroundScope.launch {
-            //if (!exist)
-            //item.order = itemsAdapter.list.size.toLong()
-            saveItem(item)
-        }
+
+        itemsAdapter.list.add(item)//SortedList update the view when inserted
+        itemsAdapter.notifyItemInserted(itemsAdapter.list.indexOf(item))
+
+        //if (!exist)
+        //item.order = itemsAdapter.list.size.toLong()
+        saveItem(item)
+
 
         /*mainScope.launch {
             //New item
@@ -63,26 +71,25 @@ object Utils {
                 if (d != null) {
                     //Remove unuseItem
                     val dep = d!!
-                    // keepUsedItems(dep)
-
-                    val index =
-                        departmentsAdapter.list.indexOf(dep)//departmentsAdapter.findIndex(dep)
+                    val index = departmentsAdapter.findIndex(dep)
                     if (index < 0) {
                         dep.isUsed = true
-                        //dep.items.add(item)
-                        //departmentsAdapter.add(dep)
+                        dep.items.add(item)
+                        departmentsAdapter.list.add(dep)
                         saveDepartment(dep)
-
                     }
+
                 }
             }
         }
     }
 
-    fun keepUsedItems(dep: Department) {
-        val filter = dep.items.filter { it.isUsed }
+    private fun keepUsedItems(dep: Department) {
+        val filter = dep.items.filter { it.isUsed }.sortedWith(ItemsComparator())
         dep.items.clear()
-        dep.items.addAll(filter)
+        for (i in filter) {
+            dep.items.add(i)
+        }
     }
 
     fun classifyItem(item: Item, target: ItemsAdapter) {
@@ -90,7 +97,10 @@ object Utils {
             //Save the new item
             repo.saveItem(item)
         }
-        target.notifyItemInserted(target.list.size() - 1)
+        target.list.add(item)
+        target.list.sortedWith(ItemsComparator())
+
+        target.notifyItemInserted(target.list.indexOf(item))
     }
 
 

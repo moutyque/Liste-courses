@@ -8,27 +8,31 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
-import small.app.liste_courses.adapters.sortedListAdapterCallback.ItemCallBack
+import small.app.liste_courses.adapters.listeners.IItemUsed
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
+import small.app.liste_courses.objects.ItemsComparator
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
+//TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
-    private val canChangeUnit: Boolean
+    private val canChangeUnit: Boolean,
+    val itemUsed: IItemUsed
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(), IList<Item> {
 
-    var list = SortedList(Item::class.java, ItemCallBack(this))
-//mutableListOf<Item>()/
+    var list = mutableListOf<Item>()
+    //SortedList(Item::class.java, ItemCallBack(this))
+//mutableListOf<Item>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -80,8 +84,9 @@ abstract class ItemsAdapter(
                         Log.d("IAdapter", "Remove at position : $position")
                         Utils.saveItem(this)
                         //list.removeAt(position)
-                        //list.removeItemAt(position)
-                        //notifyItemRemoved(position)
+                        list.removeAt(position)
+                        notifyItemRemoved(position)
+                        //TODO : remove from list ?
                         //Utils.unuseItem(this, this@ItemsAdapter)
                     }
 
@@ -122,14 +127,8 @@ abstract class ItemsAdapter(
         }
     }
 
-    private fun updateQty(qty: Long, position: Int) {
-        list[position].qty = qty
-        Utils.saveItem(list[position])
-        notifyItemChanged(position)
-    }
-
     override fun getItemCount(): Int {
-        return list.size()
+        return list.size
     }
 
     class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener {
@@ -151,7 +150,11 @@ abstract class ItemsAdapter(
                 val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 val data = ClipData(clipText, mimeTypes, item)
 
-                val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
+                //measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                layout(0, 0, measuredWidth, measuredHeight)
+                val dragShadowBuilder = DragShadowBuilder(this.tv_name)
+
+                //val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
                 v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
                 longPressed = true
                 return true
@@ -164,13 +167,26 @@ abstract class ItemsAdapter(
     }
 
 
+    override fun contains(i: Item): Boolean {
+        return list.indexOf(i) > -1
+    }
+
+    override fun findIndex(i: Item): Int {
+        for (index in 0 until list.size) {
+            if (list[index].name == i.name) {
+                return index
+            }
+        }
+        return -1
+    }
+
     fun updateList(list: List<Item>?) {
         if (list != null) {
-            list.sortedBy { item -> item.order }
+            list.sortedWith(ItemsComparator())
             val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
             this.list.clear()
             this.list.addAll(list)
-            //this.list.sortedBy { item -> item.order }
+            this.list.sortedWith(ItemsComparator())
             diffResult.dispatchUpdatesTo(this)
         }
 

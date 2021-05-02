@@ -55,8 +55,9 @@ class Repository(context: Context) {
 
     fun getUnusedDepartments(): LiveData<List<Department>> {
         return MutableLiveData(
-            db.departmentDAO().getUnusedDepartment()?.value.orEmpty()
-                .map { it.toDepartment() })
+            db.departmentDAO().getUnusedDepartment().value.orEmpty().map {
+                it.toDepartment()
+            })
     }
 
     fun getDepartmentItems(depName: String): LiveData<List<Item>> {
@@ -68,11 +69,12 @@ class Repository(context: Context) {
     }
 
     fun findDepartment(name: String): Department? {
-        return db.departmentDAO().findByName(name)?.toDepartment()
+        val findByName = db.departmentDAO().findByName(name)
+        return findByName?.toDepartment() ?: null
     }
 
 
-    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>>? {
+    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>> {
         return db.departmentDAO().getUsedDepartment()
     }
 
@@ -87,18 +89,14 @@ class Repository(context: Context) {
 
     private fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
         val dep = db.departmentDAO().getItemsFromDepartment(this.name)
-        if (dep != null) {
-            Log.d("Repository", "In department $name there is ${dep.items.count()} items")
-            return Department(
-                name = dep.department.name,
-                isUsed = dep.department.isUsed,
-                items = dep.items.toMutableList(),
-                itemsCount = itemsCount,
-                order = dep.department.order
-            )
-        }
-        return Department(name = "This should not happen")
-
+        Log.d("Repository", "In department $name there is ${dep.items.count()} items")
+        return Department(
+            name = dep.department.name,
+            isUsed = dep.department.isUsed,
+            items = dep.items.toMutableList(),
+            itemsCount = itemsCount,
+            order = dep.department.order
+        )
     }
 
 

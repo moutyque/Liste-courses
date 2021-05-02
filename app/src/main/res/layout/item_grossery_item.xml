@@ -40,33 +40,31 @@
         app:srcCompat="@drawable/ic_decrease_qty" />
 
     <TextView
-        android:id="@+id/tv_unit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/s_unit"
-
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="TextView" />
-
-    <TextView
         android:id="@+id/tv_qty"
         android:layout_width="@dimen/width_qty"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_unit"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="TextView" />
+        tools:text="17" />
+
+    <TextView
+        android:id="@+id/tv_unit"
+        android:layout_width="@dimen/width_qty"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/s_unit"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="KG" />
 
     <Spinner
         android:id="@+id/s_unit"
-        android:layout_width="5dp"
+        android:layout_width="@dimen/width_qty"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
 
         app:layout_constraintEnd_toStartOf="@+id/iv_check_item"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.578" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_check_item"
