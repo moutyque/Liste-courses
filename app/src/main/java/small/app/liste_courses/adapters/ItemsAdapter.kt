@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -148,7 +149,11 @@ abstract class ItemsAdapter(
                 val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 val data = ClipData(clipText, mimeTypes, item)
 
-                val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
+                //measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                layout(0, 0, measuredWidth, measuredHeight)
+                val dragShadowBuilder = DragShadowBuilder(this.tv_name)
+
+                //val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
                 v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
                 longPressed = true
                 return true
