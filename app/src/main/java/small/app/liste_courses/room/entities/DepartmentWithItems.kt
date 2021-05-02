@@ -2,6 +2,7 @@ package small.app.liste_courses.room.entities
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import small.app.liste_courses.objects.ItemsComparator
 
 data class DepartmentWithItems(
     @Embedded val department: Department,
@@ -17,7 +18,7 @@ data class DepartmentWithItems(
             name = this.department.name,
             isUsed = this.department.isUsed,
             itemsCount = this.department.itemsCount,
-            items = this.items.toMutableList(),
+            items = this.items.toMutableList().sortedWith(ItemsComparator()).toMutableList(),
             order = this.department.order
         )
     }

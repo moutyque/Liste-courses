@@ -11,7 +11,7 @@ import small.app.liste_courses.room.Repository
 class MainActivity : AppCompatActivity() {
 
     private lateinit var repo: Repository
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,10 +21,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-
-
-
-
         binding.viewPager.offscreenPageLimit=2
         binding.viewPager.adapter = PagerAdapter(
             binding.tabLayout.tabCount, this, supportFragmentManager,
@@ -32,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.tabLayout.setupWithViewPager(binding.viewPager)
+
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -47,8 +44,21 @@ class MainActivity : AppCompatActivity() {
         })
         setContentView(binding.root)
 
+
     }
 
+
+
+
+        binding.viewPager.adapter = PagerAdapter(
+            binding.tabLayout.tabCount, this, supportFragmentManager,
+            0
+        )
+
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
+        setContentView(binding.root)
+
+    }
 
 
 }

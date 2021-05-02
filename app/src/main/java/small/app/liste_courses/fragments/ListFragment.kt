@@ -81,7 +81,7 @@ class ListFragment : Fragment() {
             if (name.isNotEmpty()) {
                 val item = Item(name = name)
                 item.isUsed = true
-                item.order=System.currentTimeMillis()
+                item.order = System.currentTimeMillis()
                 Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
@@ -165,8 +165,7 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsAdapter = DepartmentsAdapter(
-            requireContext(),
-            viewModel = viewModel
+            requireContext()
         )
 
 
@@ -179,8 +178,7 @@ class ListFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
-        //TODO: not call the first time we add an item to a department
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
+        viewModel.getUsedDepartment()?.observe(viewLifecycleOwner, {
             departmentsAdapter.updateList(it)
         })
 
@@ -201,7 +199,9 @@ class ListFragment : Fragment() {
 
         //Setup the items recycler view
         binding.rvUnclassifiedItems.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            LinearLayoutManager(
+                requireContext(), RecyclerView.VERTICAL, false
+            )
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
 
@@ -225,7 +225,6 @@ class ListFragment : Fragment() {
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder
         ): Int {
-            val swapFlags = ItemTouchHelper.UP
             val dragFlags = ItemTouchHelper.START or ItemTouchHelper.END
             return makeMovementFlags(dragFlags, 0)
         }

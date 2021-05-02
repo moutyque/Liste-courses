@@ -6,10 +6,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import small.app.liste_courses.R
+
 import small.app.liste_courses.fragments.ListFragment
 import small.app.liste_courses.fragments.ParamsFragment
 
 class PagerAdapter(private val nbTabs :Int, private val context: Context, fm: FragmentManager, behavior: Int) : FragmentPagerAdapter (fm,behavior){
+
 
 
 
@@ -24,11 +26,6 @@ class PagerAdapter(private val nbTabs :Int, private val context: Context, fm: Fr
             1 -> ParamsFragment()
             else->{
                 Log.e("PagerAdapter","How did you managed to call the tab : $position")
-                throw Exception("Unknown tab")
-            }
-        }
-
-    }
 
 
     override fun getPageTitle(position: Int): CharSequence {

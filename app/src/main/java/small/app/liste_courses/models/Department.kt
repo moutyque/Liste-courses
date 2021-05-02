@@ -1,12 +1,13 @@
 package small.app.liste_courses.models
 
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
 data class Department(
     val name: String,
     var isUsed: Boolean,
     var items: MutableList<Item>,
-    var itemsCount : Int,//Can be differents from items.size if some items are not displayed, this var is used to store the number of items not
+    var itemsCount: Int,//Can be differents from items.size if some items are not displayed, this var is used to store the number of items not
     var order: Int
 ) {
 
@@ -18,9 +19,9 @@ data class Department(
             departmentId = this@Department.name
             order = this@Department.itemsCount.toLong()
         }
-        this.items.add(item)
-        this.itemsCount++
 
+        this.itemsCount++
+        Utils.saveItem(item)
 
 
     }

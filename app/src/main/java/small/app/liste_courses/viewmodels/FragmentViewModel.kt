@@ -20,6 +20,7 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
     }
 
 
+
     fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> {
         return Utils.repo.getUsedDepartment()
     }
