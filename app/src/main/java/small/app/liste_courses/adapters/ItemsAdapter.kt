@@ -78,12 +78,11 @@ abstract class ItemsAdapter(
                         this.isUsed = false
                         //Update RV
                         Log.d("IAdapter", "Remove at position : $position")
-                        Utils.saveItem(this)
-                        //list.removeAt(position)
-                        list.removeAt(position)
-                        notifyItemRemoved(position)
-                        //TODO : remove from list ?
-                        //Utils.unuseItem(this, this@ItemsAdapter)
+                        Utils.unuseItem(this)
+                        //Keep that part even if we go through the DB process after. It help to see the modification quickly.
+                        /*val index =list.indexOf(this)
+                        list.removeAt(index)
+                        notifyItemRemoved(index)*/
                     }
 
                     holder.itemView.iv_increase_qty.setOnClickListener {

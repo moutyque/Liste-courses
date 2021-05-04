@@ -7,21 +7,23 @@ data class Department(
     val name: String,
     var isUsed: Boolean,
     var items: MutableList<Item>,
-    var itemsCount: Int,//Can be differents from items.size if some items are not displayed, this var is used to store the number of items not
+    var itemsCount: Int,//Can be different from items.size if some items are not displayed, this var is used to store the number of items not
     var order: Int
 ) {
 
 
     fun classify(item: Item) {
+        this.itemsCount+=1
         with(item) {
             isClassified = true
             isUsed = true
             departmentId = this@Department.name
             order = this@Department.itemsCount.toLong()
+            Utils.saveDepartmentAndItem(this,this@Department)//Save the new items count
         }
 
-        this.itemsCount++
-        Utils.saveItem(item)
+
+
 
 
     }

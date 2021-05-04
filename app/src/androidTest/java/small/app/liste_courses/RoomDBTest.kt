@@ -52,7 +52,7 @@ class RoomDBTest {
         val dep = Department("FRUITS", 0)
         departmentDao.insertAll(dep)
         val byName = departmentDao.findByName("FRUITS")
-        assertThat(byName.name, equalTo("FRUITS"))
+        assertThat(byName.dep_name, equalTo("FRUITS"))
 
     }
 
@@ -64,7 +64,7 @@ class RoomDBTest {
         departmentDao.insertAll(Department("LEGUMES", 1))
         departmentDao.insertAll(Department("VIANDES", 2))
         var depa = departmentDao.findByName("FRUITS")
-        assertThat(depa.name, equalTo("FRUITS"))
+        assertThat(depa.dep_name, equalTo("FRUITS"))
 
         val item: Item = Item("POMME")
         depa.classify(item)

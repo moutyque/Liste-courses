@@ -21,12 +21,15 @@ class PagerAdapter(private val nbTabs :Int, private val context: Context, fm: Fr
 
 
     override fun getItem(position: Int): Fragment {
-        return when(position){
+        return when (position) {
             0 -> ListFragment()
             1 -> ParamsFragment()
-            else->{
-                Log.e("PagerAdapter","How did you managed to call the tab : $position")
-
+            else -> {
+                Log.e("PagerAdapter", "How did you managed to call the tab : $position")
+                throw Exception("Unknown position")
+            }
+        }
+    }
 
     override fun getPageTitle(position: Int): CharSequence {
         return when (position) {

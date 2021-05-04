@@ -2,6 +2,7 @@ package small.app.liste_courses.room.entities
 
 import androidx.annotation.NonNull
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import small.app.liste_courses.objects.SIUnit
 
@@ -10,7 +11,7 @@ data class Item(
     @PrimaryKey @NonNull val name: String,
     var isClassified: Boolean = false,
     var isUsed: Boolean = false,
-    var departmentId: String = "",
+    @ForeignKey(entity = Department::class,parentColumns = ["name"],childColumns = ["departmentId"]) var departmentId: String = "",
     var order: Long = -1,
     var qty: Long = 0,
     var unit: SIUnit = SIUnit.EMPTY

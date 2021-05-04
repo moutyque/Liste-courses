@@ -45,11 +45,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-    }
-
-
-
-
         binding.viewPager.adapter = PagerAdapter(
             binding.tabLayout.tabCount, this, supportFragmentManager,
             0

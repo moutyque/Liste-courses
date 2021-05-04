@@ -22,6 +22,8 @@ import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.objects.Utils.repo
 import small.app.liste_courses.room.entities.Item
 import small.app.liste_courses.viewmodels.FragmentViewModel
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 //TODO : Si perte de focus clear le nom ?
@@ -35,7 +37,7 @@ class ListFragment : Fragment() {
 
     lateinit var departmentsAdapter: DepartmentsAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("","Oncreate")
+        Log.d("", "Oncreate")
         super.onCreate(savedInstanceState)
     }
 
@@ -82,7 +84,7 @@ class ListFragment : Fragment() {
                 val item = Item(name = name)
                 item.isUsed = true
                 item.order = System.currentTimeMillis()
-                Utils.useItem(item, unclassifiedAdapter, departmentsAdapter)
+                Utils.useItem(item, departmentsAdapter)
                 binding.actvSelectionItem.setText("")
             }
 
@@ -157,10 +159,6 @@ class ListFragment : Fragment() {
     }
 
 
-    override fun onResume() {
-        Log.d("","OnResume")
-        super.onResume()
-    }
 
     private fun setupDepartmentsRV() {
         //Create the department adapter
@@ -178,7 +176,7 @@ class ListFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
-        viewModel.getUsedDepartment()?.observe(viewLifecycleOwner, {
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
             departmentsAdapter.updateList(it)
         })
 
@@ -229,12 +227,27 @@ class ListFragment : Fragment() {
             return makeMovementFlags(dragFlags, 0)
         }
 
+
+
         override fun onMove(
             recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            mAdapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-            mAdapter.notifyItemMoved(viewHolder.adapterPosition, target.adapterPosition)
+
+            val fromPosition = viewHolder.adapterPosition
+            val toPosition= target.adapterPosition
+
+            if (fromPosition < toPosition) {
+                for (i in fromPosition until toPosition) {
+                    Collections.swap(mAdapter.list, i, i + 1)
+                }
+            } else {
+                for (i in fromPosition downTo toPosition + 1) {
+                    Collections.swap(mAdapter.list, i, i - 1)
+                }
+            }
+            mAdapter.notifyItemMoved(fromPosition, toPosition)
+            mAdapter.onItemMove(fromPosition, toPosition)
             return true
         }
 

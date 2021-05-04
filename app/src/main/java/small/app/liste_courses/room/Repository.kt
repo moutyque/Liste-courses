@@ -29,15 +29,10 @@ class Repository(context: Context) {
                 small.app.liste_courses.room.entities.Department(
                     d.name,
                     d.isUsed,
-                    d.items.size,
+                    d.itemsCount,
                     d.order
                 )
             )
-        for (i in 0 until d.items.size) {
-            saveItem(d.items[i])
-        }
-
-
     }
 
     fun getUnusedItems(): LiveData<List<Item>?> {
@@ -78,25 +73,34 @@ class Repository(context: Context) {
         return db.departmentDAO().getUsedDepartment()
     }
 
-    fun getDepartments(): LiveData<List<Department>> {
 
-        return MutableLiveData(
-            db.departmentDAO().getDepartments().value.orEmpty().map {
-                it.toDepartment()
-            })
+
+    fun unuseItem(item:Item) {
+        item.isUsed = false
+        db.itemDAO().insertAll(item)
+        if (db.itemDAO().findUsedByDepName(item.departmentId).isNullOrEmpty()) {
+            val findByName = db.departmentDAO().findByName(item.departmentId)
+            findByName?.apply {
+                dep_isUsed = false
+                db.departmentDAO().insertAll(this)
+            }
+
+        }
+
     }
 
-
     private fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
-        val dep = db.departmentDAO().getItemsFromDepartment(this.name)
-        Log.d("Repository", "In department $name there is ${dep.items.count()} items")
-        return Department(
-            name = dep.department.name,
-            isUsed = dep.department.isUsed,
-            items = dep.items.toMutableList(),
-            itemsCount = itemsCount,
-            order = dep.department.order
-        )
+        val dep = db.departmentDAO().getItemsFromDepartment(this.dep_name)
+        dep?.apply {Log.d("Repository", "In department $dep_name there is ${dep.items.count()} items")
+            return Department(
+                name = dep.department.dep_name,
+                isUsed = dep.department.dep_isUsed,
+                items = dep.items.toMutableList(),
+                itemsCount = dep_itemsCount,
+                order = dep.department.dep_order
+            )  }
+        throw Exception("Unknown department name ${this.dep_name}")
+
     }
 
 

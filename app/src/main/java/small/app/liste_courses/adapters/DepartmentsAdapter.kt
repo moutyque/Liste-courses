@@ -16,11 +16,10 @@ import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.DepartmentWithItems
-import small.app.liste_courses.viewmodels.FragmentViewModel
 
 
 class DepartmentsAdapter(
-    context: Context, onlyUsed: Boolean = true, val viewModel: FragmentViewModel
+    context: Context, onlyUsed: Boolean = true
 ) :
     DepartmentsAbstractAdapter(context, onlyUsed) {
 
@@ -113,13 +112,13 @@ class DepartmentsAdapter(
 
     override fun updateList(inList: List<DepartmentWithItems>?) {
 
-        if (inList != null && inList.isNotEmpty()) {
+        if (inList != null) {
             val departments = inList.map { it.toDepartment() }
             departments.sortedBy { item -> item.order }
             val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, departments))
             this.list.clear()
             this.list.addAll(departments)
-            this.list.sortedBy { item -> item.order }
+            //this.list.sortedBy { item -> item.order }
             diffResult.dispatchUpdatesTo(this)
         }
     }

@@ -17,7 +17,6 @@ object Utils {
 
     fun useItem(
         item: Item,
-        unclassifiedItemsAdapter: ItemsAdapter,
         departmentsAdapter: DepartmentsAdapter
     ) {
         var dbItem: Item? = null
@@ -30,7 +29,7 @@ object Utils {
                 useClassifiedItem(dbItem!!, departmentsAdapter)
             } else {
                 //Can exist and not use, for example default option
-                useUnclassifiedItem(item, unclassifiedItemsAdapter, dbItem != null)
+                saveItem(item)
                 //Remove the item from the unclassified auto complete listpm
             }
         }
@@ -38,23 +37,7 @@ object Utils {
 
     }
 
-    private fun useUnclassifiedItem(item: Item, itemsAdapter: ItemsAdapter, exist: Boolean) {
-
-        itemsAdapter.list.add(item)//SortedList update the view when inserted
-        itemsAdapter.notifyItemInserted(itemsAdapter.list.indexOf(item))
-
-        //if (!exist)
-        //item.order = itemsAdapter.list.size.toLong()
-        saveItem(item)
-
-
-        /*mainScope.launch {
-            //New item
-            itemsAdapter.add(item)
-        }*/
-    }
-
-    private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
+        private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
         //Get the department from the item
         //Check if the department is already displayed through the department list
         //If no get the adapter and add it to the dep adapter
@@ -72,7 +55,7 @@ object Utils {
                     //Remove unuseItem
                     val dep = d!!
 
-                    keepUsedItems(dep)
+                    //keepUsedItems(dep)
                     val index = departmentsAdapter.list.indexOf(dep)
                     if (index <0){
 
@@ -85,13 +68,6 @@ object Utils {
         }
     }
 
-    private fun keepUsedItems(dep: Department) {
-        val filter = dep.items.filter { it.isUsed }.sortedWith(ItemsComparator())
-        dep.items.clear()
-        for (i in filter) {
-            dep.items.add(i)
-        }
-    }
 
     fun classifyItem(item: Item, target: ItemsAdapter) {
         backgroundScope.launch {
@@ -105,6 +81,13 @@ object Utils {
     }
 
 
+fun saveDepartmentAndItem(item:Item, department: Department){
+    backgroundScope.launch {
+        repo.saveItem(item)
+        repo.saveDepartment(department)
+    }
+}
+
 
 
     fun saveItem(item: Item) {
@@ -112,11 +95,15 @@ object Utils {
             repo.saveItem(item)
         }
     }
-
     fun saveDepartment(d: Department) {
         backgroundScope.launch {
             repo.saveDepartment(d)
+        }
+    }
 
+    fun unuseItem(item: Item){
+        backgroundScope.launch {
+            repo.unuseItem(item)
         }
     }
 }
