@@ -24,7 +24,7 @@ object Utils {
             dbItem = repo.findItem(item.name)
         }
         job.invokeOnCompletion {
-            //If exist and not classified
+            //If exist and classified
             if (dbItem != null && dbItem!!.isClassified) {
                 useClassifiedItem(dbItem!!, departmentsAdapter)
             } else {
@@ -37,7 +37,7 @@ object Utils {
 
     }
 
-        private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
+    private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
         //Get the department from the item
         //Check if the department is already displayed through the department list
         //If no get the adapter and add it to the dep adapter
@@ -52,13 +52,9 @@ object Utils {
         job.invokeOnCompletion {
             mainScope.launch {
                 if (d != null) {
-                    //Remove unuseItem
+
                     val dep = d!!
-
-                    //keepUsedItems(dep)
-                    val index = departmentsAdapter.list.indexOf(dep)
-                    if (index <0){
-
+                    if (departmentsAdapter.list.find { it.name == dep.name } == null) {
                         dep.isUsed = true
                         saveDepartment(dep)
                     }
@@ -81,13 +77,12 @@ object Utils {
     }
 
 
-fun saveDepartmentAndItem(item:Item, department: Department){
-    backgroundScope.launch {
-        repo.saveItem(item)
-        repo.saveDepartment(department)
+    fun saveDepartmentAndItem(item: Item, department: Department) {
+        backgroundScope.launch {
+            repo.saveItem(item)
+            repo.saveDepartment(department)
+        }
     }
-}
-
 
 
     fun saveItem(item: Item) {
@@ -95,13 +90,14 @@ fun saveDepartmentAndItem(item:Item, department: Department){
             repo.saveItem(item)
         }
     }
+
     fun saveDepartment(d: Department) {
         backgroundScope.launch {
             repo.saveDepartment(d)
         }
     }
 
-    fun unuseItem(item: Item){
+    fun unuseItem(item: Item) {
         backgroundScope.launch {
             repo.unuseItem(item)
         }

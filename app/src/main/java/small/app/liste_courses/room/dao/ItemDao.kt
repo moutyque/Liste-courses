@@ -14,6 +14,9 @@ interface ItemDao {
     @Query("SELECT * FROM Item WHERE isUsed == :isUsed ORDER BY `order`")
     fun getAllWithUsage(isUsed: Boolean): LiveData<List<Item>?>
 
+    @Query("SELECT name FROM Item WHERE isUsed == :isUsed ORDER BY `order`")
+    fun getUnusedItemsName(isUsed: Boolean = false): LiveData<List<String>>
+
     @Query("SELECT * FROM Item WHERE isUsed == :isUsed AND isClassified == :isClassified ORDER BY `order`")
     fun getAllWithUsageAndClassification(
         isUsed: Boolean,
@@ -35,5 +38,7 @@ interface ItemDao {
     fun findByDepName(depName: String): LiveData<List<Item>?>
 
     @Query("SELECT * FROM Item WHERE departmentId == :depName AND isUsed == :isUsed ORDER BY `order`")
-    fun findUsedByDepName(depName: String,isUsed: Boolean =true): List<Item>
+    fun findUsedByDepName(depName: String, isUsed: Boolean = true): List<Item>
+
+
 }

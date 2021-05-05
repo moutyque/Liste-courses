@@ -1,5 +1,4 @@
-Quid des departments vide (à la création, pour remettre des items)
-    => Nouvel attribut isVisible, true à la création et lorsqsu'on le re insere via l'auto completion (a ajouter), lors du remove du dernier item masquer de noveau
+//TODO : Si perte de focus clear le nom ?
 
 Mettre les unités dans le second fragment
 

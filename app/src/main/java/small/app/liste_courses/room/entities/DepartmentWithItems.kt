@@ -16,11 +16,11 @@ data class DepartmentWithItems(
 ) {
     fun toDepartment(): small.app.liste_courses.models.Department {
         return small.app.liste_courses.models.Department(
-            name = this.department.dep_name,
-            isUsed = this.department.dep_isUsed,
-            itemsCount = this.department.dep_itemsCount,
+            name = this.department.name,
+            isUsed = this.department.isUsed,
+            itemsCount = this.department.itemsCount,
             items = this.items.toMutableList().sortedWith(ItemsComparator()).toMutableList(),
-            order = this.department.dep_order
+            order = this.department.order
         )
     }
 }

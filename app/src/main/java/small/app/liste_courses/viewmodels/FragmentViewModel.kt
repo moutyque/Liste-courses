@@ -19,6 +19,9 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         return Utils.repo.getUnusedDepartments()
     }
 
+    fun getUnusedDepartmentsName(): LiveData<List<String>> {
+        return Utils.repo.getUnusedDepartmentsName()
+    }
 
 
     fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> {
@@ -27,6 +30,10 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
 
     fun getDepartmentItems(depName: String): LiveData<List<Item>?> {
         return Utils.repo.getDepartmentItems(depName)
+    }
+
+    fun getUnusedItemsName(): LiveData<List<String>> {
+        return Utils.repo.getUnusedItemsName()
     }
 
 

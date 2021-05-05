@@ -55,6 +55,10 @@ class Repository(context: Context) {
             })
     }
 
+    fun getUnusedDepartmentsName(): LiveData<List<String>> {
+        return db.departmentDAO().getUnusedDepartmentsName()
+    }
+
     fun getDepartmentItems(depName: String): LiveData<List<Item>?> {
         return db.itemDAO().findByDepName(depName)
     }
@@ -74,14 +78,13 @@ class Repository(context: Context) {
     }
 
 
-
-    fun unuseItem(item:Item) {
+    fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
         if (db.itemDAO().findUsedByDepName(item.departmentId).isNullOrEmpty()) {
             val findByName = db.departmentDAO().findByName(item.departmentId)
             findByName?.apply {
-                dep_isUsed = false
+                isUsed = false
                 db.departmentDAO().insertAll(this)
             }
 
@@ -90,16 +93,23 @@ class Repository(context: Context) {
     }
 
     private fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
-        val dep = db.departmentDAO().getItemsFromDepartment(this.dep_name)
-        dep?.apply {Log.d("Repository", "In department $dep_name there is ${dep.items.count()} items")
+        val dep = db.departmentDAO().getItemsFromDepartment(this.name)
+        dep?.apply {
+            Log.d("Repository", "In department $name there is ${dep.items.count()} items")
             return Department(
-                name = dep.department.dep_name,
-                isUsed = dep.department.dep_isUsed,
+                name = dep.department.name,
+                isUsed = dep.department.isUsed,
                 items = dep.items.toMutableList(),
-                itemsCount = dep_itemsCount,
-                order = dep.department.dep_order
-            )  }
-        throw Exception("Unknown department name ${this.dep_name}")
+                itemsCount = itemsCount,
+                order = dep.department.order
+            )
+        }
+        throw Exception("Unknown department name ${this.name}")
+
+    }
+
+    fun getUnusedItemsName(): LiveData<List<String>> {
+        return db.itemDAO().getUnusedItemsName()
 
     }
 

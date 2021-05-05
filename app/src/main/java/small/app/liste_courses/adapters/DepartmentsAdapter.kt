@@ -1,21 +1,20 @@
 package small.app.liste_courses.adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
-import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
+import small.app.liste_courses.objects.Department_Change
 import small.app.liste_courses.objects.Utils
-import small.app.liste_courses.room.entities.DepartmentWithItems
 
 
 class DepartmentsAdapter(
@@ -88,7 +87,6 @@ class DepartmentsAdapter(
     fun onItemMove(initialPosition: Int, targetPosition: Int) {
         if (initialPosition > -1 && targetPosition > -1) {
             with(list) {
-                // beginBatchedUpdates()
                 val init = get(initialPosition)
                 val target = get(targetPosition)
 
@@ -98,7 +96,6 @@ class DepartmentsAdapter(
 
                 Utils.saveDepartment(init)
                 Utils.saveDepartment(target)
-                //  endBatchedUpdates()
             }
         }
 
@@ -109,8 +106,7 @@ class DepartmentsAdapter(
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
 
-
-    override fun updateList(inList: List<DepartmentWithItems>?) {
+/*    override fun updateList(inList: List<DepartmentWithItems>?) {
 
         if (inList != null) {
             val departments = inList.map { it.toDepartment() }
@@ -121,17 +117,30 @@ class DepartmentsAdapter(
             //this.list.sortedBy { item -> item.order }
             diffResult.dispatchUpdatesTo(this)
         }
-    }
+    }*/
 
     //Only when a new department is created this is called I think
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            payloads.filterIsInstance<DepartmentWithItems>().forEach { _q ->
+            payloads.filterIsInstance<Bundle>().forEach { bundle ->
                 run {
+                    bundle.keySet().forEach { key ->
+                        run {
+                            if (key == Department_Change.NAME.toString()) {
+                                holder.itemView.tv_dep_name.text = bundle.get(key) as CharSequence?
+                            }
 
-                    fillView(position, holder)
+                            if (key == Department_Change.ITEMS.toString()) {
+                                super.onBindViewHolder(holder, position, payloads)
+                            }
+
+
+                        }
+                    }
+
+
                 }
 
             }

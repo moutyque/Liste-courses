@@ -13,17 +13,14 @@ data class Department(
 
 
     fun classify(item: Item) {
-        this.itemsCount+=1
+        this.itemsCount += 1
         with(item) {
             isClassified = true
             isUsed = true
             departmentId = this@Department.name
             order = this@Department.itemsCount.toLong()
-            Utils.saveDepartmentAndItem(this,this@Department)//Save the new items count
+            Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
         }
-
-
-
 
 
     }
@@ -36,7 +33,13 @@ data class Department(
 
         if (name != other.name) return false
         if (isUsed != other.isUsed) return false
-        if (items != other.items) return false
+
+        if (items.size != other.items.size) return false
+        for (i in items.indices) {
+            if (!items[i].equals(other.items[i])) return false
+        }
+
+        if (items.equals(other.items)) return false
         if (order != other.order) return false
 
         return true

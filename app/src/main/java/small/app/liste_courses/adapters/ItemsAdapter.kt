@@ -62,7 +62,7 @@ abstract class ItemsAdapter(
         holder.itemView.tv_unit.text = item.unit.value
 
         //Manage qty
-        holder.itemView.tv_qty.text = item.qty.toString()
+        if (holder.itemView.tv_qty.text.isEmpty()) holder.itemView.tv_qty.text = item.qty.toString()
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
@@ -79,17 +79,17 @@ abstract class ItemsAdapter(
                         //Update RV
                         Log.d("IAdapter", "Remove at position : $position")
                         Utils.unuseItem(this)
-                        //Keep that part even if we go through the DB process after. It help to see the modification quickly.
-                        /*val index =list.indexOf(this)
-                        list.removeAt(index)
-                        notifyItemRemoved(index)*/
                     }
 
                     holder.itemView.iv_increase_qty.setOnClickListener {
                         qty += unit.mutliplicator
-                        Utils.saveItem(this)
+
                         //The fact to call this recall the onBindViewHolder() better update the value
-                        holder.itemView.tv_qty.text = qty.toString()
+                        //holder.itemView.tv_qty.text = qty.toString()
+                        val bundle = Bundle()
+                        bundle.putString(Item_change.QTY.toString(), qty.toString())
+                        notifyItemChanged(position, bundle)
+                        Utils.saveItem(this)
 
                     }
                     holder.itemView.iv_decrease_qty.setOnClickListener {
@@ -97,11 +97,12 @@ abstract class ItemsAdapter(
                         if (qty < 0) {
                             qty = 0
                         }
-                        Utils.saveItem(this)
-                        holder.itemView.tv_qty.text = qty.toString()
 
-                        //notifyItemChanged(position)
-                        //updateQty(qty, position)
+                        val bundle = Bundle()
+                        bundle.putString(Item_change.QTY.toString(), qty.toString())
+                        notifyItemChanged(position, bundle)
+                        Utils.saveItem(this)
+                        // holder.itemView.tv_qty.text = qty.toString()
                     }
 
                     //Both variable are used to send the drag item

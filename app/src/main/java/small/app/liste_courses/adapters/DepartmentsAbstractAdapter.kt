@@ -5,28 +5,45 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
 import small.app.liste_courses.models.Department
+import small.app.liste_courses.objects.DepartmentComparator
 import small.app.liste_courses.room.entities.DepartmentWithItems
 
 abstract class DepartmentsAbstractAdapter(
     val context: Context,
     private val onlyUsed: Boolean = false
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var canMove = false
     val list =
         mutableListOf<Department>()
+
     override fun getItemCount(): Int {
         return list.size
     }
 
-    open fun updateList(departments: List<DepartmentWithItems>?) {
-        if (list != null) {
-            list.sortedBy { dep -> dep.order }
-            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, list), false)
+    /*
+    fun updateList(list: List<Item>?) {
+            if (list != null) {
+                list.sortedWith(ItemsComparator())
+                val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
+                this.list.clear()
+                this.list.addAll(list)
+                this.list.sortedWith(ItemsComparator())
+                diffResult.dispatchUpdatesTo(this)
+            }
+
+        }
+     */
+    open fun updateList(inlist: List<DepartmentWithItems>?) {
+        if (inlist != null) {
+            val departments = inlist.map { it.toDepartment() }
+            departments.sortedWith(DepartmentComparator())
+            val diffResult =
+                DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, departments), false)
             this.list.clear()
-            this.list.addAll(list)
-            //this.list.sortedBy { item -> item.order }
+            this.list.addAll(departments)
+            this.list.sortedWith(DepartmentComparator())
             diffResult.dispatchUpdatesTo(this)
         }
     }

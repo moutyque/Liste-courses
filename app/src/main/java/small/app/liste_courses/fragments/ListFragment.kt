@@ -26,7 +26,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-//TODO : Si perte de focus clear le nom ?
 class ListFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
@@ -60,20 +59,12 @@ class ListFragment : Fragment() {
         )
 
         //Setup the autocomplete item list
-        /* binding.actvSelectionItem.onFocusChangeListener =
-             View.OnFocusChangeListener { v, hasFocus ->
-                 if (hasFocus) {
-                     var arr: Array<String>? = null
-                     val job = backgroundScope.launch {
-                         arr = repo.getUnusedItems().map { item -> item.name }.toTypedArray()
-                     }
-                     job.invokeOnCompletion {
-                         suggestedItemsAdapter.clear()
-                         suggestedItemsAdapter.addAll(*arr!!)
-                     }
-                 }
-             }
- */
+        viewModel.getUnusedItemsName().observe(viewLifecycleOwner, {
+            suggestedItemsAdapter.clear()
+            suggestedItemsAdapter.addAll(it)
+
+        })
+
         binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
 
         //Setup btn to add an new item
@@ -100,23 +91,12 @@ class ListFragment : Fragment() {
         )
         binding.actDepartmentName.setAdapter(suggestedDepartmentsAdapter)
 
-/*        binding.actDepartmentName.onFocusChangeListener =
-            View.OnFocusChangeListener { _, hasFocus ->
-                if (hasFocus) {
-                    var arr: Array<String>? = null
-                    val job = backgroundScope.launch {
-                        arr = repo.getUnusedDepartments().map { dep -> dep.department.name }
-                            .toTypedArray()
-                    }
-                    job.invokeOnCompletion {
-                        suggestedDepartmentsAdapter.clear()
-                        suggestedDepartmentsAdapter.addAll(*arr!!)
-                    }
-                }else{
-                    binding.actDepartmentName.setText("")
-                }
-            }*/
 
+        viewModel.getUnusedDepartmentsName().observe(viewLifecycleOwner, {
+            suggestedDepartmentsAdapter.clear()
+            suggestedDepartmentsAdapter.addAll(it)
+        }
+        )
 
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
@@ -143,21 +123,14 @@ class ListFragment : Fragment() {
                     dep.isUsed = true
                     Utils.saveDepartment(dep)
 
-                    // Utils.keepUsedItems(dep)
                 }
-
-                //model.updateDepartmentsList(dep)
-
                 binding.actDepartmentName.setText("")
             }
 
         }
-
-        //SyncManager.setCreated(this)
         // Inflate the layout for this fragment
         return binding.root
     }
-
 
 
     private fun setupDepartmentsRV() {
@@ -204,8 +177,6 @@ class ListFragment : Fragment() {
     }
 
 
-
-
     class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :
         ItemTouchHelper.Callback() {
         private val mAdapter: DepartmentsAdapter = adapter
@@ -228,14 +199,13 @@ class ListFragment : Fragment() {
         }
 
 
-
         override fun onMove(
             recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
 
             val fromPosition = viewHolder.adapterPosition
-            val toPosition= target.adapterPosition
+            val toPosition = target.adapterPosition
 
             if (fromPosition < toPosition) {
                 for (i in fromPosition until toPosition) {
