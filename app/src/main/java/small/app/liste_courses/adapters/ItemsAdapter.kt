@@ -175,7 +175,6 @@ abstract class ItemsAdapter(
 
     }
 
-    //TODO : this methode is called even if there
     override fun onBindViewHolder(
         holder: ItemsViewHolder,
         position: Int,

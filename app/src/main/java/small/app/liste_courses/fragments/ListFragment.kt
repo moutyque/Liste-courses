@@ -20,6 +20,7 @@ import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.objects.Utils.repo
+import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
 import small.app.liste_courses.viewmodels.FragmentViewModel
 import java.util.*
@@ -150,7 +151,17 @@ class ListFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
-            departmentsAdapter.updateList(it)
+            val mlist = mutableListOf<DepartmentWithItems>()
+            it?.forEach { dep ->
+                val local_dep = dep
+                val local_items = mutableListOf<Item>()
+                dep.items.forEach { item ->
+                    if (item.isUsed) local_items.add(item)
+                }
+                local_dep.items = local_items
+                mlist.add(local_dep)
+            }
+            departmentsAdapter.updateList(mlist.toList())
         })
 
     }

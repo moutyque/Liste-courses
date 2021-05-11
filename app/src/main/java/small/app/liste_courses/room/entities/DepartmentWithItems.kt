@@ -11,7 +11,7 @@ data class DepartmentWithItems(
         parentColumn = "dep_name",
         entityColumn = "departmentId"
     )
-    val items: List<Item>
+    var items: List<Item>
 
 ) {
     fun toDepartment(): small.app.liste_courses.models.Department {

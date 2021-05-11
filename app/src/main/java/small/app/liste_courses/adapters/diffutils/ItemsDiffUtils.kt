@@ -28,7 +28,6 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
         val new = newList[newItemPosition]
         return old.equals(new)
     }
-    //TODO : improve this method to check which modification has been done
 
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
         val new = newList[newItemPosition]
@@ -42,6 +41,11 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
         }
         if (new.unit != old.unit) {
             bundle.putString(Item_change.UNIT.toString(), new.unit.toString())
+        }
+
+        if (new.isUsed != old.isUsed) {
+            bundle.putString(Item_change.USED.toString(), new.isUsed.toString())
+
         }
 
         return bundle

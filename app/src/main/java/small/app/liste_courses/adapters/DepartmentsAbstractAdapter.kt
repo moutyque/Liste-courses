@@ -22,19 +22,7 @@ abstract class DepartmentsAbstractAdapter(
         return list.size
     }
 
-    /*
-    fun updateList(list: List<Item>?) {
-            if (list != null) {
-                list.sortedWith(ItemsComparator())
-                val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
-                this.list.clear()
-                this.list.addAll(list)
-                this.list.sortedWith(ItemsComparator())
-                diffResult.dispatchUpdatesTo(this)
-            }
 
-        }
-     */
     open fun updateList(inlist: List<DepartmentWithItems>?) {
         if (inlist != null) {
             val departments = inlist.map { it.toDepartment() }

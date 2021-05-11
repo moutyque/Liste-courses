@@ -44,12 +44,11 @@ object Utils {
         //If yes add the item to the items list in the dep adapter => Update department and notify change on dep adapter
 
         var d: Department? = null
-        val job = backgroundScope.launch {
+        backgroundScope.launch {
             item.isUsed = true
             repo.saveItem(item)
+        }.invokeOnCompletion {
             d = repo.findDepartment(item.departmentId)
-        }
-        job.invokeOnCompletion {
             mainScope.launch {
                 if (d != null) {
 

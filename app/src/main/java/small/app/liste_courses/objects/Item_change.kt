@@ -6,6 +6,7 @@ enum class Item_change {
     ORDER,
     DEPARTMENT_ID,
     QTY,
-    UNKNOWN
+    USED,
+    UNKNOWN;
 
 }

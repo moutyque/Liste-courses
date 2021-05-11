@@ -106,19 +106,6 @@ class DepartmentsAdapter(
     class DepartmentViewHolder(view: View) : ViewHolder(view)
 
 
-/*    override fun updateList(inList: List<DepartmentWithItems>?) {
-
-        if (inList != null) {
-            val departments = inList.map { it.toDepartment() }
-            departments.sortedBy { item -> item.order }
-            val diffResult = DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, departments))
-            this.list.clear()
-            this.list.addAll(departments)
-            //this.list.sortedBy { item -> item.order }
-            diffResult.dispatchUpdatesTo(this)
-        }
-    }*/
-
     //Only when a new department is created this is called I think
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) {

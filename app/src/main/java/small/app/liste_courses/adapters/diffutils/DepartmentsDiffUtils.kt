@@ -1,9 +1,7 @@
 package small.app.liste_courses.adapters.diffutils
 
-import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
 import small.app.liste_courses.models.Department
-import small.app.liste_courses.objects.Department_Change
 
 class DepartmentsDiffUtils(
     private val oldList: List<Department>,
@@ -28,19 +26,19 @@ class DepartmentsDiffUtils(
         return old.equals(new)
     }
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+    /*  override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
 
-        if (newList.size != oldList.size || newItemPosition >= newList.size || oldItemPosition >= oldList.size) return null
-        val new = newList[newItemPosition]
-        val old = oldList[oldItemPosition]
-        val bundle = Bundle()
-        if (new.name != old.name) {
-            bundle.putString(Department_Change.NAME.toString(), new.name)
-        }
-        if (new.items != old.items) {
-            bundle.putString(Department_Change.ITEMS.toString(), "")
-        }
+          if (newList.size != oldList.size || newItemPosition >= newList.size || oldItemPosition >= oldList.size) return null
+          val new = newList[newItemPosition]
+          val old = oldList[oldItemPosition]
+          val bundle = Bundle()
+          if (new.name != old.name) {
+              bundle.putString(Department_Change.NAME.toString(), new.name)
+          }
+          if (new.items != old.items) {
+              bundle.putString(Department_Change.ITEMS.toString(), "")
+          }
 
-        return bundle
-    }
+          return bundle
+      }*/
 }
