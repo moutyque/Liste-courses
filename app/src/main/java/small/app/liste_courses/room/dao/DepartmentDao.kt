@@ -30,7 +30,7 @@ interface DepartmentDao {
 
     //Left join for the new department that have no items inside
     @Transaction
-    @Query("SELECT  *  FROM  Department  LEFT JOIN Item ON Item.departmentId = Department.dep_name  AND Item.isUsed=:used  WHERE Department.dep_isUsed = :used ORDER BY Department.dep_order")
+    @Query("SELECT  *  FROM  Department  WHERE Department.dep_isUsed = :used ORDER BY Department.dep_order")
     fun getUsedDepartment(used: Int = 1): LiveData<List<DepartmentWithItems>?>
 
     @Transaction

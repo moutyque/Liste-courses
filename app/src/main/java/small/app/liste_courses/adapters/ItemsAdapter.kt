@@ -62,7 +62,9 @@ abstract class ItemsAdapter(
         holder.itemView.tv_unit.text = item.unit.value
 
         //Manage qty
-        if (holder.itemView.tv_qty.text.isEmpty()) holder.itemView.tv_qty.text = item.qty.toString()
+        //if (holder.itemView.tv_qty.text.isEmpty()) {
+        holder.itemView.tv_qty.text = item.qty.toString()
+        // }
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
@@ -85,7 +87,6 @@ abstract class ItemsAdapter(
                         qty += unit.mutliplicator
 
                         //The fact to call this recall the onBindViewHolder() better update the value
-                        //holder.itemView.tv_qty.text = qty.toString()
                         val bundle = Bundle()
                         bundle.putString(Item_change.QTY.toString(), qty.toString())
                         notifyItemChanged(position, bundle)
@@ -102,7 +103,6 @@ abstract class ItemsAdapter(
                         bundle.putString(Item_change.QTY.toString(), qty.toString())
                         notifyItemChanged(position, bundle)
                         Utils.saveItem(this)
-                        // holder.itemView.tv_qty.text = qty.toString()
                     }
 
                     //Both variable are used to send the drag item
@@ -180,8 +180,8 @@ abstract class ItemsAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-
-        if (payloads.isEmpty()) {
+        super.onBindViewHolder(holder, position, payloads)
+/*        if (payloads.isEmpty()) {
             //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -206,7 +206,7 @@ abstract class ItemsAdapter(
 
             }
 
-        }
+        }*/
 
     }
 }
