@@ -21,8 +21,7 @@ class ItemsDropListener(private val itemsAdapter: ItemsAdapter, private val dep:
                     Log.d("DAdapter", "Dropped ${droppedItem.item.name}")
 
                     dep.classify(droppedItem.item)
-
-                    Utils.classifyItem(droppedItem.item, itemsAdapter)
+                    Utils.saveItem(droppedItem.item)
                     Utils.saveDepartment(dep)
 
                 }

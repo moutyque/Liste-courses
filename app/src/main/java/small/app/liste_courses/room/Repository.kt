@@ -69,7 +69,7 @@ class Repository(context: Context) {
 
     fun findDepartment(name: String): Department? {
         val findByName = db.departmentDAO().findByName(name)
-        return findByName?.toDepartment() ?: null
+        return findByName?.toDepartment()
     }
 
 
@@ -110,6 +110,14 @@ class Repository(context: Context) {
 
     fun getUnusedItemsName(): LiveData<List<String>> {
         return db.itemDAO().getUnusedItemsName()
+
+    }
+
+    fun changeItemQty(name: String, newQty: Long) {
+db.itemDAO().findByName(name)?.apply{
+    qty=newQty
+    saveItem(this)
+}
 
     }
 

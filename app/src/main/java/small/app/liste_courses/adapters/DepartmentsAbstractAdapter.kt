@@ -15,13 +15,13 @@ abstract class DepartmentsAbstractAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var canMove = false
-    val list =
-        mutableListOf<Department>()
+    private val _list=  mutableListOf<Department>()
+    val list: List<Department>
+        get()=_list
 
     override fun getItemCount(): Int {
         return list.size
     }
-
 
     open fun updateList(inlist: List<DepartmentWithItems>?) {
         if (inlist != null) {
@@ -29,10 +29,12 @@ abstract class DepartmentsAbstractAdapter(
             departments.sortedWith(DepartmentComparator())
             val diffResult =
                 DiffUtil.calculateDiff(DepartmentsDiffUtils(this.list, departments), false)
-            this.list.clear()
-            this.list.addAll(departments)
-            this.list.sortedWith(DepartmentComparator())
             diffResult.dispatchUpdatesTo(this)
+            this._list.clear()
+            this._list.addAll(departments)
+
+            //this.list.sortedWith(DepartmentComparator())
+
         }
     }
 

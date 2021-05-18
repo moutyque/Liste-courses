@@ -21,14 +21,12 @@ import small.app.liste_courses.objects.ItemsComparator
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
-//TODO : issue with the list which is updated befoe the DiffUtils is call
 abstract class ItemsAdapter(
     private val context: Context,
     private val canChangeUnit: Boolean
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
-
-    var list = mutableListOf<Item>()
+    private val list = mutableListOf<Item>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -84,35 +82,21 @@ abstract class ItemsAdapter(
                     }
 
                     holder.itemView.iv_increase_qty.setOnClickListener {
-                        qty += unit.mutliplicator
-
-                        //The fact to call this recall the onBindViewHolder() better update the value
-                        val bundle = Bundle()
-                        bundle.putString(Item_change.QTY.toString(), qty.toString())
-                        notifyItemChanged(position, bundle)
-                        Utils.saveItem(this)
-
+                        this.qty+=unit.mutliplicator
+                       Utils.saveItem(this)
+                        holder.itemView.tv_qty.text = this.qty.toString()
                     }
                     holder.itemView.iv_decrease_qty.setOnClickListener {
-                        qty -= unit.mutliplicator
-                        if (qty < 0) {
-                            qty = 0
-                        }
-
-                        val bundle = Bundle()
-                        bundle.putString(Item_change.QTY.toString(), qty.toString())
-                        notifyItemChanged(position, bundle)
+                        this.qty = Math.max(0,this.qty-unit.mutliplicator)
                         Utils.saveItem(this)
+                        holder.itemView.tv_qty.text = this.qty.toString()
+
                     }
 
                     //Both variable are used to send the drag item
                     holder.model = this
                     holder.adapter = this@ItemsAdapter
                     holder.onLongClick(holder.itemView)
-
-                    // Creates a new drag event listener
-                    //val dragListen = ItemsDragListener(this)
-                    //holder.itemView.setOnDragListener(dragListen)
 
                 } else {
                     holder.itemView.visibility = View.GONE
@@ -167,10 +151,12 @@ abstract class ItemsAdapter(
         if (list != null) {
             list.sortedWith(ItemsComparator())
             val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
+            diffResult.dispatchUpdatesTo(this)
+
             this.list.clear()
             this.list.addAll(list)
-            this.list.sortedWith(ItemsComparator())
-            diffResult.dispatchUpdatesTo(this)
+            //this.list.sortedWith(ItemsComparator())
+
         }
 
     }
@@ -180,8 +166,8 @@ abstract class ItemsAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        super.onBindViewHolder(holder, position, payloads)
-/*        if (payloads.isEmpty()) {
+       // super.onBindViewHolder(holder, position, payloads)
+        if (payloads.isEmpty()) {
             //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -206,7 +192,7 @@ abstract class ItemsAdapter(
 
             }
 
-        }*/
+        }
 
     }
 }
