@@ -59,13 +59,19 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
 
-        val itemsAdapter = DepartmentItemsAdapter(
-            context,
-            false
-        )
-        holder.itemView.rv_items.layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        holder.itemView.rv_items.adapter = itemsAdapter
+        var itemsAdapter = holder.itemView.rv_items.adapter
+        if (itemsAdapter == null) {
+            itemsAdapter = DepartmentItemsAdapter(
+                context,
+                false
+            )
+            holder.itemView.rv_items.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            holder.itemView.rv_items.adapter = itemsAdapter
+        }
+
+        (itemsAdapter as DepartmentItemsAdapter).updateList(model.items)
+
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
     }

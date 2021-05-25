@@ -87,11 +87,6 @@ object Utils {
         }
     }
 
-    fun changeItemQty(name : String,newQty : Long){
-        backgroundScope.launch {
-            repo.changeItemQty(name,newQty)
-        }
-    }
 
     fun getFilteredDepartmentWithItems(it: List<DepartmentWithItems>?): MutableList<DepartmentWithItems> {
         val mlist = mutableListOf<DepartmentWithItems>()

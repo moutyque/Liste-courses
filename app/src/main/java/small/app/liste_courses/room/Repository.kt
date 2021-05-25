@@ -11,16 +11,14 @@ import small.app.liste_courses.room.entities.Item
 class Repository(context: Context) {
     private val db = getInstance(context)
 
-    fun getAllDepartment(): List<Department> {
+    fun getNumberOfDepartments() : Int{
+        return db.departmentDAO().getNbDep()
+    }
 
-        val list = ArrayList<Department>()
-        val all = db.departmentDAO().getAll()
-        Log.d("Repository", "There is ${all.size} departments ")
-        for (d in all) {
-            list.add(d.toDepartment())
-        }
-        list.sortBy { d -> d.order }
-        return list.toList()
+    fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> {
+
+        return  db.departmentDAO().getAllDepartment()
+
     }
 
     fun saveDepartment(d: Department) {
@@ -113,13 +111,8 @@ class Repository(context: Context) {
 
     }
 
-    fun changeItemQty(name: String, newQty: Long) {
-db.itemDAO().findByName(name)?.apply{
-    qty=newQty
-    saveItem(this)
-}
 
-    }
+
 
 
 }

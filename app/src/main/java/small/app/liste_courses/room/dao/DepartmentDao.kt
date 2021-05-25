@@ -9,7 +9,7 @@ import small.app.liste_courses.room.entities.DepartmentWithItems
 @Dao
 interface DepartmentDao {
     @Query("SELECT * FROM Department")
-    fun getAll(): List<Department>
+    fun getAll(): LiveData<List<Department>?>
 
     @Transaction
     @Query("SELECT * FROM Department WHERE dep_name==:departmentName ORDER BY dep_order")
@@ -17,7 +17,7 @@ interface DepartmentDao {
 
     @Transaction
     @Query("SELECT * FROM Department ORDER BY dep_order")
-    fun getAllDepartment(): LiveData<List<DepartmentWithItems>>
+    fun getAllDepartment(): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
     @Query("SELECT * FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
@@ -47,6 +47,9 @@ interface DepartmentDao {
     @Transaction
     @Delete
     fun delete(item: Department)
+
+    @Query("SELECT COUNT(*) FROM Department")
+    fun getNbDep(): Int
 
 
 }

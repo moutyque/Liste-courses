@@ -36,5 +36,9 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         return Utils.repo.getUnusedItemsName()
     }
 
+    fun getAllDepartments() : LiveData<List<DepartmentWithItems>?>{
+        return  Utils.repo.getAllDepartments()
+    }
+
 
 }
