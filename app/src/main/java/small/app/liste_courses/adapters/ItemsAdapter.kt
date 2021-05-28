@@ -22,11 +22,11 @@ import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
 abstract class ItemsAdapter(
-    private val context: Context,
-    private val canChangeUnit: Boolean
+    protected val context: Context,
+    protected val canChangeUnit: Boolean
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
-    private val list = mutableListOf<Item>()
+    protected val list = mutableListOf<Item>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -39,7 +39,7 @@ abstract class ItemsAdapter(
     }
 
 
-    private fun fillView(holder: ItemsViewHolder, item: Item) {
+    protected fun fillView(holder: ItemsViewHolder, item: Item) {
         holder.itemView.tv_name.text = item.name
         if (item.isClassified) {
             holder.itemView.iv_check_item.visibility = View.VISIBLE
@@ -48,15 +48,11 @@ abstract class ItemsAdapter(
             holder.itemView.iv_check_item.visibility = View.GONE
         }
 
-        //Manage the view of the drop down list of unit
-        if (canChangeUnit) {
-            holder.itemView.tv_unit.visibility = View.GONE
-            holder.itemView.s_unit.visibility = View.VISIBLE
 
-        } else {
-            holder.itemView.tv_unit.visibility = View.VISIBLE
-            holder.itemView.s_unit.visibility = View.GONE
-        }
+
+        holder.itemView.tv_unit.visibility = View.VISIBLE
+        holder.itemView.s_unit.visibility = View.GONE
+
         holder.itemView.tv_unit.text = item.unit.value
 
         //Manage qty
@@ -66,8 +62,7 @@ abstract class ItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        val model = list[position]
-        with(model) {
+        with(list[position]) {
             Log.d("IAdapter", name)
             Log.d("IAdapter", " $position")
             if (name.isNotEmpty()) {
@@ -82,16 +77,18 @@ abstract class ItemsAdapter(
                     }
 
                     holder.itemView.iv_increase_qty.setOnClickListener {
-                        this.qty+=unit.mutliplicator
-                       Utils.saveItem(this)
+                        this.qty += unit.mutliplicator
+                        Utils.saveItem(this)
                         holder.itemView.tv_qty.text = this.qty.toString()
                     }
                     holder.itemView.iv_decrease_qty.setOnClickListener {
-                        this.qty = Math.max(0,this.qty-unit.mutliplicator)
+                        this.qty = Math.max(0, this.qty - unit.mutliplicator)
                         Utils.saveItem(this)
                         holder.itemView.tv_qty.text = this.qty.toString()
 
                     }
+
+                    holder.itemView.tv_unit.text = this.unit.value
 
                     //Both variable are used to send the drag item
                     holder.model = this
@@ -166,7 +163,7 @@ abstract class ItemsAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-       // super.onBindViewHolder(holder, position, payloads)
+        // super.onBindViewHolder(holder, position, payloads)
         if (payloads.isEmpty()) {
             //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
@@ -183,6 +180,9 @@ abstract class ItemsAdapter(
                                 holder.itemView.tv_qty.text = bundle.get(key) as CharSequence?
                             }
 
+                            if (key == Item_change.UNIT.toString()) {
+                                holder.itemView.tv_unit.text = bundle.get(key) as CharSequence?
+                            }
 
                         }
                     }

@@ -40,7 +40,7 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
             bundle.putString(Item_change.QTY.toString(), new.qty.toString())
         }
         if (new.unit != old.unit) {
-            bundle.putString(Item_change.UNIT.toString(), new.unit.toString())
+            bundle.putString(Item_change.UNIT.toString(), new.unit.value)
         }
 
         if (new.isUsed != old.isUsed) {

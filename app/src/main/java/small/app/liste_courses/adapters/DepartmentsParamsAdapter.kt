@@ -8,16 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_department.view.*
+import kotlinx.android.synthetic.main.item_department.view.rv_items
+import kotlinx.android.synthetic.main.item_department.view.tv_dep_name
+import kotlinx.android.synthetic.main.item_department_param.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
 
 /*
-TODO : Display all department and all items under it
 TODO : Manage modification of qty and unit
 TODO : Manage items order
 TODO : Manager department order
-
 TODO : update main fragment
  */
 class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
@@ -30,7 +30,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
     ): RecyclerView.ViewHolder {
         return DepartmentsParamsViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.item_departmnet_param,
+                R.layout.item_department_param,
                 parent,
                 false
             )
@@ -63,14 +63,28 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         if (itemsAdapter == null) {
             itemsAdapter = DepartmentItemsAdapter(
                 context,
-                false
+                true
             )
             holder.itemView.rv_items.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             holder.itemView.rv_items.adapter = itemsAdapter
         }
 
-        (itemsAdapter as DepartmentItemsAdapter).updateList(model.items)
+        (itemsAdapter as ItemsAdapter).updateList(model.items)
+
+        holder.itemView.ib_expand.setOnClickListener {
+            holder.itemView.ib_expand.visibility = View.GONE
+            holder.itemView.ib_collapse.visibility = View.VISIBLE
+            holder.itemView.rv_items.visibility = View.VISIBLE
+        }
+
+        holder.itemView.ib_collapse.setOnClickListener {
+            holder.itemView.ib_expand.visibility = View.VISIBLE
+            holder.itemView.ib_collapse.visibility = View.GONE
+            holder.itemView.rv_items.visibility = View.GONE
+
+
+        }
 
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)

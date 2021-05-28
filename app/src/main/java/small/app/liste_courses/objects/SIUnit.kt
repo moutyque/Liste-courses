@@ -5,6 +5,10 @@ enum class SIUnit(val value: String, val mutliplicator: Int) {
     KG("kg", 1),
     G("g", 100),
     L("L", 1),
-    CL("cL", 10)
+    CL("cL", 10);
 
+    companion object {
+        private val map = SIUnit.values().associateBy(SIUnit::value)
+        fun fromValue(value: String): SIUnit = map[value]!!
+    }
 }

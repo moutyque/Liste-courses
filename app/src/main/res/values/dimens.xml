@@ -5,4 +5,5 @@
     <dimen name="width_button_add">50dp</dimen>
     <dimen name="department_width">230dp</dimen>
     <dimen name="width_qty">30dp</dimen>
+    <dimen name="width_units">60dp</dimen>
 </resources>
