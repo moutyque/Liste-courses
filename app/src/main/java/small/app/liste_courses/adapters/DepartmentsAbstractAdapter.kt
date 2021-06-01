@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.DepartmentComparator
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.DepartmentWithItems
 
 abstract class DepartmentsAbstractAdapter(
@@ -36,6 +37,23 @@ abstract class DepartmentsAbstractAdapter(
             //this.list.sortedWith(DepartmentComparator())
 
         }
+    }
+    fun onItemMove(initialPosition: Int, targetPosition: Int) {
+        if (initialPosition > -1 && targetPosition > -1) {
+            with(list) {
+                val init = get(initialPosition)
+                val target = get(targetPosition)
+
+                val tmp = init.order
+                init.order = target.order
+                target.order = tmp
+
+                Utils.saveDepartment(init)
+                Utils.saveDepartment(target)
+            }
+        }
+
+
     }
 
 

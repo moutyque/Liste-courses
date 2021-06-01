@@ -22,9 +22,14 @@ class DepartmentItemsAdapter(
         super.onBindViewHolder(holder, position)
         holder.itemView.iv_check_item.visibility = View.GONE
 //Manage the view of the drop down list of unit
-        if (canChangeUnit) {
+        if (canChangeParam) {
             holder.itemView.tv_unit.visibility = View.GONE
             holder.itemView.s_unit.visibility = View.VISIBLE
+
+            holder.itemView.ib_delete_item.visibility = View.VISIBLE
+            holder.itemView.ib_delete_item.setOnClickListener {
+Utils.deleteItem(list[position])
+            }
             if (holder.itemView.s_unit.adapter == null) {
                 val unitList = arrayListOf<String>()
 
@@ -43,15 +48,24 @@ class DepartmentItemsAdapter(
                 holder.itemView.s_unit.adapter = adapter
                 holder.itemView.s_unit.onItemSelectedListener =
                     object : AdapterView.OnItemSelectedListener {
+                        var initilized = false
                         override fun onItemSelected(
                             parent: AdapterView<*>?,
                             view: View?,
                             position: Int,
                             id: Long
                         ) {
-                            //TODO : add a variable to know when we initialize the spinner and call this methode for the fist time
-                            list[itemPosition].unit = SIUnit.fromValue(unitList[position])
-                            Utils.saveItem(list[itemPosition])
+                          when(initilized){
+                              true->{
+                                  list[itemPosition].unit = SIUnit.fromValue(unitList[position])
+                                  Utils.saveItem(list[itemPosition])
+                              }
+                              false -> {
+                                  holder.itemView.s_unit.setSelection(unitList.indexOf(list[itemPosition].unit.value))
+                                  initilized = true
+                              }
+                          }
+
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {

@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import small.app.liste_courses.adapters.DepartmentsAdapter
+import small.app.liste_courses.adapters.DepartmentsListAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
+import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.databinding.FragmentMainBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
@@ -22,8 +23,6 @@ import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.objects.Utils.repo
 import small.app.liste_courses.room.entities.Item
 import small.app.liste_courses.viewmodels.FragmentViewModel
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class ListFragment : Fragment() {
@@ -34,7 +33,7 @@ class ListFragment : Fragment() {
 
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
-    lateinit var departmentsAdapter: DepartmentsAdapter
+    lateinit var departmentsListAdapter: DepartmentsListAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("", "Oncreate")
         super.onCreate(savedInstanceState)
@@ -75,7 +74,7 @@ class ListFragment : Fragment() {
                 val item = Item(name = name)
                 item.isUsed = true
                 item.order = System.currentTimeMillis()
-                Utils.useItem(item, departmentsAdapter)
+                Utils.useItem(item, departmentsListAdapter)
                 binding.actvSelectionItem.setText("")
             }
 
@@ -135,7 +134,7 @@ class ListFragment : Fragment() {
 
     private fun setupDepartmentsRV() {
         //Create the department adapter
-        departmentsAdapter = DepartmentsAdapter(
+        departmentsListAdapter = DepartmentsListAdapter(
             requireContext()
         )
 
@@ -143,15 +142,15 @@ class ListFragment : Fragment() {
         //Setup departments recycler view
         binding.rvDepartment.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvDepartment.adapter = departmentsAdapter
+        binding.rvDepartment.adapter = departmentsListAdapter
 
-        val callback = SimpleItemTouchHelperCallback(departmentsAdapter)
+        val callback = SimpleItemTouchHelperCallback(departmentsListAdapter,SimpleItemTouchHelperCallback.Direction.HORIZONTAL)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
             val mlist = Utils.getFilteredDepartmentWithItems(it)
-            departmentsAdapter.updateList(mlist.toList())
+            departmentsListAdapter.updateList(mlist.toList())
         })
 
     }
@@ -180,74 +179,5 @@ class ListFragment : Fragment() {
     }
 
 
-    class SimpleItemTouchHelperCallback(adapter: DepartmentsAdapter) :
-        ItemTouchHelper.Callback() {
-        private val mAdapter: DepartmentsAdapter = adapter
-        override fun isLongPressDragEnabled(): Boolean {
-            Log.d("SimpleItemTouchHelperCallback", "Can u click")
-            return mAdapter.canMove
-        }
-
-
-        override fun isItemViewSwipeEnabled(): Boolean {
-            return true
-        }
-
-        override fun getMovementFlags(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder
-        ): Int {
-            val dragFlags = ItemTouchHelper.START or ItemTouchHelper.END
-            return makeMovementFlags(dragFlags, 0)
-        }
-
-
-        override fun onMove(
-            recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-
-            val fromPosition = viewHolder.adapterPosition
-            val toPosition = target.adapterPosition
-
-            if (fromPosition < toPosition) {
-                for (i in fromPosition until toPosition) {
-                    Collections.swap(mAdapter.list, i, i + 1)
-                }
-            } else {
-                for (i in fromPosition downTo toPosition + 1) {
-                    Collections.swap(mAdapter.list, i, i - 1)
-                }
-            }
-            mAdapter.notifyItemMoved(fromPosition, toPosition)
-            mAdapter.onItemMove(fromPosition, toPosition)
-            return true
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            //TODO : Might need to implement it later
-            Log.d("DDSwipe", "In the onSwipe")
-        }
-
-        override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-            return 0.0f
-        }
-
-        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-            super.onSelectedChanged(viewHolder, actionState)
-            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                viewHolder?.itemView?.alpha = 0.5f
-                mAdapter.canMove = false
-            }
-        }
-
-        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-
-            super.clearView(recyclerView, viewHolder)
-            viewHolder.itemView.alpha = 1.0f
-        }
-
-
-    }
 
 }

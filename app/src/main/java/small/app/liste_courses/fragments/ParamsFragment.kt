@@ -6,17 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.liste_courses.adapters.DepartmentsParamsAdapter
+import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.databinding.FragmentParamsBinding
+import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.viewmodels.FragmentViewModel
 
 
 /*
-TODO : update recycler view when :
-    new department
-    classify item
-    update item info
+TODO : change the order of items
  */
 class ParamsFragment : Fragment() {
 
@@ -48,8 +48,15 @@ class ParamsFragment : Fragment() {
         binding.rvDepartments.adapter = departmentsAdapter
 
         viewModel.getAllDepartments().observe(viewLifecycleOwner, {
-            departmentsAdapter.updateList(it)
+            val mlist = Utils.getFilteredDepartmentWithItems(it)
+            departmentsAdapter.updateList(mlist.toList())
         })
+
+
+        val callback = SimpleItemTouchHelperCallback(departmentsAdapter,
+            SimpleItemTouchHelperCallback.Direction.VERTICAL)
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.rvDepartments)
 
 
     }

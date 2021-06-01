@@ -79,6 +79,11 @@ class Repository(context: Context) {
     fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
+        updateDepartmentUsage(item)
+
+    }
+
+    private fun updateDepartmentUsage(item: Item) {
         if (db.itemDAO().findUsedByDepName(item.departmentId).isNullOrEmpty()) {
             val findByName = db.departmentDAO().findByName(item.departmentId)
             findByName?.apply {
@@ -87,7 +92,6 @@ class Repository(context: Context) {
             }
 
         }
-
     }
 
     private fun small.app.liste_courses.room.entities.Department.toDepartment(): Department {
@@ -111,8 +115,26 @@ class Repository(context: Context) {
 
     }
 
+    fun deleteItem(item: Item) {
+        db.itemDAO().delete(item)
+        updateDepartmentUsage(item)
+    }
+
+    fun deleteDepartment(department: Department) {
+
+        val dep = small.app.liste_courses.room.entities.Department(name = department.name,isUsed = department.isUsed,itemsCount = department.itemsCount,order = department.order)
+            db.departmentDAO().delete(dep)
+
+        department.items.forEach {
+            it.order = System.currentTimeMillis()
+            it.isClassified = false
+            it.departmentId = ""
+            db.itemDAO().insertAll(it)
+
+        }
 
 
+    }
 
 
 }

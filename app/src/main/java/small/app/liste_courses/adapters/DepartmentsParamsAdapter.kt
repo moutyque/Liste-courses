@@ -13,13 +13,8 @@ import kotlinx.android.synthetic.main.item_department.view.tv_dep_name
 import kotlinx.android.synthetic.main.item_department_param.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
+import small.app.liste_courses.objects.Utils
 
-/*
-TODO : Manage modification of qty and unit
-TODO : Manage items order
-TODO : Manager department order
-TODO : update main fragment
- */
 class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
     DepartmentsAbstractAdapter(context, onlyUsed) {
 
@@ -88,6 +83,10 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
+
+       holder.itemView.ib_delete_department.setOnClickListener {
+           Utils.deleteDepartment(list[position])
+       }
     }
 
 

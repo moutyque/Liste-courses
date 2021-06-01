@@ -18,12 +18,15 @@ import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.models.DragItem
 import small.app.liste_courses.objects.Item_change
 import small.app.liste_courses.objects.ItemsComparator
+import small.app.liste_courses.objects.SIUnit
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
+//TODO : add modfication name & change order
+
 
 abstract class ItemsAdapter(
     protected val context: Context,
-    protected val canChangeUnit: Boolean
+    protected val canChangeParam: Boolean
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
     protected val list = mutableListOf<Item>()
@@ -39,7 +42,7 @@ abstract class ItemsAdapter(
     }
 
 
-    protected fun fillView(holder: ItemsViewHolder, item: Item) {
+    private fun fillView(holder: ItemsViewHolder, item: Item) {
         holder.itemView.tv_name.text = item.name
         if (item.isClassified) {
             holder.itemView.iv_check_item.visibility = View.VISIBLE
@@ -48,50 +51,46 @@ abstract class ItemsAdapter(
             holder.itemView.iv_check_item.visibility = View.GONE
         }
 
-
-
         holder.itemView.tv_unit.visibility = View.VISIBLE
         holder.itemView.s_unit.visibility = View.GONE
 
         holder.itemView.tv_unit.text = item.unit.value
 
-        //Manage qty
-        //if (holder.itemView.tv_qty.text.isEmpty()) {
         holder.itemView.tv_qty.text = item.qty.toString()
-        // }
+
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        with(list[position]) {
-            Log.d("IAdapter", name)
-            Log.d("IAdapter", " $position")
-            if (name.isNotEmpty()) {
 
-                if (isUsed) {
-                    fillView(holder, this)
+            Log.d("IAdapter", list[position].name)
+            Log.d("IAdapter", " $position")
+            if (list[position].name.isNotEmpty()) {
+
+                if (list[position].isUsed) {
+                    fillView(holder, list[position])
                     holder.itemView.iv_check_item.setOnClickListener {
-                        this.isUsed = false
+                        list[position].isUsed = false
                         //Update RV
                         Log.d("IAdapter", "Remove at position : $position")
-                        Utils.unuseItem(this)
+                        Utils.unuseItem(list[position])
                     }
 
                     holder.itemView.iv_increase_qty.setOnClickListener {
-                        this.qty += unit.mutliplicator
-                        Utils.saveItem(this)
-                        holder.itemView.tv_qty.text = this.qty.toString()
+                        list[position].qty += list[position].unit.mutliplicator
+                        Utils.saveItem(list[position])
+                        holder.itemView.tv_qty.text = list[position].qty.toString()
                     }
                     holder.itemView.iv_decrease_qty.setOnClickListener {
-                        this.qty = Math.max(0, this.qty - unit.mutliplicator)
-                        Utils.saveItem(this)
-                        holder.itemView.tv_qty.text = this.qty.toString()
+                        list[position].qty = Math.max(0, list[position].qty - list[position].unit.mutliplicator)
+                        Utils.saveItem(list[position])
+                        holder.itemView.tv_qty.text = list[position].qty.toString()
 
                     }
 
-                    holder.itemView.tv_unit.text = this.unit.value
+                    holder.itemView.tv_unit.text = list[position].unit.value
 
                     //Both variable are used to send the drag item
-                    holder.model = this
+                    holder.model = list[position]
                     holder.adapter = this@ItemsAdapter
                     holder.onLongClick(holder.itemView)
 
@@ -101,7 +100,7 @@ abstract class ItemsAdapter(
                 }
             }
 
-        }
+
     }
 
     override fun getItemCount(): Int {
@@ -172,16 +171,17 @@ abstract class ItemsAdapter(
                 run {
                     bundle.keySet().forEach { key ->
                         run {
-                            if (key == Item_change.UNIT.toString()) {
-                                holder.itemView.tv_unit.text = bundle.get(key) as CharSequence?
-                            }
 
                             if (key == Item_change.QTY.toString()) {
-                                holder.itemView.tv_qty.text = bundle.get(key) as CharSequence?
+                                val qty : String = (bundle.get(key) as CharSequence?).toString()
+                                list[position].qty = qty.toLong()
+                                holder.itemView.tv_qty.text = qty
                             }
 
                             if (key == Item_change.UNIT.toString()) {
-                                holder.itemView.tv_unit.text = bundle.get(key) as CharSequence?
+                                val unit : String = (bundle.get(key) as CharSequence?).toString()
+                                list[position].unit = SIUnit.fromValue(unit)
+                                holder.itemView.tv_unit.text = unit
                             }
 
                         }

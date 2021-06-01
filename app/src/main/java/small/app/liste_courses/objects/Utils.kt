@@ -1,7 +1,7 @@
 package small.app.liste_courses.objects
 
 import kotlinx.coroutines.launch
-import small.app.liste_courses.adapters.DepartmentsAdapter
+import small.app.liste_courses.adapters.DepartmentsListAdapter
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
 import small.app.liste_courses.objects.Scope.mainScope
@@ -17,7 +17,7 @@ object Utils {
 
     fun useItem(
         item: Item,
-        departmentsAdapter: DepartmentsAdapter
+        departmentsListAdapter: DepartmentsListAdapter
     ) {
         var dbItem: Item? = null
         val job = backgroundScope.launch {
@@ -26,7 +26,7 @@ object Utils {
         job.invokeOnCompletion {
             //If exist and classified
             if (dbItem != null && dbItem!!.isClassified) {
-                useClassifiedItem(dbItem!!, departmentsAdapter)
+                useClassifiedItem(dbItem!!, departmentsListAdapter)
             } else {
                 //Can exist and not use, for example default option
                 saveItem(item)
@@ -37,7 +37,7 @@ object Utils {
 
     }
 
-    private fun useClassifiedItem(item: Item, departmentsAdapter: DepartmentsAdapter) {
+    private fun useClassifiedItem(item: Item, departmentsListAdapter: DepartmentsListAdapter) {
         //Get the department from the item
         //Check if the department is already displayed through the department list
         //If no get the adapter and add it to the dep adapter
@@ -51,7 +51,7 @@ object Utils {
             mainScope.launch {
                 if (d != null) {
                     val dep = d
-                    if (departmentsAdapter.list.find { it.name == dep.name } == null) {
+                    if (departmentsListAdapter.list.find { it.name == dep.name } == null) {
                         dep.isUsed = true
                         saveDepartment(dep)
                     }
@@ -100,5 +100,19 @@ object Utils {
             mlist.add(local_dep)
         }
         return mlist
+    }
+
+    fun deleteItem(item: Item) {
+backgroundScope.launch {
+    repo.deleteItem(item)
+}
+
+
+    }
+
+    fun deleteDepartment(department: Department) {
+        backgroundScope.launch {
+            repo.deleteDepartment(department)
+        }
     }
 }

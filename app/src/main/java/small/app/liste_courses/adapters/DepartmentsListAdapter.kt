@@ -14,10 +14,9 @@ import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
 import small.app.liste_courses.objects.Department_Change
-import small.app.liste_courses.objects.Utils
 
 
-class DepartmentsAdapter(
+class DepartmentsListAdapter(
     context: Context, onlyUsed: Boolean = true
 ) :
     DepartmentsAbstractAdapter(context, onlyUsed) {
@@ -60,7 +59,6 @@ class DepartmentsAdapter(
             true
         }
         //Recycler view for the items in the department
-
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
         var itemsAdapter = holder.itemView.rv_items.adapter
@@ -82,23 +80,7 @@ class DepartmentsAdapter(
     }
 
 
-    fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        if (initialPosition > -1 && targetPosition > -1) {
-            with(list) {
-                val init = get(initialPosition)
-                val target = get(targetPosition)
 
-                val tmp = init.order
-                init.order = target.order
-                target.order = tmp
-
-                Utils.saveDepartment(init)
-                Utils.saveDepartment(target)
-            }
-        }
-
-
-    }
 
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)

@@ -7,7 +7,7 @@ import small.app.liste_courses.room.entities.Item
 
 @Dao
 interface ItemDao {
-    //TODO : check to get the classified item
+
     @Query("SELECT * FROM Item")
     fun getAll(): List<Item>
 
