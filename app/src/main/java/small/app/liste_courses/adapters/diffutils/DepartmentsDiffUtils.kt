@@ -3,7 +3,7 @@ package small.app.liste_courses.adapters.diffutils
 import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
 import small.app.liste_courses.models.Department
-import small.app.liste_courses.objects.Department_Change
+import small.app.liste_courses.objects.DepartmentChange
 
 class DepartmentsDiffUtils(
     private val oldList: List<Department>,
@@ -36,7 +36,7 @@ class DepartmentsDiffUtils(
           val bundle = Bundle()
 
           if (!new.items.equals(old.items)) {
-              bundle.putString(Department_Change.ITEMS.toString(), "")
+              bundle.putString(DepartmentChange.ITEMS.toString(), "")
           }
 
           return bundle

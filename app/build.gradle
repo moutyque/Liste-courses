@@ -3,6 +3,8 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
+    id "org.sonarqube"
+
 }
 
 //apply plugin: 'kotlin-kapt'

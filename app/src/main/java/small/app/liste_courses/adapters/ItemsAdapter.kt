@@ -16,11 +16,12 @@ import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.diffutils.ItemsDiffUtils
 import small.app.liste_courses.models.DragItem
-import small.app.liste_courses.objects.Item_change
+import small.app.liste_courses.objects.ItemChange
 import small.app.liste_courses.objects.ItemsComparator
 import small.app.liste_courses.objects.SIUnit
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
+
 //TODO : add modfication name & change order
 
 
@@ -62,43 +63,44 @@ abstract class ItemsAdapter(
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
 
-            Log.d("IAdapter", list[position].name)
-            Log.d("IAdapter", " $position")
-            if (list[position].name.isNotEmpty()) {
+        Log.d("IAdapter", list[position].name)
+        Log.d("IAdapter", " $position")
+        if (list[position].name.isNotEmpty()) {
 
-                if (list[position].isUsed) {
-                    fillView(holder, list[position])
-                    holder.itemView.iv_check_item.setOnClickListener {
-                        list[position].isUsed = false
-                        //Update RV
-                        Log.d("IAdapter", "Remove at position : $position")
-                        Utils.unuseItem(list[position])
-                    }
+            if (list[position].isUsed) {
+                fillView(holder, list[position])
+                holder.itemView.iv_check_item.setOnClickListener {
+                    list[position].isUsed = false
+                    //Update RV
+                    Log.d("IAdapter", "Remove at position : $position")
+                    Utils.unuseItem(list[position])
+                }
 
-                    holder.itemView.iv_increase_qty.setOnClickListener {
-                        list[position].qty += list[position].unit.mutliplicator
-                        Utils.saveItem(list[position])
-                        holder.itemView.tv_qty.text = list[position].qty.toString()
-                    }
-                    holder.itemView.iv_decrease_qty.setOnClickListener {
-                        list[position].qty = Math.max(0, list[position].qty - list[position].unit.mutliplicator)
-                        Utils.saveItem(list[position])
-                        holder.itemView.tv_qty.text = list[position].qty.toString()
-
-                    }
-
-                    holder.itemView.tv_unit.text = list[position].unit.value
-
-                    //Both variable are used to send the drag item
-                    holder.model = list[position]
-                    holder.adapter = this@ItemsAdapter
-                    holder.onLongClick(holder.itemView)
-
-                } else {
-                    holder.itemView.visibility = View.GONE
+                holder.itemView.iv_increase_qty.setOnClickListener {
+                    list[position].qty += list[position].unit.mutliplicator
+                    Utils.saveItem(list[position])
+                    holder.itemView.tv_qty.text = list[position].qty.toString()
+                }
+                holder.itemView.iv_decrease_qty.setOnClickListener {
+                    list[position].qty =
+                        Math.max(0, list[position].qty - list[position].unit.mutliplicator)
+                    Utils.saveItem(list[position])
+                    holder.itemView.tv_qty.text = list[position].qty.toString()
 
                 }
+
+                holder.itemView.tv_unit.text = list[position].unit.value
+
+                //Both variable are used to send the drag item
+                holder.model = list[position]
+                holder.adapter = this@ItemsAdapter
+                holder.onLongClick(holder.itemView)
+
+            } else {
+                holder.itemView.visibility = View.GONE
+
             }
+        }
 
 
     }
@@ -126,7 +128,6 @@ abstract class ItemsAdapter(
                 val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
                 val data = ClipData(clipText, mimeTypes, item)
 
-                //measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
                 layout(0, 0, measuredWidth, measuredHeight)
                 val dragShadowBuilder = DragShadowBuilder(this.tv_name)
 
@@ -172,14 +173,14 @@ abstract class ItemsAdapter(
                     bundle.keySet().forEach { key ->
                         run {
 
-                            if (key == Item_change.QTY.toString()) {
-                                val qty : String = (bundle.get(key) as CharSequence?).toString()
+                            if (key == ItemChange.QTY.toString()) {
+                                val qty: String = (bundle.get(key) as CharSequence?).toString()
                                 list[position].qty = qty.toLong()
                                 holder.itemView.tv_qty.text = qty
                             }
 
-                            if (key == Item_change.UNIT.toString()) {
-                                val unit : String = (bundle.get(key) as CharSequence?).toString()
+                            if (key == ItemChange.UNIT.toString()) {
+                                val unit: String = (bundle.get(key) as CharSequence?).toString()
                                 list[position].unit = SIUnit.fromValue(unit)
                                 holder.itemView.tv_unit.text = unit
                             }

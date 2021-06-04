@@ -28,7 +28,7 @@ class DepartmentItemsAdapter(
 
             holder.itemView.ib_delete_item.visibility = View.VISIBLE
             holder.itemView.ib_delete_item.setOnClickListener {
-Utils.deleteItem(list[position])
+                Utils.deleteItem(list[position])
             }
             if (holder.itemView.s_unit.adapter == null) {
                 val unitList = arrayListOf<String>()
@@ -55,21 +55,21 @@ Utils.deleteItem(list[position])
                             position: Int,
                             id: Long
                         ) {
-                          when(initilized){
-                              true->{
-                                  list[itemPosition].unit = SIUnit.fromValue(unitList[position])
-                                  Utils.saveItem(list[itemPosition])
-                              }
-                              false -> {
-                                  holder.itemView.s_unit.setSelection(unitList.indexOf(list[itemPosition].unit.value))
-                                  initilized = true
-                              }
-                          }
+                            when (initilized) {
+                                true -> {
+                                    list[itemPosition].unit = SIUnit.fromValue(unitList[position])
+                                    Utils.saveItem(list[itemPosition])
+                                }
+                                false -> {
+                                    holder.itemView.s_unit.setSelection(unitList.indexOf(list[itemPosition].unit.value))
+                                    initilized = true
+                                }
+                            }
 
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {
-
+                            //Not used
                         }
 
                     }

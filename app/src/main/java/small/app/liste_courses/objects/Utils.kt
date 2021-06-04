@@ -91,13 +91,13 @@ object Utils {
     fun getFilteredDepartmentWithItems(it: List<DepartmentWithItems>?): MutableList<DepartmentWithItems> {
         val mlist = mutableListOf<DepartmentWithItems>()
         it?.forEach { dep ->
-            val local_dep = dep
-            val local_items = mutableListOf<Item>()
+            val localDep = dep
+            val localItems = mutableListOf<Item>()
             dep.items.forEach { item ->
-                if (item.isUsed) local_items.add(item)
+                if (item.isUsed) localItems.add(item)
             }
-            local_dep.items = local_items
-            mlist.add(local_dep)
+            localDep.items = localItems
+            mlist.add(localDep)
         }
         return mlist
     }

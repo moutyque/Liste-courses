@@ -4,10 +4,13 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
+        mavenLocal()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.android.tools.build:gradle:4.1.3"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.2.0"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -21,7 +24,20 @@ allprojects {
         jcenter()
     }
 }
+apply plugin: "org.sonarqube"
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectName", "ShoppingList"
+        property "sonar.projectKey", "small.app.list_courses:app"
+        property "sonar.sources", "src/main/java"
+        property "sonar.language", "kotlin"
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.login", "b19f2236ef9f94cbbf84ed06dff473058232fafd"
+//        property "sonar.exclusions", "src/main/java/com/foo/Foo.java"
+    }
 }

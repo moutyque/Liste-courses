@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        binding.viewPager.offscreenPageLimit=2
+        binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.adapter = PagerAdapter(
             binding.tabLayout.tabCount, this, supportFragmentManager,
             0
@@ -36,9 +36,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
+                //Not used
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                //Not used
             }
 
         })

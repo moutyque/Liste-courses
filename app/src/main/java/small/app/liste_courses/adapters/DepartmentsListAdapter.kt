@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
-import small.app.liste_courses.objects.Department_Change
+import small.app.liste_courses.objects.DepartmentChange
 
 
 class DepartmentsListAdapter(
@@ -95,11 +95,11 @@ class DepartmentsListAdapter(
                 run {
                     bundle.keySet().forEach { key ->
                         run {
-                            if (key == Department_Change.NAME.toString()) {
+                            if (key == DepartmentChange.NAME.toString()) {
                                 holder.itemView.tv_dep_name.text = bundle.get(key) as CharSequence?
                             }
 
-                            if (key == Department_Change.ITEMS.toString()) {
+                            if (key == DepartmentChange.ITEMS.toString()) {
                                 (holder.itemView.rv_items.adapter as ItemsAdapter).updateList(list[position].items)
                                 //super.onBindViewHolder(holder, position, payloads)
                             }

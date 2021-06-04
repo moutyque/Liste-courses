@@ -1,6 +1,6 @@
 package small.app.liste_courses.objects
 
-enum class Item_change {
+enum class ItemChange {
     NAME,
     UNIT,
     ORDER,
