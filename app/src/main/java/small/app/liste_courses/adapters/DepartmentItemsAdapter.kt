@@ -23,10 +23,10 @@ class DepartmentItemsAdapter(
         holder.itemView.iv_check_item.visibility = View.GONE
 //Manage the view of the drop down list of unit
         if (canChangeParam) {
-            holder.itemView.tv_unit.visibility = View.GONE
-            holder.itemView.s_unit.visibility = View.VISIBLE
+            holder.itemView.ll_list_view.visibility = View.GONE
+            holder.itemView.ll_param_view.visibility = View.VISIBLE
 
-            holder.itemView.ib_delete_item.visibility = View.VISIBLE
+            //holder.itemView.ib_delete_item.visibility = View.VISIBLE
             holder.itemView.ib_delete_item.setOnClickListener {
                 Utils.deleteItem(list[position])
             }
@@ -44,6 +44,7 @@ class DepartmentItemsAdapter(
                     R.layout.simple_dropdown_item_1line,
                     unitList
                 )
+
                 val itemPosition = position
                 holder.itemView.s_unit.adapter = adapter
                 holder.itemView.s_unit.onItemSelectedListener =
@@ -57,7 +58,9 @@ class DepartmentItemsAdapter(
                         ) {
                             when (initilized) {
                                 true -> {
+
                                     list[itemPosition].unit = SIUnit.fromValue(unitList[position])
+
                                     Utils.saveItem(list[itemPosition])
                                 }
                                 false -> {
@@ -73,6 +76,7 @@ class DepartmentItemsAdapter(
                         }
 
                     }
+
             }
 
         }
