@@ -3,10 +3,12 @@ package small.app.liste_courses.callback
 import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import small.app.liste_courses.adapters.DepartmentsAbstractAdapter
 import java.util.*
 
-class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAdapter, private val dir : Direction) :
+class SimpleItemTouchHelperCallback(
+    private val adapter: IMovableAdapter,
+    private val dir: Direction
+) :
     ItemTouchHelper.Callback() {
 
     enum class Direction {
@@ -17,7 +19,7 @@ class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAda
 
     override fun isLongPressDragEnabled(): Boolean {
         Log.d("SimpleItemTouchHelperCallback", "Can u click")
-        return adapter.canMove
+        return adapter.canMove()
     }
 
 
@@ -29,9 +31,9 @@ class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAda
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        val dragFlags = if(dir==Direction.VERTICAL){
+        val dragFlags = if (dir == Direction.VERTICAL) {
             ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        }else{
+        } else {
             ItemTouchHelper.START or ItemTouchHelper.END
         }
 
@@ -47,16 +49,15 @@ class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAda
         val fromPosition = viewHolder.adapterPosition
         val toPosition = target.adapterPosition
 
-        if (fromPosition < toPosition) {
+        if (fromPosition in 0 until toPosition) {
             for (i in fromPosition until toPosition) {
-                Collections.swap(adapter.list, i, i + 1)
+                Collections.swap(adapter.getAdapterList(), i, i + 1)
             }
         } else {
             for (i in fromPosition downTo toPosition + 1) {
-                Collections.swap(adapter.list, i, i - 1)
+                Collections.swap(adapter.getAdapterList(), i, i - 1)
             }
         }
-        adapter.notifyItemMoved(fromPosition, toPosition)
         adapter.onItemMove(fromPosition, toPosition)
         return true
     }
@@ -74,7 +75,7 @@ class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAda
         super.onSelectedChanged(viewHolder, actionState)
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             viewHolder?.itemView?.alpha = 0.5f
-            adapter.canMove = false
+            adapter.setMove(false)
         }
     }
 
@@ -83,8 +84,6 @@ class SimpleItemTouchHelperCallback(private val  adapter: DepartmentsAbstractAda
         super.clearView(recyclerView, viewHolder)
         viewHolder.itemView.alpha = 1.0f
     }
-
-
 
 
 }

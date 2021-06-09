@@ -2,10 +2,13 @@ package small.app.liste_courses.adapters
 
 import android.R
 import android.content.Context
+import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
+import small.app.liste_courses.callback.IMovableAdapter
 import small.app.liste_courses.objects.SIUnit
 import small.app.liste_courses.objects.Utils
 
@@ -17,20 +20,18 @@ class DepartmentItemsAdapter(
 ) : ItemsAdapter(
     context,
     canChangeUnit
-) {
+), IMovableAdapter {
+
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-        holder.itemView.iv_check_item.visibility = View.GONE
+
 //Manage the view of the drop down list of unit
         if (canChangeParam) {
             holder.itemView.ll_list_view.visibility = View.GONE
             holder.itemView.ll_param_view.visibility = View.VISIBLE
-
-            //holder.itemView.ib_delete_item.visibility = View.VISIBLE
             holder.itemView.ib_delete_item.setOnClickListener {
                 Utils.deleteItem(list[position])
             }
-            holder.itemView.s_unit.visibility = View.VISIBLE
 
             if (holder.itemView.s_unit.adapter == null) {
                 val unitList = arrayListOf<String>()
@@ -79,9 +80,36 @@ class DepartmentItemsAdapter(
 
                     }
 
+                //Setup the drag and drop only on the reorder icon
+                holder.itemView.iv_reorder.setOnTouchListener { v, event ->
+                    Log.d("ClickOnReorder", "I touched $event")
+
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            canMove = true
+                            v.performClick()
+                        }
+                        MotionEvent.ACTION_UP -> canMove = false
+                    }
+                    true
+                }
+
+
             }
 
         }
+    }
+
+    override fun canMove(): Boolean {
+        return canMove
+    }
+
+    override fun setMove(b: Boolean) {
+        canMove = b
+    }
+
+    override fun getAdapterList(): List<Any> {
+        return list.toList()
     }
 
 }

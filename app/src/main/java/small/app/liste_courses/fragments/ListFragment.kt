@@ -16,7 +16,7 @@ import small.app.liste_courses.adapters.DepartmentsListAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
 import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
-import small.app.liste_courses.databinding.FragmentMainBinding
+import small.app.liste_courses.databinding.FragmentListBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
 import small.app.liste_courses.objects.Utils
@@ -27,7 +27,7 @@ import small.app.liste_courses.viewmodels.FragmentViewModel
 
 class ListFragment : Fragment() {
 
-    private lateinit var binding: FragmentMainBinding
+    private lateinit var binding: FragmentListBinding
 
     private lateinit var viewModel: FragmentViewModel
 
@@ -45,7 +45,7 @@ class ListFragment : Fragment() {
     ): View {
 
         //Create the binding
-        binding = FragmentMainBinding.inflate(inflater)
+        binding = FragmentListBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
         viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
@@ -144,7 +144,10 @@ class ListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvDepartment.adapter = departmentsListAdapter
 
-        val callback = SimpleItemTouchHelperCallback(departmentsListAdapter,SimpleItemTouchHelperCallback.Direction.HORIZONTAL)
+        val callback = SimpleItemTouchHelperCallback(
+            departmentsListAdapter,
+            SimpleItemTouchHelperCallback.Direction.HORIZONTAL
+        )
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
@@ -154,7 +157,6 @@ class ListFragment : Fragment() {
         })
 
     }
-
 
 
     private fun setupUnclassifiedItemsRV() {
@@ -177,7 +179,6 @@ class ListFragment : Fragment() {
             )
         binding.rvUnclassifiedItems.adapter = unclassifiedAdapter
     }
-
 
 
 }

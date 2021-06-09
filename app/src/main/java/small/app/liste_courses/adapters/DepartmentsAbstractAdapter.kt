@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import small.app.liste_courses.adapters.diffutils.DepartmentsDiffUtils
+import small.app.liste_courses.callback.IMovableAdapter
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.DepartmentComparator
 import small.app.liste_courses.objects.Utils
@@ -13,12 +14,12 @@ abstract class DepartmentsAbstractAdapter(
     val context: Context,
     private val onlyUsed: Boolean = false
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), IMovableAdapter {
 
     var canMove = false
-    private val _list=  mutableListOf<Department>()
+    private val _list = mutableListOf<Department>()
     val list: List<Department>
-        get()=_list
+        get() = _list
 
     override fun getItemCount(): Int {
         return list.size
@@ -38,7 +39,9 @@ abstract class DepartmentsAbstractAdapter(
 
         }
     }
-    fun onItemMove(initialPosition: Int, targetPosition: Int) {
+
+    override fun onItemMove(initialPosition: Int, targetPosition: Int) {
+        this.notifyItemMoved(initialPosition, targetPosition)
         if (initialPosition > -1 && targetPosition > -1) {
             with(list) {
                 val init = get(initialPosition)
@@ -56,5 +59,15 @@ abstract class DepartmentsAbstractAdapter(
 
     }
 
+    override fun canMove(): Boolean {
+        return canMove
+    }
 
+    override fun getAdapterList(): List<Department> {
+        return list
+    }
+
+    override fun setMove(b: Boolean) {
+        canMove = b
+    }
 }

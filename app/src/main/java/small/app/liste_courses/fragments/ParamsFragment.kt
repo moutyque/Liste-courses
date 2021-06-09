@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.liste_courses.adapters.DepartmentsParamsAdapter
 import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.databinding.FragmentParamsBinding
-import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.viewmodels.FragmentViewModel
 
 
@@ -22,7 +21,7 @@ class ParamsFragment : Fragment() {
 
     private lateinit var binding: FragmentParamsBinding
     lateinit var departmentsAdapter: DepartmentsParamsAdapter
-    private lateinit var viewModel : FragmentViewModel
+    private lateinit var viewModel: FragmentViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,18 +47,20 @@ class ParamsFragment : Fragment() {
         binding.rvDepartments.adapter = departmentsAdapter
 
         viewModel.getAllDepartments().observe(viewLifecycleOwner, {
-            val mlist = Utils.getFilteredDepartmentWithItems(it)
-            departmentsAdapter.updateList(mlist.toList())
+
+            departmentsAdapter.updateList(it)
         })
 
 
-        val callback = SimpleItemTouchHelperCallback(departmentsAdapter,
-            SimpleItemTouchHelperCallback.Direction.VERTICAL)
+        val callback = SimpleItemTouchHelperCallback(
+            departmentsAdapter,
+            SimpleItemTouchHelperCallback.Direction.VERTICAL
+        )
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartments)
 
 
     }
 
-   
+
 }

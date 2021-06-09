@@ -32,6 +32,8 @@ abstract class ItemsAdapter(
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
     protected val list = mutableListOf<Item>()
 
+    protected var canMove = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
             LayoutInflater.from(context).inflate(
@@ -52,11 +54,13 @@ abstract class ItemsAdapter(
             holder.itemView.iv_check_item.visibility = View.GONE
         }
 
-        holder.itemView.tv_unit.visibility = View.VISIBLE
-        holder.itemView.s_unit.visibility = View.GONE
+        if (!canChangeParam) {
+            holder.itemView.s_unit.visibility = View.GONE
+            holder.itemView.tv_unit.visibility = View.VISIBLE
+
+        }
 
         holder.itemView.tv_unit.text = item.unit.value
-
         holder.itemView.tv_qty.text = item.qty.toString()
 
     }
@@ -194,6 +198,24 @@ abstract class ItemsAdapter(
             }
 
         }
+
+    }
+
+    fun onItemMove(initialPosition: Int, targetPosition: Int) {
+        if (initialPosition > -1 && targetPosition > -1) {
+            with(list) {
+                val init = get(initialPosition)
+                val target = get(targetPosition)
+
+                val tmp = init.order
+                init.order = target.order
+                target.order = tmp
+
+                Utils.saveItem(init)
+                Utils.saveItem(target)
+            }
+        }
+
 
     }
 }

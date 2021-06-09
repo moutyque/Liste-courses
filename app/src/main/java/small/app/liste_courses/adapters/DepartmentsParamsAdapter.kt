@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_department.view.rv_items
@@ -13,6 +14,7 @@ import kotlinx.android.synthetic.main.item_department.view.tv_dep_name
 import kotlinx.android.synthetic.main.item_department_param.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
+import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.objects.Utils
 
 class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
@@ -56,6 +58,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
+
             itemsAdapter = DepartmentItemsAdapter(
                 context,
                 true
@@ -63,6 +66,15 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
             holder.itemView.rv_items.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             holder.itemView.rv_items.adapter = itemsAdapter
+
+
+            val callback = SimpleItemTouchHelperCallback(
+                itemsAdapter,
+                SimpleItemTouchHelperCallback.Direction.VERTICAL
+            )
+            val itemTouchHelper = ItemTouchHelper(callback)
+            itemTouchHelper.attachToRecyclerView(holder.itemView.rv_items)
+
         }
 
         (itemsAdapter as ItemsAdapter).updateList(model.items)
@@ -84,9 +96,25 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         val dragListen = ItemsDropListener(itemsAdapter, model)
         holder.itemView.setOnDragListener(dragListen)
 
-       holder.itemView.ib_delete_department.setOnClickListener {
-           Utils.deleteDepartment(list[position])
-       }
+        holder.itemView.ib_delete_department.setOnClickListener {
+            Utils.deleteDepartment(list[position])
+        }
+
+        //Setup the drag and drop only on the reorder icon
+        holder.itemView.iv_reorder.setOnTouchListener { v, event ->
+            Log.d("Reorder", "Reorder department in Parameters Adapter. \nI touched $event")
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    canMove = true
+                    v.performClick()
+                }
+                MotionEvent.ACTION_UP -> canMove = false
+            }
+            true
+        }
+
+
     }
 
 
