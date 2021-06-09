@@ -30,6 +30,8 @@ class DepartmentItemsAdapter(
             holder.itemView.ib_delete_item.setOnClickListener {
                 Utils.deleteItem(list[position])
             }
+            holder.itemView.s_unit.visibility = View.VISIBLE
+
             if (holder.itemView.s_unit.adapter == null) {
                 val unitList = arrayListOf<String>()
 
