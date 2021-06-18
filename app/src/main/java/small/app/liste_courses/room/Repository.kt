@@ -11,13 +11,13 @@ import small.app.liste_courses.room.entities.Item
 class Repository(context: Context) {
     private val db = getInstance(context)
 
-    fun getNumberOfDepartments() : Int{
+    fun getNumberOfDepartments(): Int {
         return db.departmentDAO().getNbDep()
     }
 
     fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> {
 
-        return  db.departmentDAO().getAllDepartment()
+        return db.departmentDAO().getAllDepartment()
 
     }
 
@@ -43,6 +43,10 @@ class Repository(context: Context) {
 
     fun saveItem(i: Item) {
         db.itemDAO().insertAll(i)
+    }
+
+    fun saveItems(vararg items: Item) {
+        db.itemDAO().insertAll(*items)
     }
 
 
@@ -122,8 +126,13 @@ class Repository(context: Context) {
 
     fun deleteDepartment(department: Department) {
 
-        val dep = small.app.liste_courses.room.entities.Department(name = department.name,isUsed = department.isUsed,itemsCount = department.itemsCount,order = department.order)
-            db.departmentDAO().delete(dep)
+        val dep = small.app.liste_courses.room.entities.Department(
+            name = department.name,
+            isUsed = department.isUsed,
+            itemsCount = department.itemsCount,
+            order = department.order
+        )
+        db.departmentDAO().delete(dep)
 
         department.items.forEach {
             it.order = System.currentTimeMillis()

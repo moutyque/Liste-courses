@@ -75,6 +75,12 @@ object Utils {
         }
     }
 
+    fun saveItems(vararg items: Item) {
+        backgroundScope.launch {
+            repo.saveItems(*items)
+        }
+    }
+
     fun saveDepartment(d: Department) {
         backgroundScope.launch {
             repo.saveDepartment(d)
@@ -103,9 +109,9 @@ object Utils {
     }
 
     fun deleteItem(item: Item) {
-backgroundScope.launch {
-    repo.deleteItem(item)
-}
+        backgroundScope.launch {
+            repo.deleteItem(item)
+        }
 
 
     }

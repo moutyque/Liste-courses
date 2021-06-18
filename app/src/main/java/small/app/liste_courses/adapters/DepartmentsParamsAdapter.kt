@@ -59,7 +59,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
 
-            itemsAdapter = DepartmentItemsAdapter(
+            itemsAdapter = ItemsParamsAdapter(
                 context,
                 true
             )

@@ -63,7 +63,7 @@ class DepartmentsListAdapter(
 
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
-            itemsAdapter = DepartmentItemsAdapter(
+            itemsAdapter = ItemsParamsAdapter(
                 context,
                 false
             )
@@ -72,7 +72,7 @@ class DepartmentsListAdapter(
             holder.itemView.rv_items.adapter = itemsAdapter
         }
 
-        (itemsAdapter as DepartmentItemsAdapter).updateList(model.items)
+        (itemsAdapter as ItemsParamsAdapter).updateList(model.items)
 
 
         val dragListen = ItemsDropListener(itemsAdapter, model)

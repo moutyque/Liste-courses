@@ -13,7 +13,7 @@ import small.app.liste_courses.objects.SIUnit
 import small.app.liste_courses.objects.Utils
 
 
-class DepartmentItemsAdapter(
+class ItemsParamsAdapter(
     context: Context, canChangeUnit: Boolean
 
 
@@ -111,5 +111,6 @@ class DepartmentItemsAdapter(
     override fun getAdapterList(): List<Any> {
         return list.toList()
     }
+
 
 }

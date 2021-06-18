@@ -58,6 +58,7 @@ class SimpleItemTouchHelperCallback(
                 Collections.swap(adapter.getAdapterList(), i, i - 1)
             }
         }
+
         adapter.onItemMove(fromPosition, toPosition)
         return true
     }
