@@ -3,7 +3,6 @@ package small.app.liste_courses.callback
 import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import java.util.*
 
 class SimpleItemTouchHelperCallback(
     private val adapter: IMovableAdapter,
@@ -16,6 +15,7 @@ class SimpleItemTouchHelperCallback(
         HORIZONTAL
     }
 
+    private var hasStarted = false
 
     override fun isLongPressDragEnabled(): Boolean {
         Log.d("SimpleItemTouchHelperCallback", "Can u click")
@@ -45,21 +45,11 @@ class SimpleItemTouchHelperCallback(
         recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-
+        hasStarted = true
         val fromPosition = viewHolder.adapterPosition
         val toPosition = target.adapterPosition
-
-        if (fromPosition in 0 until toPosition) {
-            for (i in fromPosition until toPosition) {
-                Collections.swap(adapter.getAdapterList(), i, i + 1)
-            }
-        } else {
-            for (i in fromPosition downTo toPosition + 1) {
-                Collections.swap(adapter.getAdapterList(), i, i - 1)
-            }
-        }
-
         adapter.onItemMove(fromPosition, toPosition)
+
         return true
     }
 
@@ -74,11 +64,21 @@ class SimpleItemTouchHelperCallback(
 
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         super.onSelectedChanged(viewHolder, actionState)
-        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-            viewHolder?.itemView?.alpha = 0.5f
-            adapter.setMove(false)
+        when (actionState) {
+            ItemTouchHelper.ACTION_STATE_DRAG -> {
+                viewHolder?.itemView?.alpha = 0.5f
+                adapter.setMove(false)
+            }
+            ItemTouchHelper.ACTION_STATE_IDLE -> {
+                if (hasStarted) {
+                    adapter.onDragEnd()
+                    hasStarted = false
+                }
+            }
         }
+
     }
+
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
 

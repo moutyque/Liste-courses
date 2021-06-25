@@ -14,11 +14,14 @@ import kotlinx.android.synthetic.main.item_department.view.tv_dep_name
 import kotlinx.android.synthetic.main.item_department_param.view.*
 import small.app.liste_courses.R
 import small.app.liste_courses.adapters.listeners.ItemsDropListener
+import small.app.liste_courses.callback.IMovableAdapter
 import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
+import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Utils
+import small.app.liste_courses.objects.Utils.swapInCollection
 
 class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
-    DepartmentsAbstractAdapter(context, onlyUsed) {
+    DepartmentsAbstractAdapter(context, onlyUsed), IMovableAdapter {
 
 
     override fun onCreateViewHolder(
@@ -60,8 +63,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
         if (itemsAdapter == null) {
 
             itemsAdapter = ItemsParamsAdapter(
-                context,
-                true
+                context
             )
             holder.itemView.rv_items.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -93,7 +95,7 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
         }
 
-        val dragListen = ItemsDropListener(itemsAdapter, model)
+        val dragListen = ItemsDropListener(model)
         holder.itemView.setOnDragListener(dragListen)
 
         holder.itemView.ib_delete_department.setOnClickListener {
@@ -117,6 +119,44 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
     }
 
+    override fun onItemMove(initialPosition: Int, targetPosition: Int) {
+        this.notifyItemMoved(initialPosition, targetPosition)
+        if (initialPosition > -1 && targetPosition > -1) {
+            with(list) {
+                val init = get(initialPosition)
+                val target = get(targetPosition)
+
+                val tmp = init.order
+                init.order = target.order
+                target.order = tmp
+
+                swapInCollection(list, initialPosition, targetPosition)
+                savableDepartment.add(init)
+                savableDepartment.add(target)
+
+            }
+            this.notifyItemMoved(initialPosition, targetPosition)
+        }
+
+
+    }
+
+    override fun canMove(): Boolean {
+        return canMove
+    }
+
+    override fun getAdapterList(): List<Department> {
+        return list
+    }
+
+    override fun setMove(b: Boolean) {
+        canMove = b
+    }
+
+    override fun onDragEnd() {
+        savableDepartment.forEach { Utils.saveDepartment(it) }
+        savableDepartment.clear()
+    }
 
     class DepartmentsParamsViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView)

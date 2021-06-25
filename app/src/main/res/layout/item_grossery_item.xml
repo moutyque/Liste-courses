@@ -6,46 +6,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
     android:gravity="center"
     android:orientation="horizontal"
     android:padding="5dp">
 
 
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/item_height"
+        android:layout_marginStart="8dp"
+
+        android:layout_weight="100"
+        tools:text="TEST" />
+
     <LinearLayout
         android:id="@+id/ll_always_visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="100"
+        android:layout_weight="0"
         android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/item_height"
-            android:layout_marginStart="8dp"
-
-            android:layout_weight="100"
-            tools:text="TEST" />
 
         <TextView
             android:id="@+id/tv_qty"
             android:layout_width="@dimen/width_qty"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
             tools:text="17" />
 
         <ImageView
             android:id="@+id/iv_increase_qty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
             app:srcCompat="@drawable/ic_increase_qty" />
 
         <ImageView
             android:id="@+id/iv_decrease_qty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
             app:srcCompat="@drawable/ic_decrease_qty" />
 
     </LinearLayout>
@@ -55,6 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:visibility="visible"
         tools:visibility="gone">
 
         <TextView
@@ -99,6 +98,13 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:srcCompat="@drawable/ic_reorder" />
+
+        <ImageView
+            android:id="@+id/iv_dd"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_drag_drop" />
     </LinearLayout>
 </LinearLayout>
 

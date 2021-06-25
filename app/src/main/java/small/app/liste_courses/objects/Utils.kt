@@ -8,12 +8,25 @@ import small.app.liste_courses.objects.Scope.mainScope
 import small.app.liste_courses.room.Repository
 import small.app.liste_courses.room.entities.DepartmentWithItems
 import small.app.liste_courses.room.entities.Item
+import java.util.*
 
 object Utils {
 
 
     lateinit var repo: Repository
 
+
+    fun swapInCollection(list: List<Any>, fromPosition: Int, toPosition: Int) {
+        if (fromPosition in 0 until toPosition) {
+            for (i in fromPosition until toPosition) {
+                Collections.swap(list, i, i + 1)
+            }
+        } else {
+            for (i in fromPosition downTo toPosition + 1) {
+                Collections.swap(list, i, i - 1)
+            }
+        }
+    }
 
     fun useItem(
         item: Item,

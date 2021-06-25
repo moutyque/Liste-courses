@@ -8,14 +8,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import small.app.liste_courses.adapters.DepartmentsListAdapter
 import small.app.liste_courses.adapters.ItemsAdapter
 import small.app.liste_courses.adapters.UnclassifiedItemsAdapter
-import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.databinding.FragmentListBinding
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Scope.backgroundScope
@@ -144,13 +142,6 @@ class ListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvDepartment.adapter = departmentsListAdapter
 
-        val callback = SimpleItemTouchHelperCallback(
-            departmentsListAdapter,
-            SimpleItemTouchHelperCallback.Direction.HORIZONTAL
-        )
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
-
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
             val mlist = Utils.getFilteredDepartmentWithItems(it)
             departmentsListAdapter.updateList(mlist.toList())
@@ -163,8 +154,7 @@ class ListFragment : Fragment() {
         //Create the items adapter
         unclassifiedAdapter =
             UnclassifiedItemsAdapter(
-                requireContext(),
-                false
+                requireContext()
             )
 
         viewModel.getUnclassifiedItems().observe(viewLifecycleOwner, { items ->

@@ -63,24 +63,20 @@ class DepartmentsListAdapter(
 
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
-            itemsAdapter = ItemsParamsAdapter(
-                context,
-                false
+            itemsAdapter = ClassifiedUsedItemsAdapter(
+                context
             )
             holder.itemView.rv_items.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             holder.itemView.rv_items.adapter = itemsAdapter
         }
 
-        (itemsAdapter as ItemsParamsAdapter).updateList(model.items)
+        (itemsAdapter as ItemsAdapter).updateList(model.items)
 
 
-        val dragListen = ItemsDropListener(itemsAdapter, model)
+        val dragListen = ItemsDropListener(model)
         holder.itemView.setOnDragListener(dragListen)
     }
-
-
-
 
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)
@@ -117,5 +113,6 @@ class DepartmentsListAdapter(
 
 
     }
+
 
 }

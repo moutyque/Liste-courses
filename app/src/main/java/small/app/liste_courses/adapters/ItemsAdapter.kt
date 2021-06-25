@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
@@ -25,13 +26,13 @@ import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
 
 abstract class ItemsAdapter(
-    protected val context: Context,
-    protected val canChangeParam: Boolean
+    protected val context: Context
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
         return ItemsViewHolder(
@@ -44,21 +45,8 @@ abstract class ItemsAdapter(
     }
 
 
-    private fun fillView(holder: ItemsViewHolder, item: Item) {
+    protected open fun fillView(holder: ItemsViewHolder, item: Item) {
         holder.itemView.tv_name.text = item.name
-        if (item.isClassified) {
-            holder.itemView.iv_check_item.visibility = View.VISIBLE
-
-        } else {
-            holder.itemView.iv_check_item.visibility = View.GONE
-        }
-
-        if (!canChangeParam) {
-            holder.itemView.s_unit.visibility = View.GONE
-            holder.itemView.tv_unit.visibility = View.VISIBLE
-
-        }
-
         holder.itemView.tv_unit.text = item.unit.value
         holder.itemView.tv_qty.text = item.qty.toString()
 
@@ -70,39 +58,38 @@ abstract class ItemsAdapter(
         Log.d("IAdapter", " $position")
         if (list[position].name.isNotEmpty()) {
 
-            if (list[position].isUsed) {
-                fillView(holder, list[position])
-                holder.itemView.iv_check_item.setOnClickListener {
-                    list[position].isUsed = false
-                    //Update RV
-                    Log.d("IAdapter", "Remove at position : $position")
-                    Utils.unuseItem(list[position])
-                }
+            fillView(holder, list[position])
+            holder.itemView.iv_check_item.setOnClickListener {
+                list[position].isUsed = false
+                //Update RV
+                Log.d("IAdapter", "Remove at position : $position")
+                Utils.unuseItem(list[position])
+            }
 
-                holder.itemView.iv_increase_qty.setOnClickListener {
-                    list[position].qty += list[position].unit.mutliplicator
-                    Utils.saveItem(list[position])
-                    holder.itemView.tv_qty.text = list[position].qty.toString()
-                }
-                holder.itemView.iv_decrease_qty.setOnClickListener {
-                    list[position].qty =
-                        Math.max(0, list[position].qty - list[position].unit.mutliplicator)
-                    Utils.saveItem(list[position])
-                    holder.itemView.tv_qty.text = list[position].qty.toString()
-
-                }
-
-                holder.itemView.tv_unit.text = list[position].unit.value
-
-                //Both variable are used to send the drag item
-                holder.model = list[position]
-                holder.adapter = this@ItemsAdapter
-                holder.onLongClick(holder.itemView)
-
-            } else {
-                holder.itemView.visibility = View.GONE
+            holder.itemView.iv_increase_qty.setOnClickListener {
+                list[position].qty += list[position].unit.mutliplicator
+                Utils.saveItem(list[position])
+                holder.itemView.tv_qty.text = list[position].qty.toString()
+            }
+            holder.itemView.iv_decrease_qty.setOnClickListener {
+                list[position].qty =
+                    Math.max(0, list[position].qty - list[position].unit.mutliplicator)
+                Utils.saveItem(list[position])
+                holder.itemView.tv_qty.text = list[position].qty.toString()
 
             }
+
+            holder.itemView.tv_unit.text = list[position].unit.value
+
+            //Both variable are used to send the drag item
+            holder.model = list[position]
+            holder.adapter = this@ItemsAdapter
+
+            //holder.onLongClick(holder.itemView.iv_dd)
+            //Defined which action will happened when we long click on the iv_dd by passing an object that implement View.OnLongClickListener
+            //holder.itemView.iv_dd.setOnLongClickListener(holder)
+
+
         }
 
 
@@ -110,71 +97,6 @@ abstract class ItemsAdapter(
 
     override fun getItemCount(): Int {
         return list.size
-    }
-
-    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
-        View.OnTouchListener {
-        // class member variable to save the X,Y coordinates
-        private val lastTouchDownXY = FloatArray(2)
-
-        private var longPressed = false
-        var model: Item? = null
-        var adapter: ItemsAdapter? = null
-
-        init {
-            view.setOnLongClickListener(this)
-            view.setOnTouchListener(this)
-        }
-
-        override fun onLongClick(v: View?): Boolean {
-            v?.apply {
-
-
-                val clipText = "This is our ClipData text"
-                val item = ClipData.Item(clipText)
-                val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                val data = ClipData(clipText, mimeTypes, item)
-
-                layout(
-                    0,
-                    0, measuredWidth, measuredHeight
-                )
-
-                val dragShadowBuilder = object : DragShadowBuilder(this) {
-
-                    override fun onProvideShadowMetrics(
-                        outShadowSize: Point?,
-                        outShadowTouchPoint: Point?
-                    ) {
-                        super.onProvideShadowMetrics(outShadowSize, outShadowTouchPoint)
-                        outShadowTouchPoint?.x = lastTouchDownXY[0].toInt()
-                        outShadowTouchPoint?.y = lastTouchDownXY[1].toInt()
-
-                    }
-                }
-
-
-                //val dragShadowBuilder = View.DragShadowBuilder(v.tv_name)//shadowView
-                v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
-
-                longPressed = true
-                return true
-            }
-
-            return false
-        }
-
-        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-            // save the X,Y coordinates
-            if (event!!.action == MotionEvent.ACTION_DOWN) {
-                lastTouchDownXY[0] = event.x
-                lastTouchDownXY[1] = event.y
-            }
-            v?.performClick()
-            // let the touch event pass on to whoever needs it
-            return false; }
-
-
     }
 
 
@@ -219,6 +141,7 @@ abstract class ItemsAdapter(
                                 holder.itemView.tv_unit.text = unit
                             }
 
+
                         }
                     }
 
@@ -231,26 +154,64 @@ abstract class ItemsAdapter(
 
     }
 
-    fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        if (initialPosition > -1 && targetPosition > -1) {
+    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
+        View.OnTouchListener {
+        // class member variable to save the X,Y coordinates
+        private val lastTouchDownXY = FloatArray(2)
 
-            //this.notifyItemMoved(initialPosition, targetPosition)
+        //        private var longPressed = false
+        var model: Item? = null
+        var adapter: ItemsAdapter? = null
 
-            with(list) {
-                val init = get(initialPosition)
-                val target = get(targetPosition)
+        init {
+            view.setOnTouchListener(this)
+        }
 
-                val tmp = init.order
-                init.order = target.order
-                target.order = tmp
+        override fun onLongClick(v: View?): Boolean {
+            val parent = v?.parent?.parent as LinearLayout
 
-                //Without the save its working fine for the moving part
-                Utils.saveItems(*arrayOf(init, target))
+            parent.apply {
+
+                val clipText = "This is our ClipData text"
+                val item = ClipData.Item(clipText)
+                val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                val data = ClipData(clipText, mimeTypes, item)
 
 
+                val dragShadowBuilder = object : DragShadowBuilder(this) {
+
+                    override fun onProvideShadowMetrics(
+                        outShadowSize: Point?,
+                        outShadowTouchPoint: Point?
+                    ) {
+                        super.onProvideShadowMetrics(outShadowSize, outShadowTouchPoint)
+                        outShadowTouchPoint?.x =
+                            measuredWidth - lastTouchDownXY[0].toInt() // Make the dragShadowBuilder appears at the the left of the line and not on the clicked point
+                    }
+                }
+
+                layout(
+                    0,
+                    0, measuredWidth, measuredHeight
+                )
+
+                v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
+
+                return true
             }
 
+            return false
         }
+
+        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+            // save the X,Y coordinates
+            if (event!!.action == MotionEvent.ACTION_DOWN) {
+                lastTouchDownXY[0] = event.x
+                lastTouchDownXY[1] = event.y
+            }
+            v?.performClick()
+            // let the touch event pass on to whoever needs it
+            return false; }
 
 
     }

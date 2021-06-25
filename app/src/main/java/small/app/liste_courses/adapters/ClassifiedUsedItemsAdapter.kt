@@ -5,16 +5,13 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.room.entities.Item
 
-
-class UnclassifiedItemsAdapter(
-    context: Context
-) : ItemsAdapter(
-    context
-) {
+class ClassifiedUsedItemsAdapter(context: Context) : ItemsAdapter(context) {
 
     override fun fillView(holder: ItemsViewHolder, item: Item) {
         super.fillView(holder, item)
 
-        holder.itemView.iv_check_item.visibility = View.GONE
+        holder.itemView.iv_check_item.visibility = View.VISIBLE
+
     }
+
 }
