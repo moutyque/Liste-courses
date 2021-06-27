@@ -121,9 +121,26 @@ object Utils {
         return mlist
     }
 
-    fun deleteItem(item: Item) {
+
+    /**
+     * Delete an item and decrease order attribute of all the following items in the list by one
+     * Then find the link department and decrease items count by one
+     */
+    fun deleteItem(items: List<Item>, position: Int) {
+
         backgroundScope.launch {
-            repo.deleteItem(item)
+            val dep = repo.findDepartment(items[position].departmentId)
+            if (position < items.size - 1) {
+                val subList = items.subList(position + 1, items.size)
+                subList.forEach { it.order-- }
+                repo.saveItems(*subList.toTypedArray())
+            }
+            repo.deleteItem(items[position])
+
+            dep!!.itemsCount--
+            repo.saveDepartment(dep)
+
+
         }
 
 

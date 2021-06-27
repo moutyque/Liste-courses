@@ -12,7 +12,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
@@ -24,6 +23,7 @@ import small.app.liste_courses.objects.ItemsComparator
 import small.app.liste_courses.objects.SIUnit
 import small.app.liste_courses.objects.Utils
 import small.app.liste_courses.room.entities.Item
+import kotlin.math.max
 
 abstract class ItemsAdapter(
     protected val context: Context
@@ -35,13 +35,17 @@ abstract class ItemsAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
-        return ItemsViewHolder(
+        val viewHolder = ItemsViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.item_grossery_item,
                 parent,
                 false
             )
         )
+        viewHolder.itemView.iv_dd.setOnLongClickListener(viewHolder)
+
+        return viewHolder
+
     }
 
 
@@ -53,41 +57,36 @@ abstract class ItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
+        //Both variable are used to send the drag item
+        val item = list[position]
+        holder.model = item
+        holder.adapter = this@ItemsAdapter
 
-        Log.d("IAdapter", list[position].name)
         Log.d("IAdapter", " $position")
-        if (list[position].name.isNotEmpty()) {
+        if (item.name.isNotEmpty()) {
 
-            fillView(holder, list[position])
+            fillView(holder, item)
             holder.itemView.iv_check_item.setOnClickListener {
-                list[position].isUsed = false
+                item.isUsed = false
                 //Update RV
                 Log.d("IAdapter", "Remove at position : $position")
-                Utils.unuseItem(list[position])
+                Utils.unuseItem(item)
             }
 
             holder.itemView.iv_increase_qty.setOnClickListener {
-                list[position].qty += list[position].unit.mutliplicator
-                Utils.saveItem(list[position])
-                holder.itemView.tv_qty.text = list[position].qty.toString()
+                item.qty += item.unit.mutliplicator
+                Utils.saveItem(item)
+                holder.itemView.tv_qty.text = item.qty.toString()
             }
             holder.itemView.iv_decrease_qty.setOnClickListener {
-                list[position].qty =
-                    Math.max(0, list[position].qty - list[position].unit.mutliplicator)
-                Utils.saveItem(list[position])
-                holder.itemView.tv_qty.text = list[position].qty.toString()
+                item.qty =
+                    max(0, item.qty - item.unit.mutliplicator)
+                Utils.saveItem(item)
+                holder.itemView.tv_qty.text = item.qty.toString()
 
             }
 
-            holder.itemView.tv_unit.text = list[position].unit.value
-
-            //Both variable are used to send the drag item
-            holder.model = list[position]
-            holder.adapter = this@ItemsAdapter
-
-            //holder.onLongClick(holder.itemView.iv_dd)
-            //Defined which action will happened when we long click on the iv_dd by passing an object that implement View.OnLongClickListener
-            //holder.itemView.iv_dd.setOnLongClickListener(holder)
+            holder.itemView.tv_unit.text = item.unit.value
 
 
         }
@@ -159,7 +158,6 @@ abstract class ItemsAdapter(
         // class member variable to save the X,Y coordinates
         private val lastTouchDownXY = FloatArray(2)
 
-        //        private var longPressed = false
         var model: Item? = null
         var adapter: ItemsAdapter? = null
 
@@ -168,18 +166,16 @@ abstract class ItemsAdapter(
         }
 
         override fun onLongClick(v: View?): Boolean {
-            val parent = v?.parent?.parent as LinearLayout
 
-            parent.apply {
+            //Prepare dragShadowBuilder element
+            val clipText = "This is our ClipData text"
+            val item = ClipData.Item(clipText)
+            val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            val data = ClipData(clipText, mimeTypes, item)
 
-                val clipText = "This is our ClipData text"
-                val item = ClipData.Item(clipText)
-                val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                val data = ClipData(clipText, mimeTypes, item)
-
-
+            //Use the drag view as a context to build the dragShadowBuilder€
+            this.itemView.ll_complet_line.apply {
                 val dragShadowBuilder = object : DragShadowBuilder(this) {
-
                     override fun onProvideShadowMetrics(
                         outShadowSize: Point?,
                         outShadowTouchPoint: Point?
@@ -195,7 +191,7 @@ abstract class ItemsAdapter(
                     0, measuredWidth, measuredHeight
                 )
 
-                v.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
+                v!!.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
 
                 return true
             }

@@ -9,8 +9,7 @@ import small.app.liste_courses.objects.DepartmentComparator
 import small.app.liste_courses.room.entities.DepartmentWithItems
 
 abstract class DepartmentsAbstractAdapter(
-    val context: Context,
-    private val onlyUsed: Boolean = false
+    val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

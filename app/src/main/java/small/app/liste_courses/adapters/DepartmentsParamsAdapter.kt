@@ -18,10 +18,9 @@ import small.app.liste_courses.callback.IMovableAdapter
 import small.app.liste_courses.callback.SimpleItemTouchHelperCallback
 import small.app.liste_courses.models.Department
 import small.app.liste_courses.objects.Utils
-import small.app.liste_courses.objects.Utils.swapInCollection
 
-class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
-    DepartmentsAbstractAdapter(context, onlyUsed), IMovableAdapter {
+class DepartmentsParamsAdapter(context: Context) :
+    DepartmentsAbstractAdapter(context), IMovableAdapter {
 
 
     override fun onCreateViewHolder(
@@ -119,26 +118,23 @@ class DepartmentsParamsAdapter(context: Context, onlyUsed: Boolean = false) :
 
     }
 
+
     override fun onItemMove(initialPosition: Int, targetPosition: Int) {
-        this.notifyItemMoved(initialPosition, targetPosition)
         if (initialPosition > -1 && targetPosition > -1) {
+            //This is call at every move so the save must only occure once the drag is done
             with(list) {
                 val init = get(initialPosition)
                 val target = get(targetPosition)
-
                 val tmp = init.order
                 init.order = target.order
                 target.order = tmp
-
-                swapInCollection(list, initialPosition, targetPosition)
                 savableDepartment.add(init)
                 savableDepartment.add(target)
 
+                Utils.swapInCollection(list, initialPosition, targetPosition)
             }
             this.notifyItemMoved(initialPosition, targetPosition)
         }
-
-
     }
 
     override fun canMove(): Boolean {

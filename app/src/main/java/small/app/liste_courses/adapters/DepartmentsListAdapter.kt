@@ -17,9 +17,9 @@ import small.app.liste_courses.objects.DepartmentChange
 
 
 class DepartmentsListAdapter(
-    context: Context, onlyUsed: Boolean = true
+    context: Context
 ) :
-    DepartmentsAbstractAdapter(context, onlyUsed) {
+    DepartmentsAbstractAdapter(context) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {

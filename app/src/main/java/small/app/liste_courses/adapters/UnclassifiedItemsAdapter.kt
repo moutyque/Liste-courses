@@ -5,7 +5,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.liste_courses.room.entities.Item
 
-
+//TODO : add d&d
 class UnclassifiedItemsAdapter(
     context: Context
 ) : ItemsAdapter(

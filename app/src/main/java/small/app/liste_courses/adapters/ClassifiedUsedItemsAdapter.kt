@@ -11,7 +11,7 @@ class ClassifiedUsedItemsAdapter(context: Context) : ItemsAdapter(context) {
         super.fillView(holder, item)
 
         holder.itemView.iv_check_item.visibility = View.VISIBLE
-
+        holder.itemView.iv_dd.visibility = View.GONE
     }
 
 }

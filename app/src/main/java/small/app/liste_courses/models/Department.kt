@@ -13,13 +13,18 @@ data class Department(
 
 
     fun classify(item: Item) {
-        this.itemsCount += 1
-        with(item) {
-            isClassified = true
-            isUsed = true
-            departmentId = this@Department.name
-            order = this@Department.itemsCount.toLong()
-            Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
+
+        //Avoid that dropping an item on the drag start department increase the nb of items in the department
+        if (item.departmentId != this.name) {
+            this.itemsCount += 1
+            with(item) {
+                isClassified = true
+                isUsed = true
+                departmentId = this@Department.name
+                order = this@Department.itemsCount.toLong()
+
+                Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
+            }
         }
 
 
