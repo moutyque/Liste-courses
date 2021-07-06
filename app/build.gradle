@@ -13,7 +13,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "small.app.liste_courses"
+        applicationId "small.app.shopping.list"
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1

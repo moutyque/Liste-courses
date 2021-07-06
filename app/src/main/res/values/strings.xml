@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Liste-courses</string>
+    <string name="app_name">Shopping List</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="autocompletetextview">Select an item</string>
     <string name="tabListName">List</string>
     <string name="tabListNameParameters">Parameters</string>
+    <string name="new_department_name">New department name</string>
 </resources>

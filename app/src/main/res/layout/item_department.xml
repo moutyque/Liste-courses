@@ -6,7 +6,7 @@
 
         <variable
             name="department"
-            type="small.app.liste_courses.models.Department" />
+            type="small.app.shopping.list.models.Department" />
 
     </data>
 

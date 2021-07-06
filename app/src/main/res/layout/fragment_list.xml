@@ -94,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.8"
                     android:completionThreshold="1"
-                    android:hint="New department name"
+                    android:hint="@string/new_department_name"
                     android:lines="1"
                     android:maxLines="1"
 

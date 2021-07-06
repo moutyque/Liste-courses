@@ -1,8 +1,7 @@
-package small.app.liste_courses
+package small.app.shopping.list
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).

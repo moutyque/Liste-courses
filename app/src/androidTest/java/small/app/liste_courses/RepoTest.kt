@@ -1,4 +1,4 @@
-package small.app.liste_courses
+package small.app.shopping.list
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
@@ -24,7 +24,7 @@ class RepoTest {
            list.add(Item("POMME"))
            list.add(Item("BANANNE"))
            list.add(Item("POIRE"))
-           val newDep = small.app.liste_courses.models.Department("FRUITS", list, 0)
+           val newDep = small.app.shopping.list.models.Department("FRUITS", list, 0)
 
            backgroundScope.launch {
                repo.saveDepartment(newDep)

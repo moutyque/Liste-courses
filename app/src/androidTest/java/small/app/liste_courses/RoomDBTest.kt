@@ -1,4 +1,4 @@
-package small.app.liste_courses
+package small.app.shopping.list
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
