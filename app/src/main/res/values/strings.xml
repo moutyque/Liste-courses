@@ -5,4 +5,5 @@
     <string name="tabListName">List</string>
     <string name="tabListNameParameters">Parameters</string>
     <string name="new_department_name">Department name</string>
+    <string name="no_department_nor_item">No department nor item</string>
 </resources>

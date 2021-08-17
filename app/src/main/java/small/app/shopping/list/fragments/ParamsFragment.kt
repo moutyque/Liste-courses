@@ -26,7 +26,7 @@ class ParamsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentParamsBinding.inflate(inflater)
         viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
@@ -48,7 +48,21 @@ class ParamsFragment : Fragment() {
 
         viewModel.getAllDepartments().observe(viewLifecycleOwner, {
 
-            departmentsAdapter.updateList(it)
+
+            if(it?.isEmpty() == true){
+                binding.rvDepartments.visibility = View.GONE
+                binding.tvNoData.visibility = View.VISIBLE
+
+
+            }else{
+
+                binding.rvDepartments.visibility = View.VISIBLE
+                binding.tvNoData.visibility = View.GONE
+
+                departmentsAdapter.updateList(it)
+            }
+
+
         })
 
 
@@ -61,6 +75,7 @@ class ParamsFragment : Fragment() {
 
 
     }
+
 
 
 }
