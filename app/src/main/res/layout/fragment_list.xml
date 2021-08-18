@@ -32,9 +32,8 @@
                     android:layout_weight="0.8"
                     android:completionThreshold="1"
                     android:hint="@string/new_department_name"
-                    android:lines="1"
                     android:maxLines="1"
-
+                    android:imeOptions="actionNext"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ib_add_department"
                     app:layout_constraintStart_toStartOf="parent"

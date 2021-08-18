@@ -2,10 +2,12 @@ package small.app.shopping.list.fragments
 
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,17 +68,21 @@ class ListFragment : Fragment() {
 
         //Setup btn to add an new item
         binding.ibAddItem.setOnClickListener {
-            //Create or get the item
-            val name = binding.actvSelectionItem.text.toString().trim()
-            if (name.isNotEmpty()) {
-                val item = Item(name = name)
-                item.isUsed = true
-                item.order = System.currentTimeMillis()
-                Utils.useItem(item, departmentsListAdapter)
-                binding.actvSelectionItem.setText("")
-            }
-
+            addItem()
         }
+
+        binding.actvSelectionItem.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN &&
+                    keyCode == KeyEvent.KEYCODE_ENTER
+            ){
+                    addItem()
+                    true
+            }
+            false
+         }
+
+
+
         setupUnclassifiedItemsRV()
         setupDepartmentsRV()
 
@@ -97,36 +103,61 @@ class ListFragment : Fragment() {
 
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
-            //Create the new department
-            val depName = binding.actDepartmentName.text.toString().trim()
-            if (depName.isNotEmpty()) {
-                // Need to check if it exist first because we don't want to override an existing department
-                var order = 0
-                var depDb: Department? = null
-                val job = backgroundScope.launch {
-                    order = repo.getNumberOfDepartments()
-                    depDb = repo.findDepartment(depName)
-                }
-                job.invokeOnCompletion {
+            addDepartment()
+        }
 
-                    val dep: Department = depDb
-                        ?: Department(
-                            depName,
-                            true,
-                            ArrayList(),
-                            0,
-                            order
-                        )
-                    dep.isUsed = true
-                    Utils.saveDepartment(dep)
-
-                }
-                binding.actDepartmentName.setText("")
+        binding.actDepartmentName.setOnKeyListener{ v, keyCode, event ->
+            if(66==keyCode && event.action == KeyEvent.ACTION_UP){
+                addDepartment()
             }
 
+            true
         }
+
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    private fun addDepartment() {
+        //Create the new department
+        val depName = binding.actDepartmentName.text.toString().trim()
+        if (depName.isNotEmpty()) {
+            // Need to check if it exist first because we don't want to override an existing department
+            var order = 0
+            var depDb: Department? = null
+            val job = backgroundScope.launch {
+                order = repo.getNumberOfDepartments()
+                depDb = repo.findDepartment(depName)
+            }
+            job.invokeOnCompletion {
+
+                val dep: Department = depDb
+                    ?: Department(
+                        depName,
+                        true,
+                        ArrayList(),
+                        0,
+                        order
+                    )
+                dep.isUsed = true
+                Utils.saveDepartment(dep)
+
+            }
+            Toast.makeText(requireContext(),"$depName has been added.",Toast.LENGTH_LONG).show()
+            binding.actDepartmentName.setText("")
+        }
+    }
+
+    private fun addItem() {
+        //Create or get the item
+        val name = binding.actvSelectionItem.text.toString().trim()
+        if (name.isNotEmpty()) {
+            val item = Item(name = name)
+            item.isUsed = true
+            item.order = System.currentTimeMillis()
+            Utils.useItem(item, departmentsListAdapter)
+            binding.actvSelectionItem.setText("")
+        }
     }
 
 

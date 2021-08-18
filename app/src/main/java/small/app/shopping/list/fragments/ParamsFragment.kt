@@ -13,10 +13,6 @@ import small.app.shopping.list.callback.SimpleItemTouchHelperCallback
 import small.app.shopping.list.databinding.FragmentParamsBinding
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
-
-/*
-TODO : change the order of items
- */
 class ParamsFragment : Fragment() {
 
     private lateinit var binding: FragmentParamsBinding
