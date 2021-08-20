@@ -173,7 +173,7 @@ abstract class ItemsAdapter(
             val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
             val data = ClipData(clipText, mimeTypes, item)
 
-            //Use the drag view as a context to build the dragShadowBuilder€
+            //Use the drag view as a context to build the dragShadowBuilder
             this.itemView.ll_complet_line.apply {
                 val dragShadowBuilder = object : DragShadowBuilder(this) {
                     override fun onProvideShadowMetrics(
@@ -186,14 +186,7 @@ abstract class ItemsAdapter(
                     }
                 }
 
-                layout(
-                    0,
-                    0, measuredWidth, measuredHeight
-                )
-
-                v!!.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
-
-                return true
+                return  v!!.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
             }
         }
 

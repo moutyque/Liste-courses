@@ -22,7 +22,6 @@ data class Department(
                 isUsed = true
                 departmentId = this@Department.name
                 order = this@Department.itemsCount.toLong()
-
                 Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
             }
         }

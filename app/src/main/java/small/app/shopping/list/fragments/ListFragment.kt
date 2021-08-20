@@ -1,7 +1,7 @@
 package small.app.shopping.list.fragments
 
+import android.R
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -34,10 +34,6 @@ class ListFragment : Fragment() {
     private lateinit var unclassifiedAdapter: ItemsAdapter
 
     lateinit var departmentsListAdapter: DepartmentsListAdapter
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("", "Oncreate")
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +46,30 @@ class ListFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
 
+        initItemNameSuggestion()
+
+        initAddItem()
+
+        setupUnclassifiedItemsRV()
+        setupDepartmentsRV()
+
+        //Setup the department name suggestion in the text field
+        initDepartmentNameSuggestion()
+
+        initAddDepartment()
+
+        // Inflate the layout for this fragment
+        return binding.root
+    }
+
+    /**
+     * Create an ArrayAdapter that contains the name of all the unused items and use it to suggest items to add in the shopping list
+     */
+    private fun initItemNameSuggestion() {
         val itemsName: ArrayList<String> = ArrayList()
         val suggestedItemsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
             requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
+            R.layout.simple_dropdown_item_1line,
             itemsName
         )
 
@@ -65,31 +81,59 @@ class ListFragment : Fragment() {
         })
 
         binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
+    }
 
+    /**
+     * Initialize the two ways to add an item from the text field.
+     * 1) By clicking on the icon check
+     * 2) By pressing enter
+     */
+    private fun initAddItem() {
         //Setup btn to add an new item
         binding.ibAddItem.setOnClickListener {
             addItem()
         }
 
-        binding.actvSelectionItem.setOnKeyListener { v, keyCode, event ->
+        //Enable the enter button to add items
+        binding.actvSelectionItem.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN &&
-                    keyCode == KeyEvent.KEYCODE_ENTER
-            ){
-                    addItem()
-                    true
+                keyCode == KeyEvent.KEYCODE_ENTER
+            ) {
+                addItem()
+                true
             }
             false
-         }
+        }
+    }
 
+    /**
+     * Initialize the two ways to add a department from the text field.
+     * 1) By clicking on the icon check
+     * 2) By pressing enter
+     */
+    private fun initAddDepartment() {
+        //Setup btn to add an new department
+        binding.ibAddDepartment.setOnClickListener {
+            addDepartment()
+        }
 
+        binding.actDepartmentName.setOnKeyListener { v, keyCode, event ->
+            if (KeyEvent.KEYCODE_ENTER == keyCode && event.action == KeyEvent.ACTION_UP) {
+                addDepartment()
+            }
 
-        setupUnclassifiedItemsRV()
-        setupDepartmentsRV()
+            true
+        }
+    }
 
+    /**
+     * Create an ArrayAdapter that contains the name of all the unused departments and use it to suggest items to add in the shopping list
+     */
+    private fun initDepartmentNameSuggestion() {
         val departmentsName: ArrayList<String> = ArrayList()
         val suggestedDepartmentsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
             requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
+            R.layout.simple_dropdown_item_1line,
             departmentsName
         )
         binding.actDepartmentName.setAdapter(suggestedDepartmentsAdapter)
@@ -100,24 +144,13 @@ class ListFragment : Fragment() {
             suggestedDepartmentsAdapter.addAll(it)
         }
         )
-
-        //Setup btn to add an new department
-        binding.ibAddDepartment.setOnClickListener {
-            addDepartment()
-        }
-
-        binding.actDepartmentName.setOnKeyListener{ v, keyCode, event ->
-            if(66==keyCode && event.action == KeyEvent.ACTION_UP){
-                addDepartment()
-            }
-
-            true
-        }
-
-        // Inflate the layout for this fragment
-        return binding.root
     }
 
+    /**
+     * Create a new department from the name in the text field and db info and make it visible
+     * or
+     * Reuse an existing department with the same name as the one set in the text field
+     */
     private fun addDepartment() {
         //Create the new department
         val depName = binding.actDepartmentName.text.toString().trim()
@@ -148,6 +181,9 @@ class ListFragment : Fragment() {
         }
     }
 
+    /**
+     * Create a new unclassified item from the name in the text field then use an util function to see if it already exist and do the necessary actions.
+     */
     private fun addItem() {
         //Create or get the item
         val name = binding.actvSelectionItem.text.toString().trim()
@@ -160,7 +196,11 @@ class ListFragment : Fragment() {
         }
     }
 
-
+    /**
+     * Setup on the department recycler view :
+     * The layout
+     * The action to be performed when a new list of DepartmentWithItems is provided
+     */
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsListAdapter = DepartmentsListAdapter(
@@ -180,7 +220,11 @@ class ListFragment : Fragment() {
 
     }
 
-
+    /**
+     * Setup on the unclassified items recycler view :
+     * The layout
+     * The action to be performed when a new list of DepartmentWithItems is provided
+     */
     private fun setupUnclassifiedItemsRV() {
         //Create the items adapter
         unclassifiedAdapter =
