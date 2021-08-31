@@ -6,24 +6,29 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import small.app.shopping.list.R
+import small.app.shopping.list.fragments.FullScreenListFragment
 
 import small.app.shopping.list.fragments.ListFragment
 import small.app.shopping.list.fragments.ParamsFragment
 
-class PagerAdapter(private val nbTabs :Int, private val context: Context, fm: FragmentManager, behavior: Int) : FragmentPagerAdapter (fm,behavior){
-
-
+class PagerAdapter(
+    private val nbTabs: Int,
+    private val context: Context,
+    fm: FragmentManager,
+    behavior: Int
+) : FragmentPagerAdapter(fm, behavior) {
 
 
     override fun getCount(): Int {
-        return  nbTabs
+        return nbTabs
     }
 
 
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> ListFragment()
-            1 -> ParamsFragment()
+            0 -> FullScreenListFragment()
+            1 -> ListFragment()
+            2 -> ParamsFragment()
             else -> {
                 Log.e("PagerAdapter", "How did you managed to call the tab : $position")
                 throw Exception("Unknown position")
@@ -33,8 +38,9 @@ class PagerAdapter(private val nbTabs :Int, private val context: Context, fm: Fr
 
     override fun getPageTitle(position: Int): CharSequence {
         return when (position) {
-            0 -> context.getString(R.string.tabListName)
-            1 -> context.getString(R.string.tabListNameParameters)
+            0 -> context.getString(R.string.full_screen)
+            1 -> context.getString(R.string.tabListName)
+            2 -> context.getString(R.string.tabListNameParameters)
             else -> {
                 Log.e("PagerAdapter", "How did you managed to call the tab : $position")
                 throw Exception("Unknown tab")

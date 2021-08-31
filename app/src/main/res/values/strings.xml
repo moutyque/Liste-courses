@@ -6,4 +6,9 @@
     <string name="tabListNameParameters">Parameters</string>
     <string name="new_department_name">Department name</string>
     <string name="no_department_nor_item">No department nor item</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="full_screen">Full Screen View</string>
 </resources>

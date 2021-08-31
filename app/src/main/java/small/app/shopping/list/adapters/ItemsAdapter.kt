@@ -7,11 +7,8 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.View.DragShadowBuilder
-import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
@@ -28,7 +25,8 @@ import kotlin.math.max
 abstract class ItemsAdapter(
     protected val context: Context
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(),
+View.OnDragListener {
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
@@ -57,7 +55,7 @@ abstract class ItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        //Both variable are used to send the drag item
+        //model and adapter variables are used to send the drag item
         val item = list[position]
         holder.model = item
         holder.adapter = this@ItemsAdapter
@@ -87,8 +85,8 @@ abstract class ItemsAdapter(
             }
 
             holder.itemView.tv_unit.text = item.unit.value
-
-
+            //Setup the drag event listener
+            holder.itemView.setOnDragListener(this)
         }
 
 
@@ -107,8 +105,6 @@ abstract class ItemsAdapter(
 
             this.list.clear()
             this.list.addAll(list)
-            //this.list.sortedWith(ItemsComparator())
-
         }
 
     }
@@ -118,7 +114,6 @@ abstract class ItemsAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        // super.onBindViewHolder(holder, position, payloads)
         if (payloads.isEmpty()) {
             //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
@@ -202,4 +197,23 @@ abstract class ItemsAdapter(
 
 
     }
+
+    override fun onDrag(v: View?, event: DragEvent?): Boolean {
+
+        if(v!=null && event!=null){
+            Log.d("ItemsAdapter",event.toString())
+            Log.d("ItemsAdapter","Position : " + v.x +" : " + v.y)
+
+            when(event.action){
+                DragEvent.ACTION_DRAG_ENTERED -> Log.d("ItemsAdapter","Enter")
+                DragEvent.ACTION_DRAG_EXITED ->Log.d("ItemsAdapter","Exited")
+            }
+        }
+
+
+        return true
+    }
+
+
+
 }

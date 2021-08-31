@@ -90,8 +90,6 @@ class DepartmentsParamsAdapter(context: Context) :
             holder.itemView.ib_expand.visibility = View.VISIBLE
             holder.itemView.ib_collapse.visibility = View.GONE
             holder.itemView.rv_items.visibility = View.GONE
-
-
         }
 
         val dragListen = ItemsDropListener(model)

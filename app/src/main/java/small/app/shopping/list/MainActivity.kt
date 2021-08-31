@@ -8,6 +8,9 @@ import small.app.shopping.list.databinding.ActivityMainBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.Repository
 
+/*
+TODO : instead of hide show view, hide only the top bar and call the adapter on items 2
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var repo: Repository
@@ -21,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        binding.viewPager.offscreenPageLimit = 2
+        binding.viewPager.offscreenPageLimit = 3
         binding.viewPager.adapter = PagerAdapter(
             binding.tabLayout.tabCount, this, supportFragmentManager,
             0
@@ -46,14 +49,10 @@ class MainActivity : AppCompatActivity() {
         })
         setContentView(binding.root)
 
-
-        binding.viewPager.adapter = PagerAdapter(
-            binding.tabLayout.tabCount, this, supportFragmentManager,
-            0
-        )
-
         binding.tabLayout.setupWithViewPager(binding.viewPager)
         setContentView(binding.root)
+
+
 
     }
 
