@@ -53,17 +53,17 @@ class FullScreenListFragment : Fragment() {
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
 
 
-            if(it?.isEmpty() == true){
+            if (it?.isEmpty() == true) {
                 binding.rvDepartments.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE
 
 
-            }else{
+            } else {
 
                 binding.rvDepartments.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
 
-                adapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())
+                adapter.updateList(Utils.getDepartmentWithUsedItems(it).toList())
             }
 
 

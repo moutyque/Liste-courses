@@ -15,8 +15,8 @@ class ItemsDropListener(private val dep: Department) :
                 Log.d("DAdapter", "Has drop $v")
                 val droppedItem = event.localState
                 if (droppedItem is DragItem && droppedItem.item.departmentId != dep.name) {
-                        dep.classify(droppedItem.item)
-                        return true
+                    dep.classify(droppedItem.item)
+                    return true
                 }
                 return false
             }

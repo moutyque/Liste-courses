@@ -26,7 +26,7 @@ abstract class ItemsAdapter(
     protected val context: Context
 ) :
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(),
-View.OnDragListener {
+    View.OnDragListener {
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
@@ -86,10 +86,45 @@ View.OnDragListener {
 
             holder.itemView.tv_unit.text = item.unit.value
             //Setup the drag event listener
-            holder.itemView.setOnDragListener(this)
+            holder.itemView.setOnDragListener { v, event ->
+                if (v != null && event != null) {
+                    Log.d("ItemsAdapter", event.toString())
+                    Log.d("ItemsAdapter", "Position : " + v.x + " : " + v.y)
+                    when (event.action) {
+                        DragEvent.ACTION_DRAG_ENTERED -> {
+                            Log.d("ItemsAdapter", "Enter")
+                            holder.itemView.separator.visibility = View.VISIBLE
+                        }
+                        DragEvent.ACTION_DRAG_EXITED -> {
+                            Log.d("ItemsAdapter", "Exited")
+                            holder.itemView.separator.visibility = View.GONE
+                        }
+                    }
+                }
+                true
+            }
         }
 
 
+    }
+
+    /*
+    TODO : get read of the both onDrag and keep one
+     */
+    override fun onDrag(v: View?, event: DragEvent?): Boolean {
+
+        if (v != null && event != null) {
+            Log.d("ItemsAdapter", event.toString())
+            Log.d("ItemsAdapter", "Position : " + v.x + " : " + v.y)
+
+            when (event.action) {
+                DragEvent.ACTION_DRAG_ENTERED -> Log.d("ItemsAdapter", "Enter")
+                DragEvent.ACTION_DRAG_EXITED -> Log.d("ItemsAdapter", "Exited")
+            }
+        }
+
+
+        return true
     }
 
     override fun getItemCount(): Int {
@@ -181,7 +216,12 @@ View.OnDragListener {
                     }
                 }
 
-                return  v!!.startDragAndDrop(data, dragShadowBuilder, DragItem(model!!, adapter!!), 0)
+                return v!!.startDragAndDrop(
+                    data,
+                    dragShadowBuilder,
+                    DragItem(model!!, adapter!!),
+                    0
+                )
             }
         }
 
@@ -197,23 +237,6 @@ View.OnDragListener {
 
 
     }
-
-    override fun onDrag(v: View?, event: DragEvent?): Boolean {
-
-        if(v!=null && event!=null){
-            Log.d("ItemsAdapter",event.toString())
-            Log.d("ItemsAdapter","Position : " + v.x +" : " + v.y)
-
-            when(event.action){
-                DragEvent.ACTION_DRAG_ENTERED -> Log.d("ItemsAdapter","Enter")
-                DragEvent.ACTION_DRAG_EXITED ->Log.d("ItemsAdapter","Exited")
-            }
-        }
-
-
-        return true
-    }
-
 
 
 }

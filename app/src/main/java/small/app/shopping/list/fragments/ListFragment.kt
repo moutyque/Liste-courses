@@ -214,7 +214,7 @@ class ListFragment : Fragment() {
         binding.rvDepartment.adapter = departmentsListAdapter
 
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
-            departmentsListAdapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())
+            departmentsListAdapter.updateList(Utils.getDepartmentWithUsedItems(it).toList())
         })
 
     }
