@@ -73,14 +73,11 @@ class DepartmentsListAdapter(
 
         (itemsAdapter as ItemsAdapter).updateList(model.items)
 
-
         val dragListen = ItemsDropListener(model)
         holder.itemView.setOnDragListener(dragListen)
     }
 
-
     class DepartmentViewHolder(view: View) : ViewHolder(view)
-
 
     //Only when a new department is created this is called I think
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
@@ -99,20 +96,10 @@ class DepartmentsListAdapter(
                                 (holder.itemView.rv_items.adapter as ItemsAdapter).updateList(list[position].items)
                                 //super.onBindViewHolder(holder, position, payloads)
                             }
-
-
                         }
                     }
-
-
                 }
-
             }
-
         }
-
-
     }
-
-
 }

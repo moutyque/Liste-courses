@@ -18,7 +18,7 @@ class ItemsDropListener(private val dep: Department) :
                     dep.classify(droppedItem.item)
                     return true
                 }
-                return false
+                return true
             }
             else -> {
                 // An unknown action type was received.
@@ -26,7 +26,7 @@ class ItemsDropListener(private val dep: Department) :
                     "DAdapter",
                     "Untreated action type received by OnDragListener : ${event.action}."
                 )
-                return false
+                return true
             }
         }
     }

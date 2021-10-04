@@ -54,7 +54,6 @@ class SimpleItemTouchHelperCallback(
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-
         Log.d("DDSwipe", "In the onSwipe")
     }
 

@@ -12,16 +12,8 @@ import small.app.shopping.list.databinding.FragmentParamsBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [FullScreenListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class FullScreenListFragment : Fragment() {
     private lateinit var binding: FragmentParamsBinding
     lateinit var adapter: DepartmentsFullScreenAdapter
@@ -63,7 +55,7 @@ class FullScreenListFragment : Fragment() {
                 binding.rvDepartments.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
 
-                adapter.updateList(Utils.getDepartmentWithUsedItems(it).toList())
+                adapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())
             }
 
 

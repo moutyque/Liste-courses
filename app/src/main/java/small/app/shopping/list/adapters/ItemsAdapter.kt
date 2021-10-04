@@ -120,6 +120,7 @@ abstract class ItemsAdapter(
             when (event.action) {
                 DragEvent.ACTION_DRAG_ENTERED -> Log.d("ItemsAdapter", "Enter")
                 DragEvent.ACTION_DRAG_EXITED -> Log.d("ItemsAdapter", "Exited")
+                DragEvent.ACTION_DROP -> Log.d("ItemsAdapter", "Droped")
             }
         }
 
