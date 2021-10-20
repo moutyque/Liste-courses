@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import small.app.shopping.list.models.Department
+import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
 
@@ -119,9 +120,38 @@ class Repository(context: Context) {
 
     }
 
+    fun getUnusedDepartmentItems(name: String): LiveData<List<String>> {
+        return db.itemDAO().findUnusedItemsNameByDepName(name)
+    }
+
+    fun getDepartment(departmentId: String): Department? {
+        return db.departmentDAO().findByName(departmentId)?.toDepartment()
+    }
+
     fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
         updateDepartmentUsage(item)
+        updateItemsOrderInDepartment(item.departmentId)
+    }
+
+    fun updateItemsOrderInDepartment(departmentId: String) {
+        if (db.itemDAO().findByDepName(departmentId).value.isNullOrEmpty()) {
+            val findByName = findDepartment(departmentId)
+            findByName?.let {
+                var order :Long = 1
+                val sortedItems = it.items.sortedWith { i1, i2 ->
+                    i1.order.compareTo(i2.order)
+                }
+                val listIterator = sortedItems.listIterator()
+                while (listIterator.hasNext()) {
+                    val item = listIterator.next()
+                    item.order=order
+                    Utils.repo.saveItems(item)
+                    order++
+                }
+            }
+
+        }
     }
 
     fun deleteDepartment(department: Department) {

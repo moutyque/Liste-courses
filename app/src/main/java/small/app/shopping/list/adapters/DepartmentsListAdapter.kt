@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.shopping.list.R
 import small.app.shopping.list.adapters.listeners.ItemsDropListener
+import small.app.shopping.list.fragments.NewItemsDialogFragment
+import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.DepartmentChange
 
 
@@ -58,12 +62,32 @@ class DepartmentsListAdapter(
             }
             true
         }
+
+
+        //Feature to add an item directly from the department
+        holder.itemView.ib_newItems.setOnClickListener {
+            val activity = context as FragmentActivity
+            val fm: FragmentManager = activity.supportFragmentManager
+            val dialog = NewItemsDialogFragment(model.name)
+            dialog.show(fm, NewItemsDialogFragment.TAG)
+        }
+
         //Recycler view for the items in the department
         Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
 
+        setupAdapter(holder, model)
+        //This drag adapter is necessary for the first items
+        val dragListen = ItemsDropListener(model)
+        holder.itemView.setOnDragListener(dragListen)
+    }
+
+    private fun setupAdapter(
+        holder: ViewHolder,
+        model: Department
+    ) {
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
-            itemsAdapter = small.app.shopping.list.adapters.ClassifiedUsedItemsAdapter(
+            itemsAdapter = ClassifiedUsedItemsAdapter(
                 context
             )
             holder.itemView.rv_items.layoutManager =
@@ -72,9 +96,6 @@ class DepartmentsListAdapter(
         }
 
         (itemsAdapter as ItemsAdapter).updateList(model.items)
-
-        val dragListen = ItemsDropListener(model)
-        holder.itemView.setOnDragListener(dragListen)
     }
 
     class DepartmentViewHolder(view: View) : ViewHolder(view)

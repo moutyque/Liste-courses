@@ -25,8 +25,7 @@ import kotlin.math.max
 abstract class ItemsAdapter(
     protected val context: Context
 ) :
-    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>(),
-    View.OnDragListener {
+    RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
@@ -99,6 +98,18 @@ abstract class ItemsAdapter(
                             Log.d("ItemsAdapter", "Exited")
                             holder.itemView.separator.visibility = View.GONE
                         }
+                        DragEvent.ACTION_DROP -> {
+
+                            val droppedItem = event.localState
+                            if (droppedItem is DragItem && droppedItem.item.departmentId != item.departmentId) {
+                                Log.d("DAdapter", "Has drop ${droppedItem.item.name}")
+                                holder.itemView.separator.visibility = View.GONE
+                                //With +1 last is ok but not the others, whitout it it is the opposites
+                                droppedItem.item.order = item.order
+
+                                Utils.classifyItemWithOrder(item.departmentId,droppedItem.item)
+                            }
+                        }
                     }
                 }
                 true
@@ -108,25 +119,7 @@ abstract class ItemsAdapter(
 
     }
 
-    /*
-    TODO : get read of the both onDrag and keep one
-     */
-    override fun onDrag(v: View?, event: DragEvent?): Boolean {
 
-        if (v != null && event != null) {
-            Log.d("ItemsAdapter", event.toString())
-            Log.d("ItemsAdapter", "Position : " + v.x + " : " + v.y)
-
-            when (event.action) {
-                DragEvent.ACTION_DRAG_ENTERED -> Log.d("ItemsAdapter", "Enter")
-                DragEvent.ACTION_DRAG_EXITED -> Log.d("ItemsAdapter", "Exited")
-                DragEvent.ACTION_DROP -> Log.d("ItemsAdapter", "Droped")
-            }
-        }
-
-
-        return true
-    }
 
     override fun getItemCount(): Int {
         return list.size
@@ -134,6 +127,7 @@ abstract class ItemsAdapter(
 
 
     fun updateList(list: List<Item>?) {
+        Log.d("ItemsAdapter","updateLists")
         if (list != null) {
             list.sortedWith(ItemsComparator())
             val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)

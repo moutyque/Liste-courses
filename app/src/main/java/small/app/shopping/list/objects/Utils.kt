@@ -155,9 +155,9 @@ object Utils {
         }
     }
 
-    fun classifyItem(depId: String, item: Item) {
+    fun classifyItemWithOrder(depId: String, item: Item) {
         backgroundScope.launch {
-            repo.getDepartment(depId)?.let { it.classify(item) }
+            repo.getDepartment(depId)?.let { it.classifyWithOrderDefined(item) }
         }
     }
 
