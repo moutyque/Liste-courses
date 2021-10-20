@@ -3,7 +3,6 @@ package small.app.shopping.list.room
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.DepartmentWithItems
@@ -34,9 +33,6 @@ class Repository(context: Context) {
             )
     }
 
-    fun getUnusedItems(): LiveData<List<Item>?> {
-        return db.itemDAO().getAllWithUsage(false)
-    }
 
     fun getUnclassifiedItem(): LiveData<List<Item>?> {
         return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
@@ -50,21 +46,10 @@ class Repository(context: Context) {
         db.itemDAO().insertAll(*items)
     }
 
-
-    fun getUnusedDepartments(): LiveData<List<Department>> {
-        return MutableLiveData(
-            db.departmentDAO().getUnusedDepartment().value.orEmpty().map {
-                it.toDepartment()
-            })
-    }
-
     fun getUnusedDepartmentsName(): LiveData<List<String>> {
         return db.departmentDAO().getUnusedDepartmentsName()
     }
 
-    fun getDepartmentItems(depName: String): LiveData<List<Item>?> {
-        return db.itemDAO().findByDepName(depName)
-    }
 
     fun findItem(name: String): Item? {
         return db.itemDAO().findByName(name)
@@ -146,9 +131,9 @@ class Repository(context: Context) {
                 while (listIterator.hasNext()) {
                     val item = listIterator.next()
                     item.order=order
-                    Utils.repo.saveItems(item)
                     order++
                 }
+                Utils.repo.saveItems(*sortedItems.toTypedArray())
             }
 
         }

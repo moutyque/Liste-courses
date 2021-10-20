@@ -99,15 +99,12 @@ abstract class ItemsAdapter(
                             holder.itemView.separator.visibility = View.GONE
                         }
                         DragEvent.ACTION_DROP -> {
-
                             val droppedItem = event.localState
                             if (droppedItem is DragItem && droppedItem.item.departmentId != item.departmentId) {
                                 Log.d("DAdapter", "Has drop ${droppedItem.item.name}")
                                 holder.itemView.separator.visibility = View.GONE
-                                //With +1 last is ok but not the others, whitout it it is the opposites
                                 droppedItem.item.order = item.order
-
-                                Utils.classifyItemWithOrder(item.departmentId,droppedItem.item)
+                                Utils.classifyItemWithOrder(item.departmentId, droppedItem.item)
                             }
                         }
                     }
@@ -115,28 +112,22 @@ abstract class ItemsAdapter(
                 true
             }
         }
-
-
     }
-
-
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-
     fun updateList(list: List<Item>?) {
-        Log.d("ItemsAdapter","updateLists")
+        Log.d("ItemsAdapter", "updateLists")
+        //Need to update the empty list for unclassified item for example
         if (list != null) {
             list.sortedWith(ItemsComparator())
             val diffResult = DiffUtil.calculateDiff(ItemsDiffUtils(this.list, list), false)
             diffResult.dispatchUpdatesTo(this)
-
             this.list.clear()
             this.list.addAll(list)
         }
-
     }
 
     override fun onBindViewHolder(
@@ -158,24 +149,16 @@ abstract class ItemsAdapter(
                                 list[position].qty = qty.toLong()
                                 holder.itemView.tv_qty.text = qty
                             }
-
                             if (key == ItemChange.UNIT.toString()) {
                                 val unit: String = (bundle.get(key) as CharSequence?).toString()
                                 list[position].unit = SIUnit.fromValue(unit)
                                 holder.itemView.tv_unit.text = unit
                             }
-
-
                         }
                     }
-
-
                 }
-
             }
-
         }
-
     }
 
     class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
@@ -228,7 +211,7 @@ abstract class ItemsAdapter(
             }
             v?.performClick()
             // let the touch event pass on to whoever needs it
-            return false; }
+            return false }
 
 
     }

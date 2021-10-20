@@ -1,5 +1,6 @@
 package small.app.shopping.list.models
 
+import android.util.Log
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.Item
 
@@ -11,11 +12,10 @@ data class Department(
     var order: Int
 ) {
 
-
     fun classify(item: Item) {
-
         //Avoid that dropping an item on the drag start department increase the nb of items in the department
         if (item.departmentId != this.name) {
+            Log.d("Department","classify")
             this.itemsCount += 1
             with(item) {
                 isClassified = true
@@ -25,8 +25,21 @@ data class Department(
                 Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
             }
         }
+    }
 
-
+    fun classifyWithOrderDefined(item: Item) {
+        //Avoid that dropping an item on the drag start department increase the nb of items in the department
+        if (item.departmentId != this.name) {
+            Log.d("Department","classify")
+            this.itemsCount += 1
+            with(item) {
+                isClassified = true
+                isUsed = true
+                departmentId = this@Department.name
+                Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
+            }
+            Utils.updateOrder(this)
+        }
     }
 
     override fun equals(other: Any?): Boolean {

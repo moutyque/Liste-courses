@@ -37,8 +37,7 @@ class ItemsParamsAdapter(
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-
-//Manage the view of the drop down list of unit
+        //Manage the view of the drop down list of unit
         holder.itemView.ll_list_view.visibility = View.GONE
         holder.itemView.ll_param_view.visibility = View.VISIBLE
         holder.itemView.ib_delete_item.setOnClickListener {
@@ -121,14 +120,16 @@ class ItemsParamsAdapter(
     }
 
     override fun onDragEnd() {
-
         Utils.saveItems(*list.toTypedArray())
+        //Fix issue : when the drag end and we delete an item after, the position send to the onBindViewHolder is not the right one, it is the position of the previous item
+        //Ex : if we move item 2 from position 2 to 4 and then delete item 2, we expect to get position 4 bt we get 2 instead
+        this.notifyDataSetChanged()
     }
 
 
     override fun onItemMove(initialPosition: Int, targetPosition: Int) {
         if (initialPosition > -1 && targetPosition > -1) {
-            //This is call at every move so the save must only occure once the drag is done
+            //This is call at every move so the save must only occur once the drag is done
             with(list) {
                 val init = get(initialPosition)
                 val target = get(targetPosition)
@@ -136,8 +137,8 @@ class ItemsParamsAdapter(
                 init.order = target.order
                 target.order = tmp
                 Utils.swapInCollection(list, initialPosition, targetPosition)
+                this@ItemsParamsAdapter.notifyItemMoved(initialPosition, targetPosition)
             }
-            this.notifyItemMoved(initialPosition, targetPosition)
         }
     }
 
