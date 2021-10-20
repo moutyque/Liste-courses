@@ -1,6 +1,7 @@
 package small.app.shopping.list.fragments
 
 import android.R
+import android.app.Activity
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -176,7 +177,7 @@ class ListFragment : Fragment() {
                 Utils.saveDepartment(dep)
 
             }
-            Toast.makeText(requireContext(),"$depName has been added.",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "$depName has been added.", Toast.LENGTH_LONG).show()
             binding.actDepartmentName.setText("")
         }
     }
@@ -193,6 +194,8 @@ class ListFragment : Fragment() {
             item.order = System.currentTimeMillis()
             Utils.useItem(item, departmentsListAdapter)
             binding.actvSelectionItem.setText("")
+
+            Utils.hideSoftKeyboard(context as Activity)
         }
     }
 

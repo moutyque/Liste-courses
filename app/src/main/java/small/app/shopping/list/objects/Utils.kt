@@ -1,5 +1,7 @@
 package small.app.shopping.list.objects
 
+import android.app.Activity
+import android.view.inputmethod.InputMethodManager
 import kotlinx.coroutines.launch
 import small.app.shopping.list.adapters.DepartmentsListAdapter
 import small.app.shopping.list.models.Department
@@ -9,6 +11,7 @@ import small.app.shopping.list.room.Repository
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
 import java.util.*
+
 
 object Utils {
 
@@ -149,6 +152,31 @@ object Utils {
     fun deleteDepartment(department: Department) {
         backgroundScope.launch {
             repo.deleteDepartment(department)
+        }
+    }
+
+    fun classifyItem(depId: String, item: Item) {
+        backgroundScope.launch {
+            repo.getDepartment(depId)?.let { it.classify(item) }
+        }
+    }
+
+    fun updateOrder(department: Department) {
+        backgroundScope.launch {
+            repo.updateItemsOrderInDepartment(department.name)
+        }
+
+    }
+
+    fun hideSoftKeyboard(activity: Activity) {
+        val inputMethodManager: InputMethodManager = activity.getSystemService(
+            Activity.INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+        if (inputMethodManager.isAcceptingText) {
+            inputMethodManager.hideSoftInputFromWindow(
+                activity.currentFocus!!.windowToken,
+                0
+            )
         }
     }
 }
