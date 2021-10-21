@@ -22,7 +22,6 @@ import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.repo
-import small.app.shopping.list.room.entities.Item
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -188,15 +187,9 @@ class ListFragment : Fragment() {
     private fun addItem() {
         //Create or get the item
         val name = binding.actvSelectionItem.text.toString().trim()
-        if (name.isNotEmpty()) {
-            val item = Item(name = name)
-            item.isUsed = true
-            item.order = System.currentTimeMillis()
-            Utils.useItem(item, departmentsListAdapter)
-            binding.actvSelectionItem.setText("")
-
-            Utils.hideSoftKeyboard(context as Activity)
-        }
+        viewModel.addItem(binding.actvSelectionItem.text.toString().trim())
+        binding.actvSelectionItem.setText("")
+        Utils.hideSoftKeyboard(context as Activity)
     }
 
     /**

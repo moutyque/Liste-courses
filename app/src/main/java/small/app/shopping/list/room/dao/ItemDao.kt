@@ -40,5 +40,7 @@ interface ItemDao {
     @Query("SELECT * FROM Item WHERE departmentId == :depName AND isUsed == :isUsed ORDER BY `order`")
     fun findUsedByDepName(depName: String, isUsed: Boolean = true): List<Item>
 
+    @Query("SELECT name FROM Item WHERE departmentId == :depName AND isUsed == :isUsed ORDER BY `order`")
+    fun findUnusedItemsNameByDepName(depName: String, isUsed: Boolean = false): LiveData<List<String>>
 
 }

@@ -41,7 +41,7 @@ class DepartmentsFullScreenAdapter(
         holder: ViewHolder
     ) {
         val model = list[position]
-
+        holder.itemView.ib_newItems.visibility= View.GONE
         holder.itemView.tv_dep_name.text = model.name
 
         //Recycler view for the items in the department

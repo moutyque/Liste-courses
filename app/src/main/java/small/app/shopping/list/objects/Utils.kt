@@ -3,7 +3,6 @@ package small.app.shopping.list.objects
 import android.app.Activity
 import android.view.inputmethod.InputMethodManager
 import kotlinx.coroutines.launch
-import small.app.shopping.list.adapters.DepartmentsListAdapter
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Scope.mainScope
@@ -32,8 +31,7 @@ object Utils {
     }
 
     fun useItem(
-        item: Item,
-        departmentsListAdapter: DepartmentsListAdapter
+        item: Item
     ) {
         var dbItem: Item? = null
         val job = backgroundScope.launch {
@@ -42,7 +40,7 @@ object Utils {
         job.invokeOnCompletion {
             //If exist and classified
             if (dbItem != null && dbItem!!.isClassified) {
-                useClassifiedItem(dbItem!!, departmentsListAdapter)
+                useClassifiedItem(dbItem!!)
             } else {
                 //Can exist and not use, for example default option
                 saveItem(item)
@@ -53,7 +51,7 @@ object Utils {
 
     }
 
-    private fun useClassifiedItem(item: Item, departmentsListAdapter: DepartmentsListAdapter) {
+    private fun useClassifiedItem(item: Item) {
         //Get the department from the item
         //Check if the department is already displayed through the department list
         //If no get the adapter and add it to the dep adapter
@@ -65,13 +63,9 @@ object Utils {
         }.invokeOnCompletion {
             val d = repo.findDepartment(item.departmentId)
             mainScope.launch {
-                if (d != null) {
-                    val dep = d
-                    if (departmentsListAdapter.list.find { it.name == dep.name } == null) {
-                        dep.isUsed = true
-                        saveDepartment(dep)
-                    }
-
+                d?.let {
+                    it.isUsed = true
+                    saveDepartment(it)
                 }
             }
         }
@@ -179,4 +173,5 @@ object Utils {
             )
         }
     }
+
 }

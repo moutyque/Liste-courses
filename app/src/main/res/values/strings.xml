@@ -11,4 +11,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="full_screen">Full Screen View</string>
+    <string name="item_hint">Enter item name</string>
+    <string name="ok">Ok</string>
+    <string name="add_new_item">Add new item</string>
 </resources>
