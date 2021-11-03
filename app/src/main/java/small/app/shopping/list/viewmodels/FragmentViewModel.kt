@@ -48,8 +48,12 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         if (itemName.isNotEmpty()) {
             val item = Item(name = itemName)
             item.isUsed = true
+
             item.order = System.currentTimeMillis()
-            if(depName.isNotEmpty()) item.departmentId=depName
+            if(depName.isNotEmpty()){
+                item.departmentId=depName
+                item.isClassified = true
+            }
             Utils.useItem(item)
         }
     }
