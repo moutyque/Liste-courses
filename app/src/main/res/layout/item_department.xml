@@ -13,6 +13,7 @@
 
 
     <LinearLayout
+        android:id="@+id/ll_departments"
         android:layout_width="@dimen/department_width"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -21,6 +22,7 @@
         android:padding="10dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_rv_dp_header"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

@@ -42,12 +42,12 @@ class NewItemsDialogFragment(private val depName: String) : DialogFragment() {
 
         })
 
-        binding.autoCompleteTextView.setAdapter(suggestedItemsAdapter)
+        binding.actItemNameInDep.setAdapter(suggestedItemsAdapter)
 
-        binding.button.setOnClickListener { _->
+        binding.bValidItemName.setOnClickListener { _->
             //Add item
-            viewModel.addItem(binding.autoCompleteTextView.text.toString().trim(),depName)
-            binding.autoCompleteTextView.setText("")
+            viewModel.addItem(binding.actItemNameInDep.text.toString().trim(),depName)
+            binding.actItemNameInDep.setText("")
             //Close dialog
             dismiss()
         }
