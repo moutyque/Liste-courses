@@ -36,7 +36,6 @@ class ParamsFragment : Fragment() {
             requireContext()
         )
 
-
         //Setup departments recycler view
         binding.rvDepartments.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -45,16 +44,12 @@ class ParamsFragment : Fragment() {
         viewModel.getAllDepartments().observe(viewLifecycleOwner, {
 
 
-            if(it?.isEmpty() == true){
+            if (it?.isEmpty() == true) {
                 binding.rvDepartments.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE
-
-
-            }else{
-
+            } else {
                 binding.rvDepartments.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
-
                 departmentsAdapter.updateList(it)
             }
 
@@ -71,7 +66,6 @@ class ParamsFragment : Fragment() {
 
 
     }
-
 
 
 }

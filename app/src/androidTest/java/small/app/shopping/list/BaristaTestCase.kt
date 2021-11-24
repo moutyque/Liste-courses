@@ -1,7 +1,10 @@
 package small.app.shopping.list
 
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingPolicies
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -12,6 +15,7 @@ import com.adevinta.android.barista.interaction.BaristaListInteractions.clickLis
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
 import org.junit.*
 import org.junit.runner.RunWith
+import small.app.shopping.list.adapters.DepartmentsListAdapter
 import java.util.concurrent.TimeUnit
 
 
@@ -19,7 +23,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BaristaTestCase {
 
-    companion object{
+    companion object {
         @BeforeClass
         fun beforeClass() {
             IdlingPolicies.setMasterPolicyTimeout(10, TimeUnit.SECONDS)
@@ -27,6 +31,7 @@ class BaristaTestCase {
         }
 
     }
+
     @get:Rule
     var clearDatabaseRule = ClearDatabaseRule()
 
@@ -37,22 +42,22 @@ class BaristaTestCase {
     lateinit var scenario: ActivityScenario<MainActivity>
 
     @After
-    fun tornApart(){
+    fun tornApart() {
         mainActivity.scenario.close()
     }
 
     @Before
-    fun setup(){
+    fun setup() {
         scenario = mainActivity.scenario
     }
 
 
-   /* @get:Rule
-    var chain: RuleChain = RuleChain.outerRule(clearDatabaseRule)
-        .around(mActivityTestRule)*/
+    /* @get:Rule
+     var chain: RuleChain = RuleChain.outerRule(clearDatabaseRule)
+         .around(mActivityTestRule)*/
 
     @Test
-    fun createDep(){
+    fun createDep() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
@@ -64,7 +69,7 @@ class BaristaTestCase {
     }
 
     @Test
-    fun createMultiDep(){
+    fun createMultiDep() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
@@ -72,11 +77,11 @@ class BaristaTestCase {
     }
 
     @Test
-    fun createOneItem(){
+    fun createOneItem() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte",0)
+        createAndCheckItem("Carotte", 0)
         clickOn("Parameters")
         assertDisplayed("Carotte")
         clickOn("Full Screen View")
@@ -84,46 +89,57 @@ class BaristaTestCase {
     }
 
     @Test
-    fun createMultiItemsInSameDep(){
+    fun createMultiItemsInSameDep() {
         clickOn("List")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte",0)
-        createAndCheckItem("Courgette",0)
+        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Courgette", 0)
 
     }
 
     @Test
-    fun createMultiItemsInMultiDep(){
+    fun createMultiItemsInMultiDep() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
         createAndCheckDep("Boucherie")
-        createAndCheckItem("Carotte",0)
-        createAndCheckItem("Steak",1)
+        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Steak", 1)
     }
 
     @Test
-    fun createModifyQty(){
+    fun createModifyQty() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
-        createItemFromDep("Carotte",0)
-        assertDisplayed("Carotte")
+        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Courgette", 0)
 
+        //Position is dep poistion, missing a position for item in dep
+        onView(withId(R.id.rv_department)).perform(
+            RecyclerViewActions.actionOnItemAtPosition<DepartmentsListAdapter.DepartmentViewHolder>(
+                0,
+                ClickOnViewAction.clickChildViewWithId(R.id.iv_increase_qty)
+            )
+        )
+// how to define dep position
+        assertDisplayed("1")
 
     }
-    private fun createAndCheckItem(name : String,dep_position: Int) {
-        createItemFromDep(name,dep_position)
+
+    private fun createAndCheckItem(name: String, dep_position: Int) {
+        createItemFromDep(name, dep_position)
         assertDisplayed(name)
     }
-    private fun createAndCheckDep(name : String) {
+
+    private fun createAndCheckDep(name: String) {
         createDep(name)
         assertDisplayed(name)
     }
 
 
-    private fun createItemFromDep(item_name: String, dep_position : Int){
-        clickListItemChild(R.id.rv_department,dep_position,R.id.ib_newItems)
+    private fun createItemFromDep(item_name: String, dep_position: Int) {
+        clickListItemChild(R.id.rv_department, dep_position, R.id.ib_newItems)
         writeToAutoComplete(
             R.id.act_item_name_in_dep,
             item_name
@@ -131,7 +147,7 @@ class BaristaTestCase {
         clickOn(R.id.b_valid_item_name)
     }
 
-    private fun createDep(name : String) {
+    private fun createDep(name: String) {
         writeToAutoComplete(
             R.id.act_departmentName,
             name
