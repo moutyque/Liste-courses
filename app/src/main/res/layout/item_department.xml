@@ -49,18 +49,12 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <FrameLayout
-            android:id="@+id/fl_items"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_items"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_items"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible"
-                tools:listitem="@layout/item_grossery_item" />
-        </FrameLayout>
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:listitem="@layout/item_grossery_item" />
 
     </LinearLayout>
 

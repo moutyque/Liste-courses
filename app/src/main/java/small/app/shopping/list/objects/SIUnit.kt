@@ -8,7 +8,17 @@ enum class SIUnit(val value: String, val mutliplicator: Int) {
     CL("cL", 10);
 
     companion object {
-        private val map = SIUnit.values().associateBy(SIUnit::value)
+        private val map = values().associateBy(SIUnit::value)
         fun fromValue(value: String): SIUnit = map[value]!!
+
+
+        fun unitList() : ArrayList<String> {
+           return arrayListOf<String>().apply {
+               add(EMPTY.value)
+               add(CL.value)
+               add(L.value)
+               add(G.value)
+               add(KG.value)}
+        }
     }
 }

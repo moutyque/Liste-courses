@@ -38,21 +38,21 @@ class FullScreenListFragment : Fragment() {
 
 
         //Setup departments recycler view
-        binding.rvDepartments.layoutManager =
+        binding.rvDepartment.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.rvDepartments.adapter = adapter
+        binding.rvDepartment.adapter = adapter
 
         viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
 
 
             if (it?.isEmpty() == true) {
-                binding.rvDepartments.visibility = View.GONE
+                binding.rvDepartment.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE
 
 
             } else {
 
-                binding.rvDepartments.visibility = View.VISIBLE
+                binding.rvDepartment.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
 
                 adapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())

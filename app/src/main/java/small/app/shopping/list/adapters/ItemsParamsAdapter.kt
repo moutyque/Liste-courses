@@ -1,15 +1,12 @@
 package small.app.shopping.list.adapters
 
-import android.R
 import android.content.Context
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.shopping.list.callback.IMovableAdapter
-import small.app.shopping.list.objects.SIUnit
+import small.app.shopping.list.objects.SIUnit.Companion.unitList
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.Item
 
@@ -20,15 +17,7 @@ class ItemsParamsAdapter(
     context
 
 ), IMovableAdapter {
-    private val unitList = arrayListOf<String>()
 
-    init {
-        unitList.add(SIUnit.EMPTY.value)
-        unitList.add(SIUnit.CL.value)
-        unitList.add(SIUnit.L.value)
-        unitList.add(SIUnit.G.value)
-        unitList.add(SIUnit.KG.value)
-    }
 
     override fun fillView(holder: ItemsViewHolder, item: Item) {
         super.fillView(holder, item)
@@ -45,10 +34,23 @@ class ItemsParamsAdapter(
 
         }
 
-        if (holder.itemView.s_unit.adapter == null) {
-            setupUnitAdapter(holder)
+        with(holder.itemView.s_unit) {
+            if (adapter == null) {
+                val adapt = UnitAdapter(context)
+                adapt.actions = object : IUnitSelect{
+                    override fun getItem(): Item {
+                        Log.d(TAG,holder.itemView.tv_name.text as String)
+                        return list.first { item -> item.name == holder.itemView.tv_name.text }
+                    }
+
+                    override fun initUnit() {
+                        holder.itemView.s_unit.setSelection(unitList().indexOf(list[position].unit.value))
+                    }
+                }
+                adapter = adapt.adapter
+                onItemSelectedListener = adapt
+            }
         }
-        holder.itemView.s_unit.setSelection(unitList.indexOf(holder.model!!.unit.value))
 
 
         //Setup the drag and drop only on the reorder icon
@@ -66,44 +68,6 @@ class ItemsParamsAdapter(
         }
 
 
-    }
-
-    private fun setupUnitAdapter(holder: ItemsViewHolder) {
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            context,
-            R.layout.simple_dropdown_item_1line,
-            unitList
-        )
-
-        holder.itemView.s_unit.adapter = adapter
-        holder.itemView.s_unit.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                var initialized = false
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    when (initialized) {
-                        true -> {
-
-                            holder.model!!.unit = SIUnit.fromValue(unitList[position])
-                            Utils.saveItem(holder.model!!)
-                        }
-                        false -> {
-                            holder.itemView.s_unit.setSelection(unitList.indexOf(holder.model!!.unit.value))
-                            initialized = true
-                        }
-                    }
-
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    //Not used
-                }
-
-            }
     }
 
 

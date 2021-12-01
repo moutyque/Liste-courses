@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.shopping.list.R
 import small.app.shopping.list.adapters.diffutils.ItemsDiffUtils
-import small.app.shopping.list.models.DragItem
 import small.app.shopping.list.objects.ItemChange
 import small.app.shopping.list.objects.ItemsComparator
 import small.app.shopping.list.objects.SIUnit
@@ -25,7 +24,13 @@ import kotlin.math.max
 abstract class ItemsAdapter(
     protected val context: Context
 ) :
+
+
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
+    companion object{
+        val TAG = "IAdapter"
+
+    }
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
@@ -53,37 +58,28 @@ abstract class ItemsAdapter(
 
     }
 
+
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         //model and adapter variables are used to send the drag item
-        val item = list[position]
-        holder.model = item
         holder.adapter = this@ItemsAdapter
 
-        Log.d("IAdapter", " $position")
-        if (item.name.isNotEmpty()) {
 
-            fillView(holder, item)
+        Log.d(TAG, " $position")
+        if (list[position].name.isNotEmpty()) {
+
+            fillView(holder, list[position])
             holder.itemView.iv_check_item.setOnClickListener {
-                item.isUsed = false
-                //Update RV
-                Log.d("IAdapter", "Remove at position : $position")
-                Utils.unuseItem(item)
+                useItem(position)
             }
 
             holder.itemView.iv_increase_qty.setOnClickListener {
-                item.qty += item.unit.mutliplicator
-                Utils.saveItem(item)
-                holder.itemView.tv_qty.text = item.qty.toString()
+                increaseQty(position, holder)
             }
             holder.itemView.iv_decrease_qty.setOnClickListener {
-                item.qty =
-                    max(0, item.qty - item.unit.mutliplicator)
-                Utils.saveItem(item)
-                holder.itemView.tv_qty.text = item.qty.toString()
-
+                decreaseQty(position, holder)
             }
 
-            holder.itemView.tv_unit.text = item.unit.value
+            holder.itemView.tv_unit.text = list[position].unit.value
             //Setup the drag event listener
             holder.itemView.setOnDragListener { v, event ->
                 if (v != null && event != null) {
@@ -99,19 +95,53 @@ abstract class ItemsAdapter(
                             holder.itemView.separator.visibility = View.GONE
                         }
                         DragEvent.ACTION_DROP -> {
-                            val droppedItem = event.localState
-                            if (droppedItem is DragItem && droppedItem.item.departmentId != item.departmentId) {
-                                Log.d("DAdapter", "Has drop ${droppedItem.item.name}")
-                                holder.itemView.separator.visibility = View.GONE
-                                droppedItem.item.order = item.order
-                                Utils.classifyItemWithOrder(item.departmentId, droppedItem.item)
+                            val droppedItemName = event.localState
+                            if (droppedItemName is String) {
+                                Log.d("DAdapter", "Has drop ${droppedItemName}")
+                                Utils.classifyDropItem(droppedItemName,list[position])
                             }
+                            holder.itemView.separator.visibility = View.GONE
                         }
                     }
                 }
                 true
             }
         }
+    }
+
+    private fun useItem(position: Int) {
+        val item = list[position]
+        item.isUsed = false
+        //Update RV
+        Log.d(TAG, "Remove at position : $position")
+        Utils.unuseItem(item)
+    }
+
+    private fun decreaseQty(
+        position: Int,
+        holder: ItemsViewHolder
+    ) {
+        val item = list[position]
+        Log.d(TAG, "decrease qty")
+        val newQty = item.qty - item.unit.mutliplicator - item.qty % item.unit.mutliplicator
+
+        item.qty =
+            max(0, newQty)
+        Utils.saveItem(item)
+        holder.itemView.tv_qty.text = item.qty.toString()
+    }
+
+    private fun increaseQty(
+        position: Int,
+        holder: ItemsViewHolder
+    ) {
+        val item = list[position]
+        val newQty = item.qty + item.unit.mutliplicator - item.qty % item.unit.mutliplicator
+        Log.d(TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
+        item.qty = newQty
+        Log.d(TAG, item.qty.toString())
+        Utils.saveItem(item)
+        holder.itemView.tv_qty.text = item.qty.toString()
     }
 
     override fun getItemCount(): Int {
@@ -166,7 +196,6 @@ abstract class ItemsAdapter(
         // class member variable to save the X,Y coordinates
         private val lastTouchDownXY = FloatArray(2)
 
-        var model: Item? = null
         var adapter: ItemsAdapter? = null
 
         init {
@@ -197,7 +226,7 @@ abstract class ItemsAdapter(
                 return v!!.startDragAndDrop(
                     data,
                     dragShadowBuilder,
-                    DragItem(model!!, adapter!!),
+                    this@ItemsViewHolder.itemView.tv_name.text as String,
                     0
                 )
             }
@@ -211,7 +240,8 @@ abstract class ItemsAdapter(
             }
             v?.performClick()
             // let the touch event pass on to whoever needs it
-            return false }
+            return false
+        }
 
 
     }

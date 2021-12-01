@@ -14,7 +14,7 @@
             android:text="@string/no_department_nor_item" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_departments"
+            android:id="@+id/rv_department"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical" />

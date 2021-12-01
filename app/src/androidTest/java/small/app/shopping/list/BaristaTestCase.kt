@@ -1,21 +1,30 @@
 package small.app.shopping.list
 
+import android.content.Context
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingPolicies
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
-import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions.writeToAutoComplete
+import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
-import com.adevinta.android.barista.interaction.BaristaListInteractions.clickListItemChild
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
+import junit.framework.Assert.assertEquals
 import org.junit.*
 import org.junit.runner.RunWith
-import small.app.shopping.list.adapters.DepartmentsListAdapter
+import small.app.shopping.list.TestUtils.changeUnit
+import small.app.shopping.list.TestUtils.createAndCheckDep
+import small.app.shopping.list.TestUtils.createAndCheckItem
+import small.app.shopping.list.TestUtils.interactWithItemSubComponent
 import java.util.concurrent.TimeUnit
 
 
@@ -38,6 +47,7 @@ class BaristaTestCase {
     @get:Rule
     var mainActivity = ActivityScenarioRule(MainActivity::class.java)
 
+    private val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     lateinit var scenario: ActivityScenario<MainActivity>
 
@@ -50,11 +60,6 @@ class BaristaTestCase {
     fun setup() {
         scenario = mainActivity.scenario
     }
-
-
-    /* @get:Rule
-     var chain: RuleChain = RuleChain.outerRule(clearDatabaseRule)
-         .around(mActivityTestRule)*/
 
     @Test
     fun createDep() {
@@ -98,6 +103,29 @@ class BaristaTestCase {
     }
 
     @Test
+    fun reuseItem() {
+        clickOn("List")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", 0)
+        interactWithItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
+        assertNotDisplayed("Legume")
+        assertNotDisplayed("Carotte")
+        onView(withId(R.id.actv_selection_item))
+            .perform(typeText("Car"))
+
+        val inRoot = onView(withText("Carotte"))
+            .inRoot(isPlatformPopup())
+
+        inRoot.check(matches(isDisplayed()))
+        inRoot.perform(click())
+
+        clickOn(R.id.ib_add_item)
+        assertDisplayed("Legume")
+        assertDisplayed("Carotte")
+
+    }
+
+    @Test
     fun createMultiItemsInMultiDep() {
         assertDisplayed("List")
         clickOn("List")
@@ -108,50 +136,89 @@ class BaristaTestCase {
     }
 
     @Test
-    fun createModifyQty() {
+    fun modifyQty() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckDep("Legume")
         createAndCheckItem("Carotte", 0)
         createAndCheckItem("Courgette", 0)
 
-        //Position is dep poistion, missing a position for item in dep
-        onView(withId(R.id.rv_department)).perform(
-            RecyclerViewActions.actionOnItemAtPosition<DepartmentsListAdapter.DepartmentViewHolder>(
-                0,
-                ClickOnViewAction.clickChildViewWithId(R.id.iv_increase_qty)
+        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+            click()
+        )
+        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+            click()
+        )
+        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+            assert(
+                (view as TextView).text.equals(
+                    "2"
+                )
             )
+        }
+
+    }
+
+    @Test
+    fun modifyQtyAndUnit() {
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Courgette", 0)
+
+        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+            click()
         )
-// how to define dep position
-        assertDisplayed("1")
-
-    }
-
-    private fun createAndCheckItem(name: String, dep_position: Int) {
-        createItemFromDep(name, dep_position)
-        assertDisplayed(name)
-    }
-
-    private fun createAndCheckDep(name: String) {
-        createDep(name)
-        assertDisplayed(name)
-    }
-
-
-    private fun createItemFromDep(item_name: String, dep_position: Int) {
-        clickListItemChild(R.id.rv_department, dep_position, R.id.ib_newItems)
-        writeToAutoComplete(
-            R.id.act_item_name_in_dep,
-            item_name
+        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+            click()
         )
-        clickOn(R.id.b_valid_item_name)
+        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+            assert(
+                (view as TextView).text.equals(
+                    "2"
+                )
+            )
+        }
+
+        clickOn("Parameters")
+
+        assertDisplayed("Legume")
+
+        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+            click()
+        )
+        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+            assert(
+                (view as TextView).text.equals(
+                    "3"
+                )
+            )
+        }
+        changeUnit("Carotte", "cL")
+        interactWithItemSubComponent("Carotte", R.id.s_unit).check(matches(withSpinnerText("cL")))
+
+
     }
 
-    private fun createDep(name: String) {
-        writeToAutoComplete(
-            R.id.act_departmentName,
-            name
-        )
-        clickOn(R.id.ib_add_department)
+    @Test
+    fun checkUtilsMethod() {
+        clickOn("List")
+        createAndCheckDep("depName")
+        //createAndCheckDep("depName2")
+        onView(TestUtils.getDepViewMatcher("depName")).check { view, _ ->
+
+            val name = context.resources.getResourceEntryName(view.id)
+            assertEquals("Actual resource name : $name", view.id, R.id.ll_departments)
+        }
+
+        createAndCheckItem("itemName", 0)
+        onView(TestUtils.getItemViewMatcher("depName", "itemName")).check { view, _ ->
+
+            val name = context.resources.getResourceEntryName(view.id)
+            assertEquals("Actual resource name : $name", view.id, R.id.ll_container)
+        }
     }
+
+
 }

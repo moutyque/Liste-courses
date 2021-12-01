@@ -17,15 +17,7 @@ class ItemsFullScreenAdapter(
     context
 
 ), IMovableAdapter {
-    private val unitList = arrayListOf<String>()
-
-    init {
-        unitList.add(SIUnit.EMPTY.value)
-        unitList.add(SIUnit.CL.value)
-        unitList.add(SIUnit.L.value)
-        unitList.add(SIUnit.G.value)
-        unitList.add(SIUnit.KG.value)
-    }
+    private val unitList = SIUnit.unitList()
 
     override fun fillView(holder: ItemsViewHolder, item: Item) {
         super.fillView(holder, item)
@@ -35,7 +27,7 @@ class ItemsFullScreenAdapter(
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
 
-//Manage the view of the drop down list of unit
+        //Manage the view of the drop down list of unit
         holder.itemView.apply {
             ll_list_view.visibility = View.VISIBLE
             ll_param_view.visibility = View.GONE
@@ -43,8 +35,7 @@ class ItemsFullScreenAdapter(
             if (s_unit.adapter == null) {
                 setupUnitAdapter(holder)
             }
-            s_unit.setSelection(unitList.indexOf(holder.model!!.unit.value))
-
+           //s_unit.setSelection(unitList.indexOf(holder.model!!.unit.value))
 
             iv_dd.visibility= View.GONE
 

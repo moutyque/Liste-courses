@@ -37,18 +37,18 @@ class ParamsFragment : Fragment() {
         )
 
         //Setup departments recycler view
-        binding.rvDepartments.layoutManager =
+        binding.rvDepartment.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.rvDepartments.adapter = departmentsAdapter
+        binding.rvDepartment.adapter = departmentsAdapter
 
         viewModel.getAllDepartments().observe(viewLifecycleOwner, {
 
 
             if (it?.isEmpty() == true) {
-                binding.rvDepartments.visibility = View.GONE
+                binding.rvDepartment.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE
             } else {
-                binding.rvDepartments.visibility = View.VISIBLE
+                binding.rvDepartment.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
                 departmentsAdapter.updateList(it)
             }
@@ -62,7 +62,7 @@ class ParamsFragment : Fragment() {
             SimpleItemTouchHelperCallback.Direction.VERTICAL
         )
         val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(binding.rvDepartments)
+        itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
 
     }

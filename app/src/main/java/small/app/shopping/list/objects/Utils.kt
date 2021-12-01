@@ -44,6 +44,14 @@ object Utils {
             } else {
                 //Can exist and not use, for example default option
                 saveItem(item)
+                if(item.isClassified){
+                    backgroundScope.launch {
+                        repo.findDepartment(item.departmentId)?.let {
+                            updateOrder(it)
+                        }
+
+                    }
+                }
                 //Remove the item from the unclassified auto complete listpm
             }
         }
@@ -61,13 +69,17 @@ object Utils {
             item.isUsed = true
             repo.saveItem(item)
         }.invokeOnCompletion {
-            val d = repo.findDepartment(item.departmentId)
-            mainScope.launch {
-                d?.let {
-                    it.isUsed = true
-                    saveDepartment(it)
+            backgroundScope.launch {
+                val d = repo.findDepartment(item.departmentId)
+                mainScope.launch {
+                    d?.let {
+                        it.isUsed = true
+                        saveDepartment(it)
+                    }
                 }
             }
+
+
         }
     }
 
@@ -171,6 +183,27 @@ object Utils {
                 activity.currentFocus!!.windowToken,
                 0
             )
+        }
+    }
+
+    fun classifyDropItem(droppedItemName: String, targetedItem: Item) {
+        backgroundScope.launch {
+            repo.findItem(droppedItemName)?.let {
+                if(targetedItem.departmentId != it.departmentId){
+                    it.order = targetedItem.order
+                    classifyItemWithOrder(depId = targetedItem.departmentId, item=it)
+                }
+            }
+        }
+    }
+
+    fun classifyDropItem(droppedItemName: String, department: Department) {
+        backgroundScope.launch {
+            repo.findItem(droppedItemName)?.let {
+                if(department.name != it.departmentId){
+                    department.classify(it)
+                }
+            }
         }
     }
 
