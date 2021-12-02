@@ -27,10 +27,11 @@ abstract class ItemsAdapter(
 
 
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
-    companion object{
+    companion object {
         val TAG = "IAdapter"
 
     }
+
     protected val list = mutableListOf<Item>()
 
     protected var canMove = false
@@ -69,7 +70,9 @@ abstract class ItemsAdapter(
 
             fillView(holder, list[position])
             holder.itemView.iv_check_item.setOnClickListener {
-                useItem(position)
+                Log.d(TAG, "Click at $position on ${list[position]}")
+                Log.d(TAG, "Display info ${holder.itemView.tv_name.text}")
+                Utils.unuseItem(list[position].name)
             }
 
             holder.itemView.iv_increase_qty.setOnClickListener {
@@ -98,7 +101,7 @@ abstract class ItemsAdapter(
                             val droppedItemName = event.localState
                             if (droppedItemName is String) {
                                 Log.d("DAdapter", "Has drop ${droppedItemName}")
-                                Utils.classifyDropItem(droppedItemName,list[position])
+                                Utils.classifyDropItem(droppedItemName, list[position])
                             }
                             holder.itemView.separator.visibility = View.GONE
                         }
@@ -107,14 +110,6 @@ abstract class ItemsAdapter(
                 true
             }
         }
-    }
-
-    private fun useItem(position: Int) {
-        val item = list[position]
-        item.isUsed = false
-        //Update RV
-        Log.d(TAG, "Remove at position : $position")
-        Utils.unuseItem(item)
     }
 
     private fun decreaseQty(

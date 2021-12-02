@@ -27,15 +27,15 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         return Utils.repo.getUnusedItemsName()
     }
 
-    fun getUnusedItemsNameInDepartment(name : String): LiveData<List<String>> {
+    fun getUnusedItemsNameInDepartment(name: String): LiveData<List<String>> {
         return Utils.repo.getUnusedDepartmentItems(name)
     }
 
-    fun getAllDepartments() : LiveData<List<DepartmentWithItems>?>{
-        return  Utils.repo.getAllDepartments()
+    fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> {
+        return Utils.repo.getAllDepartments()
     }
 
-    fun addItem(itemName : String){
+    fun addItem(itemName: String) {
         if (itemName.isNotEmpty()) {
             val item = Item(name = itemName)
             item.isUsed = true
@@ -44,14 +44,14 @@ class FragmentViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun addItem(itemName: String, depName : String){
+    fun addItem(itemName: String, depName: String) {
         if (itemName.isNotEmpty()) {
             val item = Item(name = itemName)
             item.isUsed = true
 
             item.order = System.currentTimeMillis()
-            if(depName.isNotEmpty()){
-                item.departmentId=depName
+            if (depName.isNotEmpty()) {
+                item.departmentId = depName
                 item.isClassified = true
             }
             Utils.useItem(item)

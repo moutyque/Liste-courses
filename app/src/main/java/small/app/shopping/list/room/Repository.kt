@@ -55,7 +55,7 @@ class Repository(context: Context) {
         return db.itemDAO().findByName(name)
     }
 
-    fun findDepartment(name: String): Department? {
+    suspend fun findDepartment(name: String): Department? {
         val findByName = db.departmentDAO().findByName(name)
         return findByName?.toDepartment()
     }
@@ -66,7 +66,7 @@ class Repository(context: Context) {
     }
 
 
-    fun unuseItem(item: Item) {
+    suspend fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
         updateDepartmentUsage(item)
@@ -84,7 +84,7 @@ class Repository(context: Context) {
         }
     }
 
-    private fun small.app.shopping.list.room.entities.Department.toDepartment(): Department {
+    private suspend fun small.app.shopping.list.room.entities.Department.toDepartment(): Department {
         val dep = db.departmentDAO().getItemsFromDepartment(this.name)
         dep?.apply {
             Log.d("Repository", "In department $name there is ${dep.items.count()} items")
@@ -109,28 +109,28 @@ class Repository(context: Context) {
         return db.itemDAO().findUnusedItemsNameByDepName(name)
     }
 
-    fun getDepartment(departmentId: String): Department? {
+    suspend fun getDepartment(departmentId: String): Department? {
         return db.departmentDAO().findByName(departmentId)?.toDepartment()
     }
 
-    fun deleteItem(item: Item) {
+    suspend fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
         updateDepartmentUsage(item)
         updateItemsOrderInDepartment(item.departmentId)
     }
 
-    fun updateItemsOrderInDepartment(departmentId: String) {
+    suspend fun updateItemsOrderInDepartment(departmentId: String) {
         if (db.itemDAO().findByDepName(departmentId).value.isNullOrEmpty()) {
             val findByName = findDepartment(departmentId)
             findByName?.let {
-                var order :Long = 1
+                var order: Long = 1
                 val sortedItems = it.items.sortedWith { i1, i2 ->
                     i1.order.compareTo(i2.order)
                 }
                 val listIterator = sortedItems.listIterator()
                 while (listIterator.hasNext()) {
                     val item = listIterator.next()
-                    item.order=order
+                    item.order = order
                     order++
                 }
                 Utils.repo.saveItems(*sortedItems.toTypedArray())

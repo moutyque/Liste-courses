@@ -44,7 +44,7 @@ object Utils {
             } else {
                 //Can exist and not use, for example default option
                 saveItem(item)
-                if(item.isClassified){
+                if (item.isClassified) {
                     backgroundScope.launch {
                         repo.findDepartment(item.departmentId)?.let {
                             updateOrder(it)
@@ -109,9 +109,12 @@ object Utils {
         }
     }
 
-    fun unuseItem(item: Item) {
+    fun unuseItem(name: String) {
         backgroundScope.launch {
-            repo.unuseItem(item)
+            repo.findItem(name)?.let {
+                repo.unuseItem(it)
+            }
+
         }
     }
 
@@ -189,9 +192,9 @@ object Utils {
     fun classifyDropItem(droppedItemName: String, targetedItem: Item) {
         backgroundScope.launch {
             repo.findItem(droppedItemName)?.let {
-                if(targetedItem.departmentId != it.departmentId){
+                if (targetedItem.departmentId != it.departmentId) {
                     it.order = targetedItem.order
-                    classifyItemWithOrder(depId = targetedItem.departmentId, item=it)
+                    classifyItemWithOrder(depId = targetedItem.departmentId, item = it)
                 }
             }
         }
@@ -200,7 +203,7 @@ object Utils {
     fun classifyDropItem(droppedItemName: String, department: Department) {
         backgroundScope.launch {
             repo.findItem(droppedItemName)?.let {
-                if(department.name != it.departmentId){
+                if (department.name != it.departmentId) {
                     department.classify(it)
                 }
             }
