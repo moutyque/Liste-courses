@@ -6,12 +6,17 @@
     <string name="tabListNameParameters">Parameters</string>
     <string name="new_department_name">Department name</string>
     <string name="no_department_nor_item">No department nor item</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="full_screen">Full Screen View</string>
     <string name="item_hint">Enter item name</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="add_new_item">Add new item</string>
+    <string name="drag_drop_cd">Drag and drop item between department</string>
+    <string name="increase_quantity_cd">Increase quantity</string>
+    <string name="decrease_quantity_cd">Decrease quantity</string>
+    <string name="new_dep_cd">Add new department or reuse existing one</string>
+    <string name="new_item_cd">Add a new item or reuse an existing one</string>
+    <string name="check_item_cd">Declare the item as picked</string>
+    <string name="reorder_item_cd">Reorder item</string>
+    <string name="delete_item_cd">Delete item</string>
 </resources>

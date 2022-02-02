@@ -11,9 +11,7 @@
     android:orientation="vertical"
     android:padding="5dp">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:id="@+id/ll_complet_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,6 +20,14 @@
         android:orientation="horizontal"
         android:padding="5dp">
 
+
+        <ImageView
+            android:id="@+id/iv_dd"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/drag_drop_cd"
+            app:srcCompat="@drawable/ic_drag_drop" />
 
         <TextView
             android:id="@+id/tv_name"
@@ -55,12 +61,14 @@
                     android:id="@+id/iv_increase_qty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/increase_quantity_cd"
                     app:srcCompat="@drawable/ic_increase_qty" />
 
                 <ImageView
                     android:id="@+id/iv_decrease_qty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/decrease_quantity_cd"
                     app:srcCompat="@drawable/ic_decrease_qty" />
             </LinearLayout>
 
@@ -85,6 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/item_height"
                 android:layout_marginEnd="8dp"
+                android:contentDescription="@string/check_item_cd"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_check_item"
                 tools:visibility="visible" />
@@ -109,22 +118,17 @@
                 android:id="@+id/ib_delete_item"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/delete_item_cd"
                 app:srcCompat="@drawable/ic_delete" />
 
             <ImageView
                 android:id="@+id/iv_reorder"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/reorder_item_cd"
                 app:srcCompat="@drawable/ic_reorder" />
 
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iv_dd"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_drag_drop" />
 
 
     </LinearLayout>
@@ -132,7 +136,7 @@
     <View
         android:id="@+id/separator"
         android:layout_width="fill_parent"
-        android:layout_height="5sp"
+        android:layout_height="12sp"
         android:background="?colorPrimary"
         android:visibility="gone" />
 </LinearLayout>

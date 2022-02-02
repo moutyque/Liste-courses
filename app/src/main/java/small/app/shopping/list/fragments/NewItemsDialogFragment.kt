@@ -9,7 +9,9 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import small.app.shopping.list.databinding.DialogNewItemsBinding
+import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.viewmodels.FragmentViewModel
+import java.util.*
 
 class NewItemsDialogFragment(private val depName: String) : DialogFragment() {
     private lateinit var binding: DialogNewItemsBinding
@@ -21,7 +23,7 @@ class NewItemsDialogFragment(private val depName: String) : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = DialogNewItemsBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -35,7 +37,7 @@ class NewItemsDialogFragment(private val depName: String) : DialogFragment() {
             itemsName
         )
 
-         //Setup the autocomplete item list
+        //Setup the autocomplete item list
         viewModel.getUnusedItemsNameInDepartment(depName).observe(viewLifecycleOwner, {
             suggestedItemsAdapter.clear()
             suggestedItemsAdapter.addAll(it)
@@ -44,16 +46,19 @@ class NewItemsDialogFragment(private val depName: String) : DialogFragment() {
 
         binding.actItemNameInDep.setAdapter(suggestedItemsAdapter)
 
-        binding.bValidItemName.setOnClickListener { _->
+        binding.bValidItemName.setOnClickListener { _ ->
             //Add item
-            viewModel.addItem(binding.actItemNameInDep.text.toString().trim(),depName)
+            viewModel.addItem(binding.actItemNameInDep.text.toString().trim(), depName)
             binding.actItemNameInDep.setText("")
+            Utils.hideKeyboardFrom(requireActivity(), binding.root)
             //Close dialog
             dismiss()
+
         }
 
         return binding.root
     }
+
     companion object {
         const val TAG = "PurchaseConfirmationDialog"
     }

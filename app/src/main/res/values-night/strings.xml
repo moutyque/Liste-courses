@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_new_item">Add new item</string>
+    <string name="drag_drop_cd">Drag and drop item between department</string>
+    <string name="new_item_cd">Add a new item or reuse an existing one</string>
+    <string name="check_item_cd">Declare the item as picked</string>
+    <string name="reorder_item_cd">Reorder item</string>
+    <string name="delete_item_cd">Delete item</string>
 </resources>

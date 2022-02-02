@@ -1,6 +1,8 @@
 package small.app.shopping.list.objects
 
 import android.app.Activity
+import android.content.Context
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import kotlinx.coroutines.launch
 import small.app.shopping.list.models.Department
@@ -164,9 +166,9 @@ object Utils {
         }
     }
 
-    fun classifyItemWithOrder(depId: String, item: Item) {
+    private fun classifyItemWithOrder(depId: String, item: Item) {
         backgroundScope.launch {
-            repo.getDepartment(depId)?.let { it.classifyWithOrderDefined(item) }
+            repo.getDepartment(depId)?.classifyWithOrderDefined(item)
         }
     }
 
@@ -187,6 +189,11 @@ object Utils {
                 0
             )
         }
+    }
+
+    fun hideKeyboardFrom(context: Context, view: View) {
+        val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     fun classifyDropItem(droppedItemName: String, targetedItem: Item) {
