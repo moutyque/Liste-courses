@@ -34,9 +34,6 @@ abstract class DepartmentsAbstractAdapter(
             diffResult.dispatchUpdatesTo(this)
             this._list.clear()
             this._list.addAll(departments)
-
-            //this.list.sortedWith(DepartmentComparator())
-
         }
     }
 

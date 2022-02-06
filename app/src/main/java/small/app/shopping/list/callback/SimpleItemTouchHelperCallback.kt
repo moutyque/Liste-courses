@@ -3,6 +3,7 @@ package small.app.shopping.list.callback
 import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import small.app.shopping.list.objects.Utils
 
 class SimpleItemTouchHelperCallback(
     private val adapter: IMovableAdapter,
@@ -18,7 +19,7 @@ class SimpleItemTouchHelperCallback(
     private var hasStarted = false
 
     override fun isLongPressDragEnabled(): Boolean {
-        Log.d("SimpleItemTouchHelperCallback", "Can u click")
+        Log.d(Utils.TAG, "Can u click")
         return adapter.canMove()
     }
 
@@ -54,7 +55,7 @@ class SimpleItemTouchHelperCallback(
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        Log.d("DDSwipe", "In the onSwipe")
+        Log.d(Utils.TAG, "In the onSwipe")
     }
 
     override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {

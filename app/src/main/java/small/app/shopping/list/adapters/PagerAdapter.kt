@@ -10,6 +10,7 @@ import small.app.shopping.list.fragments.FullScreenListFragment
 
 import small.app.shopping.list.fragments.ListFragment
 import small.app.shopping.list.fragments.ParamsFragment
+import small.app.shopping.list.objects.Utils
 
 class PagerAdapter(
     private val nbTabs: Int,
@@ -30,7 +31,7 @@ class PagerAdapter(
             1 -> ListFragment()
             2 -> ParamsFragment()
             else -> {
-                Log.e("PagerAdapter", "How did you managed to call the tab : $position")
+                Log.e(Utils.TAG, "How did you managed to call the tab : $position")
                 throw Exception("Unknown position")
             }
         }
@@ -42,7 +43,7 @@ class PagerAdapter(
             1 -> context.getString(R.string.tabListName)
             2 -> context.getString(R.string.tabListNameParameters)
             else -> {
-                Log.e("PagerAdapter", "How did you managed to call the tab : $position")
+                Log.e(Utils.TAG, "How did you managed to call the tab : $position")
                 throw Exception("Unknown tab")
             }
         }

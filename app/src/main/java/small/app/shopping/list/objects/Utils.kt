@@ -18,7 +18,7 @@ object Utils {
 
 
     lateinit var repo: Repository
-
+    const val TAG = "ListCourses"
 
     fun swapInCollection(list: List<Any>, fromPosition: Int, toPosition: Int) {
         if (fromPosition in 0 until toPosition) {
@@ -116,7 +116,12 @@ object Utils {
             repo.findItem(name)?.let {
                 repo.unuseItem(it)
             }
+        }
+    }
 
+    fun unuseItem(item: Item) {
+        backgroundScope.launch {
+            repo.unuseItem(item)
         }
     }
 

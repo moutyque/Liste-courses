@@ -27,10 +27,6 @@ abstract class ItemsAdapter(
 
 
     RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder>() {
-    companion object {
-        val TAG = "IAdapter"
-
-    }
 
     protected val list = mutableListOf<Item>()
 
@@ -65,14 +61,12 @@ abstract class ItemsAdapter(
         holder.adapter = this@ItemsAdapter
 
 
-        Log.d(TAG, " $position")
+        Log.d(Utils.TAG, " $position")
         if (list[position].name.isNotEmpty()) {
 
             fillView(holder, list[position])
             holder.itemView.iv_check_item.setOnClickListener {
-                Log.d(TAG, "Click at $position on ${list[position]}")
-                Log.d(TAG, "Display info ${holder.itemView.tv_name.text}")
-                Utils.unuseItem(list[position].name)
+                Utils.unuseItem(list[holder.layoutPosition])
             }
 
             holder.itemView.iv_increase_qty.setOnClickListener {
@@ -86,21 +80,21 @@ abstract class ItemsAdapter(
             //Setup the drag event listener
             holder.itemView.setOnDragListener { v, event ->
                 if (v != null && event != null) {
-                    Log.d("ItemsAdapter", event.toString())
-                    Log.d("ItemsAdapter", "Position : " + v.x + " : " + v.y)
+                    Log.d(Utils.TAG, event.toString())
+                    Log.d(Utils.TAG, "Position : " + v.x + " : " + v.y)
                     when (event.action) {
                         DragEvent.ACTION_DRAG_ENTERED -> {
-                            Log.d("ItemsAdapter", "Enter")
+                            Log.d(Utils.TAG, "Enter")
                             holder.itemView.separator.visibility = View.VISIBLE
                         }
                         DragEvent.ACTION_DRAG_EXITED -> {
-                            Log.d("ItemsAdapter", "Exited")
+                            Log.d(Utils.TAG, "Exited")
                             holder.itemView.separator.visibility = View.GONE
                         }
                         DragEvent.ACTION_DROP -> {
                             val droppedItemName = event.localState
                             if (droppedItemName is String) {
-                                Log.d("DAdapter", "Has drop ${droppedItemName}")
+                                Log.d(Utils.TAG, "Has drop ${droppedItemName}")
                                 Utils.classifyDropItem(droppedItemName, list[position])
                             }
                             holder.itemView.separator.visibility = View.GONE
@@ -117,7 +111,7 @@ abstract class ItemsAdapter(
         holder: ItemsViewHolder
     ) {
         val item = list[position]
-        Log.d(TAG, "decrease qty")
+        Log.d(Utils.TAG, "decrease qty")
         val newQty = item.qty - item.unit.mutliplicator - item.qty % item.unit.mutliplicator
 
         item.qty =
@@ -132,9 +126,9 @@ abstract class ItemsAdapter(
     ) {
         val item = list[position]
         val newQty = item.qty + item.unit.mutliplicator - item.qty % item.unit.mutliplicator
-        Log.d(TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
+        Log.d(Utils.TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
         item.qty = newQty
-        Log.d(TAG, item.qty.toString())
+        Log.d(Utils.TAG, item.qty.toString())
         Utils.saveItem(item)
         holder.itemView.tv_qty.text = item.qty.toString()
     }
@@ -144,7 +138,7 @@ abstract class ItemsAdapter(
     }
 
     fun updateList(list: List<Item>?) {
-        Log.d("ItemsAdapter", "updateLists")
+        Log.d(Utils.TAG, "updateLists")
         //Need to update the empty list for unclassified item for example
         if (list != null) {
             list.sortedWith(ItemsComparator())

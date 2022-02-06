@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.shopping.list.R
 import small.app.shopping.list.objects.DepartmentChange
+import small.app.shopping.list.objects.Utils
 
 
 class DepartmentsFullScreenAdapter(
@@ -41,11 +42,11 @@ class DepartmentsFullScreenAdapter(
         holder: ViewHolder
     ) {
         val model = list[position]
-        holder.itemView.ib_newItems.visibility= View.GONE
+        holder.itemView.ib_newItems.visibility = View.GONE
         holder.itemView.tv_dep_name.text = model.name
 
         //Recycler view for the items in the department
-        Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
+        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
 
         var itemsAdapter = holder.itemView.rv_items.adapter
         if (itemsAdapter == null) {
@@ -58,7 +59,6 @@ class DepartmentsFullScreenAdapter(
         }
 
         (itemsAdapter as ItemsAdapter).updateList(model.items)
-
 
 
     }

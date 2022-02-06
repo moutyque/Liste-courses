@@ -55,7 +55,7 @@ class Repository(context: Context) {
         return db.itemDAO().findByName(name)
     }
 
-    suspend fun findDepartment(name: String): Department? {
+    fun findDepartment(name: String): Department? {
         val findByName = db.departmentDAO().findByName(name)
         return findByName?.toDepartment()
     }
@@ -66,7 +66,7 @@ class Repository(context: Context) {
     }
 
 
-    suspend fun unuseItem(item: Item) {
+    fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
         updateDepartmentUsage(item)
@@ -84,10 +84,10 @@ class Repository(context: Context) {
         }
     }
 
-    private suspend fun small.app.shopping.list.room.entities.Department.toDepartment(): Department {
+    private fun small.app.shopping.list.room.entities.Department.toDepartment(): Department {
         val dep = db.departmentDAO().getItemsFromDepartment(this.name)
         dep?.apply {
-            Log.d("Repository", "In department $name there is ${dep.items.count()} items")
+            Log.d(Utils.TAG, "In department $name there is ${dep.items.count()} items")
             return Department(
                 name = dep.department.name,
                 isUsed = dep.department.isUsed,
@@ -109,17 +109,17 @@ class Repository(context: Context) {
         return db.itemDAO().findUnusedItemsNameByDepName(name)
     }
 
-    suspend fun getDepartment(departmentId: String): Department? {
+    fun getDepartment(departmentId: String): Department? {
         return db.departmentDAO().findByName(departmentId)?.toDepartment()
     }
 
-    suspend fun deleteItem(item: Item) {
+    fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
         updateDepartmentUsage(item)
         updateItemsOrderInDepartment(item.departmentId)
     }
 
-    suspend fun updateItemsOrderInDepartment(departmentId: String) {
+    fun updateItemsOrderInDepartment(departmentId: String) {
         if (db.itemDAO().findByDepName(departmentId).value.isNullOrEmpty()) {
             val findByName = findDepartment(departmentId)
             findByName?.let {

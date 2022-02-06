@@ -18,6 +18,7 @@ import small.app.shopping.list.adapters.listeners.ItemsDropListener
 import small.app.shopping.list.fragments.NewItemsDialogFragment
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.DepartmentChange
+import small.app.shopping.list.objects.Utils
 
 
 class DepartmentsListAdapter(
@@ -51,7 +52,7 @@ class DepartmentsListAdapter(
         holder.itemView.tv_dep_name.text = model.name
         //Perform the D&D action on department only if we click on the department title and not and the item list
         holder.itemView.tv_dep_name.setOnTouchListener { v, event ->
-            Log.d("ClickOnDep", "I touched $event")
+            Log.d(Utils.TAG, "I touched $event")
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -73,7 +74,7 @@ class DepartmentsListAdapter(
         }
 
         //Recycler view for the items in the department
-        Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
+        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
 
         setupAdapter(holder, model)
         //This drag adapter is necessary for the first items
@@ -115,7 +116,6 @@ class DepartmentsListAdapter(
 
                             if (key == DepartmentChange.ITEMS.toString()) {
                                 (holder.itemView.rv_items.adapter as ItemsAdapter).updateList(list[position].items)
-                                //super.onBindViewHolder(holder, position, payloads)
                             }
                         }
                     }

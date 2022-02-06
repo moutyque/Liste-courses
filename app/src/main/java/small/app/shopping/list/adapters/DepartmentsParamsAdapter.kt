@@ -42,7 +42,7 @@ class DepartmentsParamsAdapter(context: Context) :
         holder.itemView.tv_dep_name.text = model.name
         //Perform the D&D action on department only if we click on the department title and not and the item list
         holder.itemView.tv_dep_name.setOnTouchListener { v, event ->
-            Log.d("ClickOnDep", "I touched $event")
+            Log.d(Utils.TAG, "I touched $event")
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -55,7 +55,7 @@ class DepartmentsParamsAdapter(context: Context) :
         }
         //Recycler view for the items in the department
 
-        Log.d("DAdapter", "department name : ${model.name} & items ${model.items}")
+        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
 
 
         var itemsAdapter = holder.itemView.rv_items.adapter
@@ -101,7 +101,7 @@ class DepartmentsParamsAdapter(context: Context) :
 
         //Setup the drag and drop only on the reorder icon
         holder.itemView.iv_reorder.setOnTouchListener { v, event ->
-            Log.d("Reorder", "Reorder department in Parameters Adapter. \nI touched $event")
+            Log.d(Utils.TAG, "Reorder department in Parameters Adapter. \nI touched $event")
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {

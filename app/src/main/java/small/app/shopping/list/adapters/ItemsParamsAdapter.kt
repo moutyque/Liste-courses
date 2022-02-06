@@ -37,9 +37,9 @@ class ItemsParamsAdapter(
         with(holder.itemView.s_unit) {
             if (adapter == null) {
                 val adapt = UnitAdapter(context)
-                adapt.actions = object : IUnitSelect{
+                adapt.actions = object : IUnitSelect {
                     override fun getItem(): Item {
-                        Log.d(TAG,holder.itemView.tv_name.text as String)
+                        Log.d(Utils.TAG, holder.itemView.tv_name.text as String)
                         return list.first { item -> item.name == holder.itemView.tv_name.text }
                     }
 
@@ -55,7 +55,7 @@ class ItemsParamsAdapter(
 
         //Setup the drag and drop only on the reorder icon
         holder.itemView.iv_reorder.setOnTouchListener { v, event ->
-            Log.d("ClickOnReorder", "I touched $event")
+            Log.d(Utils.TAG, "I touched $event")
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -101,7 +101,10 @@ class ItemsParamsAdapter(
                 init.order = target.order
                 target.order = tmp
                 Utils.swapInCollection(list, initialPosition, targetPosition)
-                this@ItemsParamsAdapter.notifyItemMoved(initialPosition, targetPosition)
+                this@ItemsParamsAdapter.notifyItemMoved(
+                    initialPosition,
+                    targetPosition
+                )
             }
         }
     }

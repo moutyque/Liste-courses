@@ -12,10 +12,10 @@ class ItemsDropListener(private val dep: Department) :
         // Handles each of the expected events
         when (event!!.action) {
             DragEvent.ACTION_DROP -> {
-                Log.d("DAdapter", "Has drop $v")
+                Log.d(Utils.TAG, "Has drop $v")
                 val droppedItem = event.localState
                 if (droppedItem is String) {
-                    Utils.classifyDropItem(droppedItem,dep)
+                    Utils.classifyDropItem(droppedItem, dep)
                     return true
                 }
                 return true
@@ -23,7 +23,7 @@ class ItemsDropListener(private val dep: Department) :
             else -> {
                 // An unknown action type was received.
                 Log.e(
-                    "DAdapter",
+                    Utils.TAG,
                     "Untreated action type received by OnDragListener : ${event.action}."
                 )
                 return true
