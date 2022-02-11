@@ -2,15 +2,21 @@ package small.app.shopping.list.objects
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Scope.mainScope
 import small.app.shopping.list.room.Repository
+import small.app.shopping.list.room.converters.DepartmentConverter
+import small.app.shopping.list.room.converters.ItemConverter
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
+import java.io.IOException
+import java.io.OutputStreamWriter
 import java.util.*
 
 
@@ -129,13 +135,12 @@ object Utils {
     fun getFilteredDepartmentWithItems(it: List<DepartmentWithItems>?): MutableList<DepartmentWithItems> {
         val mlist = mutableListOf<DepartmentWithItems>()
         it?.forEach { dep ->
-            val localDep = dep
             val localItems = mutableListOf<Item>()
             dep.items.forEach { item ->
                 if (item.isUsed) localItems.add(item)
             }
-            localDep.items = localItems
-            mlist.add(localDep)
+            dep.items = localItems
+            mlist.add(dep)
         }
         return mlist
     }
@@ -221,5 +226,29 @@ object Utils {
             }
         }
     }
+
+    fun getAllItemsAsJson() =
+        with(Dispatchers.IO) {
+            val itemConverter = ItemConverter()
+            repo.getAllItems().map { itemConverter.toJson(it) }
+        }
+
+    fun getAllDepartmentAsJson() = with(Dispatchers.IO) {
+        val depConverter = DepartmentConverter()
+        repo.getAllRawDepartments().map { depConverter.toJson(it) }
+    }
+
+    fun writeToFile(data: String, context: Context) {
+        try {
+            val outputStreamWriter =
+                OutputStreamWriter(context.openFileOutput("export.json", Context.MODE_PRIVATE))
+            outputStreamWriter.write(data)
+            outputStreamWriter.close()
+            Log.i(TAG, "File written : ${context.filesDir}")
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: $e")
+        }
+    }
+
 
 }

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import small.app.shopping.list.adapters.diffutils.DepartmentsDiffUtils
+import small.app.shopping.list.comparators.DepartmentComparator
 import small.app.shopping.list.models.Department
-import small.app.shopping.list.objects.DepartmentComparator
 import small.app.shopping.list.room.entities.DepartmentWithItems
 
 abstract class DepartmentsAbstractAdapter(

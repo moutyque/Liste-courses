@@ -5,8 +5,8 @@ import android.content.Context
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import small.app.shopping.list.objects.SIUnit
-import small.app.shopping.list.objects.SIUnit.Companion.unitList
+import small.app.shopping.list.enums.SIUnit
+import small.app.shopping.list.enums.SIUnit.Companion.unitList
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.Item
 
@@ -46,5 +46,5 @@ class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
 
 interface IUnitSelect {
     fun getItem(): Item
-    fun initUnit(): Unit
+    fun initUnit()
 }

@@ -50,11 +50,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.tabLayout.setupWithViewPager(binding.viewPager)
+
+
         setContentView(binding.root)
 
 
-
     }
-
 
 }

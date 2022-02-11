@@ -6,7 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.shopping.list.callback.IMovableAdapter
-import small.app.shopping.list.objects.SIUnit.Companion.unitList
+import small.app.shopping.list.enums.SIUnit.Companion.unitList
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.Item
 

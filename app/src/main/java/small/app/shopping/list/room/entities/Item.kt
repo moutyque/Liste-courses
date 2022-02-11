@@ -4,7 +4,7 @@ import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import small.app.shopping.list.objects.SIUnit
+import small.app.shopping.list.enums.SIUnit
 
 @Entity
 data class Item(

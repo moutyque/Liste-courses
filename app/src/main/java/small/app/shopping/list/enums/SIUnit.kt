@@ -1,4 +1,4 @@
-package small.app.shopping.list.objects
+package small.app.shopping.list.enums
 
 enum class SIUnit(val value: String, val mutliplicator: Int) {
     EMPTY("", 1),
@@ -12,13 +12,14 @@ enum class SIUnit(val value: String, val mutliplicator: Int) {
         fun fromValue(value: String): SIUnit = map[value]!!
 
 
-        fun unitList() : ArrayList<String> {
-           return arrayListOf<String>().apply {
-               add(EMPTY.value)
-               add(CL.value)
-               add(L.value)
-               add(G.value)
-               add(KG.value)}
+        fun unitList(): ArrayList<String> {
+            return arrayListOf<String>().apply {
+                add(EMPTY.value)
+                add(CL.value)
+                add(L.value)
+                add(G.value)
+                add(KG.value)
+            }
         }
     }
 }

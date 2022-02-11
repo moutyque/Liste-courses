@@ -1,4 +1,4 @@
-package small.app.shopping.list.objects
+package small.app.shopping.list.comparators
 
 import small.app.shopping.list.room.entities.Item
 

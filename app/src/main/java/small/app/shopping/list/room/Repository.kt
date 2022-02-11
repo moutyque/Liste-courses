@@ -16,10 +16,17 @@ class Repository(context: Context) {
     }
 
     fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> {
-
         return db.departmentDAO().getAllDepartment()
-
     }
+
+    fun getAllItems(): List<Item> {
+        return db.itemDAO().getAll()
+    }
+
+    fun getAllRawDepartments(): List<small.app.shopping.list.room.entities.Department> {
+        return db.departmentDAO().getAll()
+    }
+
 
     fun saveDepartment(d: Department) {
         db.departmentDAO()

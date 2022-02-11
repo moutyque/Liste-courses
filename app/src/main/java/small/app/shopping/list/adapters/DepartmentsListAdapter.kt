@@ -15,9 +15,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.shopping.list.R
 import small.app.shopping.list.adapters.listeners.ItemsDropListener
+import small.app.shopping.list.enums.DepartmentChange
 import small.app.shopping.list.fragments.NewItemsDialogFragment
 import small.app.shopping.list.models.Department
-import small.app.shopping.list.objects.DepartmentChange
 import small.app.shopping.list.objects.Utils
 
 

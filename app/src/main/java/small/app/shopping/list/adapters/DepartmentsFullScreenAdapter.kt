@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.item_department.view.*
 import small.app.shopping.list.R
-import small.app.shopping.list.objects.DepartmentChange
+import small.app.shopping.list.enums.DepartmentChange
 import small.app.shopping.list.objects.Utils
 
 

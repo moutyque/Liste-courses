@@ -19,4 +19,6 @@
     <string name="check_item_cd">Declare the item as picked</string>
     <string name="reorder_item_cd">Reorder item</string>
     <string name="delete_item_cd">Delete item</string>
+    <string name="export_lst">Export</string>
+    <string name="import_list">Import</string>
 </resources>

@@ -2,8 +2,8 @@ package small.app.shopping.list.adapters.diffutils
 
 import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
+import small.app.shopping.list.enums.DepartmentChange
 import small.app.shopping.list.models.Department
-import small.app.shopping.list.objects.DepartmentChange
 
 class DepartmentsDiffUtils(
     private val oldList: List<Department>,

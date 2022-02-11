@@ -18,5 +18,6 @@
     <string name="check_item_cd">Définir un item comme prit</string>
     <string name="reorder_item_cd">Réordone article</string>
     <string name="delete_item_cd">Supprime article</string>
-
+    <string name="export_lst">Export</string>
+    <string name="import_list">Import</string>
 </resources>

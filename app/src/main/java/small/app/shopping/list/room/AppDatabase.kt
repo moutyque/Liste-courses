@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import small.app.shopping.list.room.converters.Converter
+import small.app.shopping.list.room.converters.ItemConverter
 import small.app.shopping.list.room.dao.DepartmentDao
 import small.app.shopping.list.room.dao.ItemDao
 import small.app.shopping.list.room.entities.Department
@@ -17,7 +18,7 @@ import java.util.concurrent.Executors
     version = 1,
     exportSchema = false
 )
-@TypeConverters(Converter::class)
+@TypeConverters(Converter::class, ItemConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDAO(): ItemDao
     abstract fun departmentDAO(): DepartmentDao

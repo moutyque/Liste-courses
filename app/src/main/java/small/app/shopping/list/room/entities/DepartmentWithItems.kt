@@ -2,7 +2,7 @@ package small.app.shopping.list.room.entities
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import small.app.shopping.list.objects.ItemsComparator
+import small.app.shopping.list.comparators.ItemsComparator
 
 data class DepartmentWithItems(
     @Embedded

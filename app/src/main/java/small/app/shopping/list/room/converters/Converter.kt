@@ -1,7 +1,7 @@
 package small.app.shopping.list.room.converters
 
 import androidx.room.TypeConverter
-import small.app.shopping.list.objects.SIUnit
+import small.app.shopping.list.enums.SIUnit
 
 class Converter {
 

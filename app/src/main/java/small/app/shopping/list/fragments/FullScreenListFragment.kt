@@ -8,14 +8,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.shopping.list.adapters.DepartmentsFullScreenAdapter
-import small.app.shopping.list.databinding.FragmentParamsBinding
+import small.app.shopping.list.databinding.FragmentFullScreenListBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
-
 class FullScreenListFragment : Fragment() {
-    private lateinit var binding: FragmentParamsBinding
+    private lateinit var binding: FragmentFullScreenListBinding
     lateinit var adapter: DepartmentsFullScreenAdapter
     private lateinit var viewModel: FragmentViewModel
 
@@ -24,7 +23,7 @@ class FullScreenListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentParamsBinding.inflate(inflater)
+        binding = FragmentFullScreenListBinding.inflate(inflater)
         viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
         setupDepartmentsRV()
         return binding.root
@@ -60,7 +59,6 @@ class FullScreenListFragment : Fragment() {
 
 
         })
-
 
 
     }

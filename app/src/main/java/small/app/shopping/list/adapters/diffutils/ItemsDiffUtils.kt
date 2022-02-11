@@ -2,7 +2,7 @@ package small.app.shopping.list.adapters.diffutils
 
 import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
-import small.app.shopping.list.objects.ItemChange
+import small.app.shopping.list.enums.ItemChange
 import small.app.shopping.list.room.entities.Item
 
 class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<Item>) :
@@ -29,7 +29,7 @@ class ItemsDiffUtils(private val oldList: List<Item>, private val newList: List<
         return old.equals(new)
     }
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
         val new = newList[newItemPosition]
         val old = oldList[oldItemPosition]
         val bundle = Bundle()

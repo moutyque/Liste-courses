@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.shopping.list.R
 import small.app.shopping.list.adapters.diffutils.ItemsDiffUtils
-import small.app.shopping.list.objects.ItemChange
-import small.app.shopping.list.objects.ItemsComparator
-import small.app.shopping.list.objects.SIUnit
+import small.app.shopping.list.comparators.ItemsComparator
+import small.app.shopping.list.enums.ItemChange
+import small.app.shopping.list.enums.SIUnit
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.Item
 import kotlin.math.max

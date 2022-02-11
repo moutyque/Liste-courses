@@ -9,7 +9,7 @@ import small.app.shopping.list.room.entities.DepartmentWithItems
 @Dao
 interface DepartmentDao {
     @Query("SELECT * FROM Department")
-    fun getAll(): LiveData<List<Department>?>
+    fun getAll(): List<Department>
 
     @Transaction
     @Query("SELECT * FROM Department WHERE dep_name==:departmentName ORDER BY dep_order")
