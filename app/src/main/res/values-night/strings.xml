@@ -8,4 +8,5 @@
     <string name="delete_item_cd">Delete item</string>
     <string name="export_lst">Export</string>
     <string name="import_list">Import</string>
+    <string name="import_done">Import done</string>
 </resources>

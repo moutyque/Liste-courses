@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -18,15 +19,16 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import small.app.shopping.list.R
 import small.app.shopping.list.adapters.DepartmentsParamsAdapter
 import small.app.shopping.list.callback.SimpleItemTouchHelperCallback
 import small.app.shopping.list.databinding.FragmentParamsBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.TAG
+import small.app.shopping.list.room.converters.DepartmentConverter
+import small.app.shopping.list.room.converters.ItemConverter
 import small.app.shopping.list.viewmodels.FragmentViewModel
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 
 class ParamsFragment : Fragment() {
 
@@ -45,14 +47,26 @@ class ParamsFragment : Fragment() {
 
         binding.btnExport.setOnClickListener {
             createFile()
-
         }
 
+        binding.btnImport.setOnClickListener {
+            openFile()
+        }
         return binding.root
     }
 
     // Request code for creating a PDF document.
     val CREATE_FILE = 1
+    val OPEN_FILE = 2
+
+    private fun openFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            //putExtra(Intent.EXTRA_TITLE, "export.json")
+        }
+        startActivityForResult(intent, OPEN_FILE, null)
+    }
 
     private fun createFile() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -64,7 +78,7 @@ class ParamsFragment : Fragment() {
     }
 
 
-    private fun alterDocument(uri: Uri) {
+    private fun exportList(uri: Uri) {
         val contentResolver: ContentResolver = requireContext().contentResolver
         try {
             val export = JsonObject()
@@ -90,6 +104,42 @@ class ParamsFragment : Fragment() {
             e.printStackTrace()
         }
     }
+
+    @Throws(IOException::class)
+    private fun readTextFromUri(uri: Uri): String {
+        val stringBuilder = StringBuilder()
+        requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                var line: String? = reader.readLine()
+                while (line != null) {
+                    stringBuilder.append(line)
+                    line = reader.readLine()
+                }
+            }
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun importList(uri: Uri) {
+        val gson = Gson()
+        val jsonString = readTextFromUri(uri)
+
+        val export = gson.fromJson(jsonString, Export::class.java)
+        Log.d(TAG, "file content : $jsonString")
+        val depConverter = DepartmentConverter()
+        val itemConverter = ItemConverter()
+        export.departments.forEach { Utils.saveDepartment(depConverter.toDepartment(it)) }
+        export.items.forEach { Utils.saveItem(itemConverter.toItem(it)) }
+
+        Toast.makeText(requireContext(), getString(R.string.import_done), Toast.LENGTH_LONG).show()
+
+    }
+
+    internal data class Export(
+        val departments: List<String>,
+        val items: List<String>
+    )
+
 
     private fun setupDepartmentsRV() {
         //Create the department adapter
@@ -139,11 +189,17 @@ class ParamsFragment : Fragment() {
             // The result data contains a URI for the document or directory that
             // the user selected.
             data?.data?.also { uri ->
-                alterDocument(uri)
+                exportList(uri)
                 Log.d(TAG, "file create here $uri")
-                // Perform operations on the document using its URI.
+            }
+        } else if (requestCode == OPEN_FILE && resultCode == Activity.RESULT_OK) {
+            data?.data?.also { uri ->
+                Log.d(TAG, "Open file : $uri")
+                importList(uri)
             }
         }
     }
 
+
 }
+

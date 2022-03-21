@@ -9,7 +9,7 @@ class DepartmentConverter {
     private val type = object : TypeToken<Department>() {}.type
 
     @TypeConverter
-    fun toItem(depInfo: String): Department {
+    fun toDepartment(depInfo: String): Department {
         return Gson().fromJson(depInfo, type)
     }
 

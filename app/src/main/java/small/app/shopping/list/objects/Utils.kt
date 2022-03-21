@@ -117,6 +117,12 @@ object Utils {
         }
     }
 
+    fun saveDepartment(d: small.app.shopping.list.room.entities.Department) {
+        backgroundScope.launch {
+            repo.saveDepartment(d)
+        }
+    }
+
     fun unuseItem(name: String) {
         backgroundScope.launch {
             repo.findItem(name)?.let {

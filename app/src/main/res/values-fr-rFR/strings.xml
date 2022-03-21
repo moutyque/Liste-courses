@@ -20,4 +20,5 @@
     <string name="delete_item_cd">Supprime article</string>
     <string name="export_lst">Export</string>
     <string name="import_list">Import</string>
+    <string name="import_done">Import fini</string>
 </resources>

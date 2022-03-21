@@ -117,7 +117,7 @@ class ListFragment : Fragment() {
             addDepartment()
         }
 
-        binding.actDepartmentName.setOnKeyListener { v, keyCode, event ->
+        binding.actDepartmentName.setOnKeyListener { _, keyCode, event ->
             if (KeyEvent.KEYCODE_ENTER == keyCode && event.action == KeyEvent.ACTION_UP) {
                 addDepartment()
             }
@@ -186,7 +186,6 @@ class ListFragment : Fragment() {
      */
     private fun addItem() {
         //Create or get the item
-        val name = binding.actvSelectionItem.text.toString().trim()
         viewModel.addItem(binding.actvSelectionItem.text.toString().trim())
         binding.actvSelectionItem.setText("")
         Utils.hideSoftKeyboard(context as Activity)

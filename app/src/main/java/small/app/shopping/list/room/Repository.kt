@@ -40,6 +40,13 @@ class Repository(context: Context) {
             )
     }
 
+    fun saveDepartment(d: small.app.shopping.list.room.entities.Department) {
+        db.departmentDAO()
+            .insertAll(
+                d
+            )
+    }
+
 
     fun getUnclassifiedItem(): LiveData<List<Item>?> {
         return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
