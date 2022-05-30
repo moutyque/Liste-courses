@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import small.app.shopping.list.adapters.PagerAdapter
 import small.app.shopping.list.databinding.ActivityMainBinding
+import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.Repository
+import small.app.shopping.list.room.entities.Item
 
 /*
 TODO : instead of hide show view, hide only the top bar and call the adapter on items 2
@@ -21,6 +23,16 @@ class MainActivity : AppCompatActivity() {
 
         repo = Repository(context = this)
         Utils.repo = repo
+
+        Department(
+            name = this.getString(R.string.default_category_name),
+            isUsed = true,
+            items = mutableListOf(),
+            itemsCount = 0,
+            order = 0
+        ).apply {
+            Utils.saveDepartment(this)
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 

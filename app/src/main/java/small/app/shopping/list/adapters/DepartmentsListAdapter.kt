@@ -1,5 +1,6 @@
 package small.app.shopping.list.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -43,6 +44,7 @@ class DepartmentsListAdapter(
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun fillView(
         position: Int,
         holder: ViewHolder
@@ -65,7 +67,7 @@ class DepartmentsListAdapter(
         }
 
 
-        //Feature to add an item directly from the department
+        //Add an item directly from the department
         holder.itemView.ib_newItems.setOnClickListener {
             val activity = context as FragmentActivity
             val fm: FragmentManager = activity.supportFragmentManager

@@ -2,11 +2,14 @@ package small.app.shopping.list.objects
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import small.app.shopping.list.R
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Scope.mainScope
@@ -59,8 +62,19 @@ object Utils {
                         }
 
                     }
+                } else {
+                    val name = Resources.getSystem().getString(R.string.default_category_name)
+                    repo.findDepartment(name)!!.let { dep ->
+                        with(item) {
+                            departmentId = dep.name
+                            isClassified = true
+                            order = dep.order + 1L
+                        }
+                        repo.saveDepartment(dep)
+                        repo.saveItem(item)
+                    }
+
                 }
-                //Remove the item from the unclassified auto complete listpm
             }
         }
 
@@ -193,18 +207,6 @@ object Utils {
             repo.updateItemsOrderInDepartment(department.name)
         }
 
-    }
-
-    fun hideSoftKeyboard(activity: Activity) {
-        val inputMethodManager: InputMethodManager = activity.getSystemService(
-            Activity.INPUT_METHOD_SERVICE
-        ) as InputMethodManager
-        if (inputMethodManager.isAcceptingText) {
-            inputMethodManager.hideSoftInputFromWindow(
-                activity.currentFocus!!.windowToken,
-                0
-            )
-        }
     }
 
     fun hideKeyboardFrom(context: Context, view: View) {

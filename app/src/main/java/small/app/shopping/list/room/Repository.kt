@@ -1,14 +1,16 @@
 package small.app.shopping.list.room
 
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import androidx.lifecycle.LiveData
+import small.app.shopping.list.R
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
 
-class Repository(context: Context) {
+class Repository(private val context: Context) {
     private val db = getInstance(context)
 
     fun getNumberOfDepartments(): Int {
@@ -83,13 +85,16 @@ class Repository(context: Context) {
     fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
-        updateDepartmentUsage(item)
+        updateDepartmentUsage(item.departmentId)
 
     }
 
-    private fun updateDepartmentUsage(item: Item) {
-        if (db.itemDAO().findUsedByDepName(item.departmentId).isNullOrEmpty()) {
-            val findByName = db.departmentDAO().findByName(item.departmentId)
+    private fun updateDepartmentUsage(depName: String) {
+        //TODO : update this ugliness
+        val name = context.getString(R.string.default_category_name)
+        if (depName == name) return
+        if (db.itemDAO().fetchAssociatedUsedItems(depName).isEmpty()) {
+            val findByName = db.departmentDAO().findByName(depName)
             findByName?.apply {
                 isUsed = false
                 db.departmentDAO().insertAll(this)
@@ -129,8 +134,10 @@ class Repository(context: Context) {
 
     fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
-        updateDepartmentUsage(item)
-        updateItemsOrderInDepartment(item.departmentId)
+        with(item.departmentId) {
+            updateDepartmentUsage(this)
+            updateItemsOrderInDepartment(this)
+        }
     }
 
     fun updateItemsOrderInDepartment(departmentId: String) {
