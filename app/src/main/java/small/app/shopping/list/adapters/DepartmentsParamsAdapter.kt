@@ -1,11 +1,14 @@
 package small.app.shopping.list.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +39,7 @@ class DepartmentsParamsAdapter(context: Context) :
         )
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position]
 
@@ -96,7 +100,14 @@ class DepartmentsParamsAdapter(context: Context) :
         holder.itemView.setOnDragListener(dragListen)
 
         holder.itemView.ib_delete_department.setOnClickListener {
-            Utils.deleteDepartment(list[position])
+            //Ugly special case should be handle by the object itself
+            //TODO : create intreface for object department and have two implementation (decoratator)
+            val name = context.getString(R.string.default_category_name)
+            if (list[position].name == name) {
+                Toast.makeText(context,context.getString(R.string.default_category_deletion_message),Toast.LENGTH_LONG).show()
+            } else {
+                Utils.deleteDepartment(list[position])
+            }
         }
 
         //Setup the drag and drop only on the reorder icon

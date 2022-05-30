@@ -11,7 +11,8 @@ data class Item(
     @PrimaryKey @NonNull val name: String,
     var isClassified: Boolean = false,
     var isUsed: Boolean = false,
-    @ForeignKey(entity = Department::class,parentColumns = ["name"],childColumns = ["departmentId"]) var departmentId: String = "",
+    @ForeignKey(entity = Department::class,parentColumns = ["name"],childColumns = ["departmentId"])
+    var departmentId: String = "",
     var order: Long = -1,
     var qty: Long = 0,
     var unit: SIUnit = SIUnit.EMPTY

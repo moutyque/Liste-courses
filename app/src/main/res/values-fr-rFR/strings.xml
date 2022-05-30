@@ -21,4 +21,6 @@
     <string name="export_lst">Export</string>
     <string name="import_list">Import</string>
     <string name="import_done">Import fini</string>
+    <string name="default_category_name">Non classifié</string>
+    <string name="default_category_deletion_message">Vous ne pouvez pas supprimer le rayon par default</string>
 </resources>
