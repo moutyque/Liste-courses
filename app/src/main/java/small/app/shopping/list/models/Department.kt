@@ -1,7 +1,8 @@
 package small.app.shopping.list.models
 
 import android.util.Log
-import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.updateOrder
 import small.app.shopping.list.room.entities.Item
 
 data class Department(
@@ -18,11 +19,12 @@ data class Department(
             Log.d("Department","classify")
             this.itemsCount += 1
             with(item) {
-                isClassified = true
                 isUsed = true
                 departmentId = this@Department.name
                 order = this@Department.itemsCount.toLong()
-                Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
+                //Save the new items count
+                this.save()
+                this@Department.save()
             }
         }
     }
@@ -33,12 +35,13 @@ data class Department(
             Log.d("Department","classify")
             this.itemsCount += 1
             with(item) {
-                isClassified = true
                 isUsed = true
                 departmentId = this@Department.name
-                Utils.saveDepartmentAndItem(this, this@Department)//Save the new items count
+                //Save the new items count
+                this.save()
+                this@Department.save()
             }
-            Utils.updateOrder(this)
+            this.updateOrder()
         }
     }
 
@@ -69,6 +72,5 @@ data class Department(
         result = 31 * result + order
         return result
     }
-
 }
 

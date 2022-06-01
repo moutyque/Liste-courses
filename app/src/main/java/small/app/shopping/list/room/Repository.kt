@@ -1,7 +1,6 @@
 package small.app.shopping.list.room
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.Log
 import androidx.lifecycle.LiveData
 import small.app.shopping.list.R
@@ -29,29 +28,26 @@ class Repository(private val context: Context) {
         return db.departmentDAO().getAll()
     }
 
-
-    fun saveDepartment(d: Department) {
+    fun saveDepartment(d : Department) {
         db.departmentDAO()
             .insertAll(
-                small.app.shopping.list.room.entities.Department(
-                    d.name,
-                    d.isUsed,
-                    d.itemsCount,
-                    d.order
-                )
-            )
-    }
-
-    fun saveDepartment(d: small.app.shopping.list.room.entities.Department) {
-        db.departmentDAO()
-            .insertAll(
-                d
+                with(d) {
+                    small.app.shopping.list.room.entities.Department(
+                        name,
+                        isUsed,
+                        itemsCount,
+                        order
+                    )
+                }
             )
     }
 
 
-    fun getUnclassifiedItem(): LiveData<List<Item>?> {
-        return db.itemDAO().getAllWithUsageAndClassification(isUsed = true, isClassified = false)
+    fun small.app.shopping.list.room.entities.Department.save() {
+        db.departmentDAO()
+            .insertAll(
+                this
+            )
     }
 
     fun saveItem(i: Item) {
@@ -172,7 +168,6 @@ class Repository(private val context: Context) {
 
         department.items.forEach {
             it.order = System.currentTimeMillis()
-            it.isClassified = false
             it.departmentId = ""
             db.itemDAO().insertAll(it)
 

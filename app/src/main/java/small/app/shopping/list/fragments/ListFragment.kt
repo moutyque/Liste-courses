@@ -1,6 +1,7 @@
 package small.app.shopping.list.fragments
 
 import android.R
+import android.app.Activity
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -17,7 +18,9 @@ import small.app.shopping.list.databinding.FragmentListBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.objects.Utils.repo
+import small.app.shopping.list.objects.Utils.save
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -27,7 +30,7 @@ class ListFragment : Fragment() {
 
     private lateinit var viewModel: FragmentViewModel
 
-    lateinit var departmentsListAdapter: DepartmentsListAdapter
+    private lateinit var departmentsListAdapter: DepartmentsListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +41,10 @@ class ListFragment : Fragment() {
         binding = FragmentListBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
 
         initItemNameSuggestion()
+        initAddItem()
 
         setupDepartmentsRV()
 
@@ -71,8 +75,43 @@ class ListFragment : Fragment() {
 
         }
 
+        binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
+
+
     }
 
+    /**
+     * Initialize the two ways to add an item from the text field.
+     * 1) By clicking on the icon check
+     * 2) By pressing enter
+     */
+    private fun initAddItem() {
+        //Setup btn to add an new item
+        binding.ibAddItem.setOnClickListener {
+            useItem()
+        }
+
+        //Enable the enter button to add items
+        binding.actvSelectionItem.setOnKeyListener { _, keyCode, event ->
+           return@setOnKeyListener if (event.action == KeyEvent.ACTION_DOWN &&
+                keyCode == KeyEvent.KEYCODE_ENTER
+            ) {
+                useItem()
+                true
+            }else{
+               false
+           }
+        }
+    }
+    /**
+     * Reuse item, new item can only be create from department
+     */
+    private fun useItem() {
+        //Create or get the item
+        viewModel.useItem(binding.actvSelectionItem.text.toString().trim())
+        binding.actvSelectionItem.setText("")
+        Utils.hideKeyboardFrom(context as Activity,binding.root)
+    }
     /**
      * Initialize the two ways to add a department from the text field.
      * 1) By clicking on the icon check
@@ -140,7 +179,7 @@ class ListFragment : Fragment() {
                         order
                     )
                 dep.isUsed = true
-                Utils.saveDepartment(dep)
+                dep.save()
 
             }
             Toast.makeText(requireContext(), "$depName has been added.", Toast.LENGTH_LONG).show()
@@ -166,7 +205,7 @@ class ListFragment : Fragment() {
         binding.rvDepartment.adapter = departmentsListAdapter
 
         viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
-            departmentsListAdapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())
+            departmentsListAdapter.updateList(it?.keepWithUsedItem())
         }
 
     }

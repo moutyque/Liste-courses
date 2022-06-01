@@ -2,25 +2,22 @@ package small.app.shopping.list.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_department.view.rv_items
-import kotlinx.android.synthetic.main.item_department.view.tv_dep_name
-import kotlinx.android.synthetic.main.item_department_param.view.*
-import small.app.shopping.list.R
 import small.app.shopping.list.adapters.listeners.ItemsDropListener
 import small.app.shopping.list.callback.IMovableAdapter
 import small.app.shopping.list.callback.SimpleItemTouchHelperCallback
+import small.app.shopping.list.databinding.ItemDepartmentParamBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.delete
+import small.app.shopping.list.objects.Utils.save
 
 class DepartmentsParamsAdapter(context: Context) :
     DepartmentsAbstractAdapter(context), IMovableAdapter {
@@ -30,101 +27,94 @@ class DepartmentsParamsAdapter(context: Context) :
         parent: ViewGroup,
         viewType: Int
     ): RecyclerView.ViewHolder {
-        return DepartmentsParamsViewHolder(
-            LayoutInflater.from(context).inflate(
-                R.layout.item_department_param,
-                parent,
-                false
-            )
-        )
+        val binding =
+            ItemDepartmentParamBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
+        return DepartmentsParamsViewHolder(binding)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        require(holder is DepartmentsParamsViewHolder)
         val model = list[position]
 
-        holder.itemView.tv_dep_name.text = model.name
-        //Perform the D&D action on department only if we click on the department title and not and the item list
-        holder.itemView.tv_dep_name.setOnTouchListener { v, event ->
-            Log.d(Utils.TAG, "I touched $event")
-
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    canMove = true
-                    v.performClick()
+        holder.binding.apply {
+            tvDepName.text = model.name
+            //Perform the D&D action on department only if we click on the department title and not and the item list
+            tvDepName.setOnTouchListener { v, event ->
+                Log.d(Utils.TAG, "I touched $event")
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        canMove = true
+                        v.performClick()
+                    }
+                    MotionEvent.ACTION_UP -> canMove = false
                 }
-                MotionEvent.ACTION_UP -> canMove = false
+                true
             }
-            true
+            //Recycler view for the items in the department
+            Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
+            var itemsAdapter = rvItems.adapter
+            if (itemsAdapter == null) {
+                itemsAdapter = setupAdapter(itemsAdapter)
+            }
+
+            (itemsAdapter as ItemsAdapter).updateList(model.items)
+
+
+            ibExpand.setOnClickListener {
+                ibExpand.visibility = View.GONE
+                ibCollapse.visibility = View.VISIBLE
+                rvItems.visibility = View.VISIBLE
+            }
+            ibCollapse.setOnClickListener {
+                ibExpand.visibility = View.VISIBLE
+                ibCollapse.visibility = View.GONE
+                rvItems.visibility = View.GONE
+            }
+
+            val dragListen = ItemsDropListener(model)
+            holder.itemView.setOnDragListener(dragListen)
+
+            ibDeleteDepartment.setOnClickListener {
+                list[position].delete()
+            }
+
+            //Setup the drag and drop only on the reorder icon
+            ivReorder.setOnTouchListener { v, event ->
+                Log.d(Utils.TAG, "Reorder department in Parameters Adapter. \nI touched $event")
+
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        canMove = true
+                        v.performClick()
+                    }
+                    MotionEvent.ACTION_UP -> canMove = false
+                }
+                true
+            }
         }
-        //Recycler view for the items in the department
-
-        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
 
 
-        var itemsAdapter = holder.itemView.rv_items.adapter
-        if (itemsAdapter == null) {
+    }
 
-            itemsAdapter = ItemsParamsAdapter(
-                context
-            )
-            holder.itemView.rv_items.layoutManager =
+    private fun ItemDepartmentParamBinding.setupAdapter(itemsAdapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
+        var itemsAdapter1 = itemsAdapter
+        itemsAdapter1 = ItemsParamsAdapter(
+            context
+        )
+        rvItems.apply {
+            layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            holder.itemView.rv_items.adapter = itemsAdapter
-
-
+            adapter = itemsAdapter1
             val callback = SimpleItemTouchHelperCallback(
-                itemsAdapter,
+                itemsAdapter1,
                 SimpleItemTouchHelperCallback.Direction.VERTICAL
             )
             val itemTouchHelper = ItemTouchHelper(callback)
-            itemTouchHelper.attachToRecyclerView(holder.itemView.rv_items)
-
+            itemTouchHelper.attachToRecyclerView(this)
         }
-
-        (itemsAdapter as ItemsAdapter).updateList(model.items)
-
-        holder.itemView.ib_expand.setOnClickListener {
-            holder.itemView.ib_expand.visibility = View.GONE
-            holder.itemView.ib_collapse.visibility = View.VISIBLE
-            holder.itemView.rv_items.visibility = View.VISIBLE
-        }
-
-        holder.itemView.ib_collapse.setOnClickListener {
-            holder.itemView.ib_expand.visibility = View.VISIBLE
-            holder.itemView.ib_collapse.visibility = View.GONE
-            holder.itemView.rv_items.visibility = View.GONE
-        }
-
-        val dragListen = ItemsDropListener(model)
-        holder.itemView.setOnDragListener(dragListen)
-
-        holder.itemView.ib_delete_department.setOnClickListener {
-            //Ugly special case should be handle by the object itself
-            //TODO : create intreface for object department and have two implementation (decoratator)
-            val name = context.getString(R.string.default_category_name)
-            if (list[position].name == name) {
-                Toast.makeText(context,context.getString(R.string.default_category_deletion_message),Toast.LENGTH_LONG).show()
-            } else {
-                Utils.deleteDepartment(list[position])
-            }
-        }
-
-        //Setup the drag and drop only on the reorder icon
-        holder.itemView.iv_reorder.setOnTouchListener { v, event ->
-            Log.d(Utils.TAG, "Reorder department in Parameters Adapter. \nI touched $event")
-
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    canMove = true
-                    v.performClick()
-                }
-                MotionEvent.ACTION_UP -> canMove = false
-            }
-            true
-        }
-
-
+        return itemsAdapter1
     }
 
 
@@ -159,11 +149,11 @@ class DepartmentsParamsAdapter(context: Context) :
     }
 
     override fun onDragEnd() {
-        savableDepartment.forEach { Utils.saveDepartment(it) }
+        savableDepartment.forEach { it.save() }
         savableDepartment.clear()
     }
 
-    class DepartmentsParamsViewHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView)
+    class DepartmentsParamsViewHolder(val binding: ItemDepartmentParamBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
 }

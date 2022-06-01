@@ -1,14 +1,14 @@
 package small.app.shopping.list
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import small.app.shopping.list.adapters.PagerAdapter
 import small.app.shopping.list.databinding.ActivityMainBinding
-import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.Repository
-import small.app.shopping.list.room.entities.Item
 
 /*
 TODO : instead of hide show view, hide only the top bar and call the adapter on items 2
@@ -24,25 +24,13 @@ class MainActivity : AppCompatActivity() {
         repo = Repository(context = this)
         Utils.repo = repo
 
-        Department(
-            name = this.getString(R.string.default_category_name),
-            isUsed = true,
-            items = mutableListOf(),
-            itemsCount = 0,
-            order = 0
-        ).apply {
-            Utils.saveDepartment(this)
-        }
-
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         binding.viewPager.offscreenPageLimit = 3
         binding.viewPager.adapter = PagerAdapter(
-            binding.tabLayout.tabCount, this, supportFragmentManager,
-            0
+            binding.tabLayout.tabCount, supportFragmentManager, lifecycle
         )
 
-        binding.tabLayout.setupWithViewPager(binding.viewPager)
 
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -61,7 +49,18 @@ class MainActivity : AppCompatActivity() {
         })
         setContentView(binding.root)
 
-        binding.tabLayout.setupWithViewPager(binding.viewPager)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> getString(R.string.full_screen)
+                1 -> getString(R.string.tabListName)
+                2 -> getString(R.string.tabListNameParameters)
+                else -> {
+                    Log.e(Utils.TAG, "How did you managed to call the tab : $position")
+                    throw Exception("Unknown tab")
+                }
+            }
+        }.attach()
+
 
 
         setContentView(binding.root)

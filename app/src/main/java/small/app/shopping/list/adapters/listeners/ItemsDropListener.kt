@@ -5,6 +5,7 @@ import android.view.DragEvent
 import android.view.View
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.classifyDropItem
 
 class ItemsDropListener(private val dep: Department) :
     View.OnDragListener {
@@ -15,8 +16,7 @@ class ItemsDropListener(private val dep: Department) :
                 Log.d(Utils.TAG, "Has drop $v")
                 val droppedItem = event.localState
                 if (droppedItem is String) {
-                    Utils.classifyDropItem(droppedItem, dep)
-                    return true
+                    dep.classifyDropItem(droppedItem)
                 }
                 return true
             }

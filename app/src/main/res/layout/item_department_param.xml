@@ -38,13 +38,15 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_increase_qty" />
+                app:srcCompat="@drawable/ic_increase_qty"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <ImageButton
                 android:id="@+id/ib_delete_department"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_delete" />
+                app:srcCompat="@drawable/ic_delete"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <ImageButton
                 android:id="@+id/ib_collapse"
@@ -61,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_expand"
+                tools:ignore="SpeakableTextPresentCheck"
                 tools:visibility="visible" />
 
             <ImageView

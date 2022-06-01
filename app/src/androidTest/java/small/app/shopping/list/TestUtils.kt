@@ -20,7 +20,7 @@ object TestUtils {
     /**
      * Find a view child at {@position} inside the view that match {@parentMatcher]
      */
-    fun childAtPosition(
+    private fun childAtPosition(
         parentMatcher: Matcher<View>, position: Int
     ): Matcher<View> {
 
@@ -100,7 +100,7 @@ object TestUtils {
     }
 
 
-    fun createItemFromDep(item_name: String, dep_position: Int) {
+    private fun createItemFromDep(item_name: String, dep_position: Int) {
         BaristaListInteractions.clickListItemChild(
             R.id.rv_department,
             dep_position,
@@ -113,7 +113,7 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 
-    fun createDep(name: String) {
+    private fun createDep(name: String) {
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
             R.id.act_departmentName,
             name

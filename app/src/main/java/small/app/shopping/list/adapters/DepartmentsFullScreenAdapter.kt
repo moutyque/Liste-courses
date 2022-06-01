@@ -9,8 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import kotlinx.android.synthetic.main.item_department.view.*
-import small.app.shopping.list.R
+import small.app.shopping.list.databinding.ItemDepartmentBinding
 import small.app.shopping.list.enums.DepartmentChange
 import small.app.shopping.list.objects.Utils
 
@@ -22,53 +21,49 @@ class DepartmentsFullScreenAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
+        val binding = ItemDepartmentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DepartmentViewHolder(binding)
 
-        return DepartmentViewHolder(
-            LayoutInflater.from(context).inflate(
-                R.layout.item_department,
-                parent,
-                false
-            )
-        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        fillView(position, holder)
+        fillView(position, holder as DepartmentViewHolder)
 
     }
 
     private fun fillView(
         position: Int,
-        holder: ViewHolder
+        holder: DepartmentViewHolder
     ) {
         val model = list[position]
-        holder.itemView.ib_newItems.visibility = View.GONE
-        holder.itemView.tv_dep_name.text = model.name
+        holder.binding.apply {
+            ibNewItems.visibility = View.GONE
+            tvDepName.text = model.name
 
-        //Recycler view for the items in the department
-        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
+            //Recycler view for the items in the department
+            Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
+            setupAdapter()
+            (rvItems.adapter as ItemsAdapter).updateList(model.items)
+        }
+    }
 
-        var itemsAdapter = holder.itemView.rv_items.adapter
-        if (itemsAdapter == null) {
-            itemsAdapter = ItemsFullScreenAdapter(
+    private fun ItemDepartmentBinding.setupAdapter(){
+        if (rvItems.adapter == null) {
+            rvItems.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            rvItems.adapter = ItemsFullScreenAdapter(
                 context
             )
-            holder.itemView.rv_items.layoutManager =
-                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            holder.itemView.rv_items.adapter = itemsAdapter
         }
-
-        (itemsAdapter as ItemsAdapter).updateList(model.items)
-
-
     }
 
 
-    class DepartmentViewHolder(view: View) : ViewHolder(view)
+    class DepartmentViewHolder(val binding: ItemDepartmentBinding) : ViewHolder(binding.root)
 
 
     //Only when a new department is created this is called I think
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        require(holder is DepartmentViewHolder)
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -77,11 +72,11 @@ class DepartmentsFullScreenAdapter(
                     bundle.keySet().forEach { key ->
                         run {
                             if (key == DepartmentChange.NAME.toString()) {
-                                holder.itemView.tv_dep_name.text = bundle.get(key) as CharSequence?
+                                holder.binding.tvDepName.text = bundle.get(key) as CharSequence?
                             }
 
                             if (key == DepartmentChange.ITEMS.toString()) {
-                                (holder.itemView.rv_items.adapter as ItemsAdapter).updateList(list[position].items)
+                                (holder.binding.rvItems.adapter as ItemsAdapter).updateList(list[position].items)
                             }
 
 
