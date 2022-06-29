@@ -2,9 +2,9 @@ package small.app.shopping.list.adapters
 
 import android.content.Context
 import android.view.View
-import kotlinx.android.synthetic.main.item_grossery_item.view.*
 import small.app.shopping.list.callback.IMovableAdapter
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.save
 import small.app.shopping.list.room.entities.Item
 
 
@@ -17,24 +17,18 @@ class ItemsFullScreenAdapter(
 
     override fun fillView(holder: ItemsViewHolder, item: Item) {
         super.fillView(holder, item)
-        holder.itemView.iv_check_item.visibility = View.VISIBLE
+        binding.ivCheckItem.visibility = View.VISIBLE
     }
 
     override fun onBindViewHolder(holder: ItemsViewHolder, position: Int) {
-        super.onBindViewHolder(holder, position)
-
         //Manage the view of the drop down list of unit
-        holder.itemView.apply {
-            ll_list_view.visibility = View.VISIBLE
-            ll_param_view.visibility = View.GONE
-
-            iv_dd.visibility = View.GONE
-
-            ll_qty_modifiers.visibility = View.GONE
-
+        holder.binding.apply {
+            llListView.visibility = View.VISIBLE
+            llParamView.visibility = View.GONE
+            ivDd.visibility = View.GONE
+            llQtyModifiers.visibility = View.GONE
         }
-
-
+        super.onBindViewHolder(holder, position)
     }
 
 
@@ -51,8 +45,7 @@ class ItemsFullScreenAdapter(
     }
 
     override fun onDragEnd() {
-
-        Utils.saveItems(*list.toTypedArray())
+        list.save()
     }
 
 

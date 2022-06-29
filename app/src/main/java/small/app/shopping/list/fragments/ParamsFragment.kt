@@ -25,15 +25,20 @@ import small.app.shopping.list.callback.SimpleItemTouchHelperCallback
 import small.app.shopping.list.databinding.FragmentParamsBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.TAG
+import small.app.shopping.list.objects.Utils.save
 import small.app.shopping.list.room.converters.DepartmentConverter
 import small.app.shopping.list.room.converters.ItemConverter
 import small.app.shopping.list.viewmodels.FragmentViewModel
 import java.io.*
 
+// Request code for creating a PDF document.
+const val CREATE_FILE = 1
+const val OPEN_FILE = 2
+
 class ParamsFragment : Fragment() {
 
     private lateinit var binding: FragmentParamsBinding
-    lateinit var departmentsAdapter: DepartmentsParamsAdapter
+    private lateinit var departmentsAdapter: DepartmentsParamsAdapter
     private lateinit var viewModel: FragmentViewModel
 
     override fun onCreateView(
@@ -42,7 +47,7 @@ class ParamsFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentParamsBinding.inflate(inflater)
-        viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
         setupDepartmentsRV()
 
         binding.btnExport.setOnClickListener {
@@ -55,9 +60,7 @@ class ParamsFragment : Fragment() {
         return binding.root
     }
 
-    // Request code for creating a PDF document.
-    val CREATE_FILE = 1
-    val OPEN_FILE = 2
+
 
     private fun openFile() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -128,8 +131,8 @@ class ParamsFragment : Fragment() {
         Log.d(TAG, "file content : $jsonString")
         val depConverter = DepartmentConverter()
         val itemConverter = ItemConverter()
-        export.departments.forEach { Utils.saveDepartment(depConverter.toDepartment(it)) }
-        export.items.forEach { Utils.saveItem(itemConverter.toItem(it)) }
+        export.departments.forEach { depConverter.toDepartment(it).save() }
+        export.items.forEach { itemConverter.toItem(it).save() }
 
         Toast.makeText(requireContext(), getString(R.string.import_done), Toast.LENGTH_LONG).show()
 
@@ -152,7 +155,7 @@ class ParamsFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = departmentsAdapter
 
-        viewModel.getAllDepartments().observe(viewLifecycleOwner, {
+        viewModel.getAllDepartments().observe(viewLifecycleOwner) {
 
 
             if (it?.isEmpty() == true) {
@@ -165,7 +168,7 @@ class ParamsFragment : Fragment() {
             }
 
 
-        })
+        }
 
 
         val callback = SimpleItemTouchHelperCallback(

@@ -4,12 +4,9 @@ import android.content.Context
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.withSpinnerText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -19,13 +16,15 @@ import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assert
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
 import junit.framework.Assert.assertEquals
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import small.app.shopping.list.TestUtils.changeUnit
 import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
 import small.app.shopping.list.TestUtils.interactWithItemSubComponent
-import java.util.concurrent.TimeUnit
 
 
 @LargeTest
@@ -33,11 +32,6 @@ import java.util.concurrent.TimeUnit
 class BaristaTestCase {
 
     companion object {
-        @BeforeClass
-        fun beforeClass() {
-            IdlingPolicies.setMasterPolicyTimeout(10, TimeUnit.SECONDS)
-            IdlingPolicies.setIdlingResourceTimeout(10, TimeUnit.SECONDS)
-        }
 
     }
 
@@ -49,7 +43,7 @@ class BaristaTestCase {
 
     private val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var scenario: ActivityScenario<MainActivity>
 
     @After
     fun tornApart() {
@@ -110,18 +104,7 @@ class BaristaTestCase {
         interactWithItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
         assertNotDisplayed("Legume")
         assertNotDisplayed("Carotte")
-        onView(withId(R.id.actv_selection_item))
-            .perform(typeText("Car"))
 
-        val inRoot = onView(withText("Carotte"))
-            .inRoot(isPlatformPopup())
-
-        inRoot.check(matches(isDisplayed()))
-        inRoot.perform(click())
-
-        clickOn(R.id.ib_add_item)
-        assertDisplayed("Legume")
-        assertDisplayed("Carotte")
 
     }
 

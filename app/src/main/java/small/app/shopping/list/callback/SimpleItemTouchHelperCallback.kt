@@ -13,7 +13,6 @@ class SimpleItemTouchHelperCallback(
 
     enum class Direction {
         VERTICAL,
-        HORIZONTAL
     }
 
     private var hasStarted = false

@@ -50,7 +50,7 @@ class DatabaseTest {
 
         val conv = ItemConverter()
         val expected = """
-            {"departmentId":"","isClassified":false,"isUsed":false,"name":"TEST","order":-1,"qty":0,"unit":"EMPTY"}
+            {"departmentId":"","isUsed":false,"name":"TEST","order":-1,"qty":0,"unit":"EMPTY"}
                     """.trimIndent()
         MatcherAssert.assertThat(conv.toJson(item), equalTo(expected))
     }

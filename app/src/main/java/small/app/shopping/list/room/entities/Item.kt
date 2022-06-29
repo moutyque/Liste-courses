@@ -6,12 +6,19 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import small.app.shopping.list.enums.SIUnit
 
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Department::class,
+        parentColumns = ["dep_name"],
+        childColumns = ["departmentId"]
+    )]
+)
 data class Item(
-    @PrimaryKey @NonNull val name: String,
-    var isClassified: Boolean = false,
+    @PrimaryKey
+    @NonNull
+    val name: String,
     var isUsed: Boolean = false,
-    @ForeignKey(entity = Department::class,parentColumns = ["name"],childColumns = ["departmentId"])
+
     var departmentId: String = "",
     var order: Long = -1,
     var qty: Long = 0,
@@ -24,7 +31,6 @@ data class Item(
         other as Item
 
         if (name != other.name) return false
-        if (isClassified != other.isClassified) return false
         if (isUsed != other.isUsed) return false
         if (departmentId != other.departmentId) return false
         if (order != other.order) return false
@@ -36,7 +42,6 @@ data class Item(
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + isClassified.hashCode()
         result = 31 * result + isUsed.hashCode()
         result = 31 * result + departmentId.hashCode()
         result = 31 * result + order.hashCode()

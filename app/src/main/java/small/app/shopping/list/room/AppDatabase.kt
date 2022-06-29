@@ -11,7 +11,6 @@ import small.app.shopping.list.room.dao.DepartmentDao
 import small.app.shopping.list.room.dao.ItemDao
 import small.app.shopping.list.room.entities.Department
 import small.app.shopping.list.room.entities.Item
-import java.util.concurrent.Executors
 
 @Database(
     entities = [Item::class, Department::class],
@@ -23,8 +22,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDAO(): ItemDao
     abstract fun departmentDAO(): DepartmentDao
 }
-
-private val IO_EXECUTOR = Executors.newSingleThreadExecutor()
 
 @Volatile
 private lateinit var INSTANCE: AppDatabase

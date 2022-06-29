@@ -11,13 +11,15 @@ import android.view.*
 import android.view.View.DragShadowBuilder
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_grossery_item.view.*
-import small.app.shopping.list.R
 import small.app.shopping.list.adapters.diffutils.ItemsDiffUtils
 import small.app.shopping.list.comparators.ItemsComparator
+import small.app.shopping.list.databinding.ItemGrosseryItemBinding
 import small.app.shopping.list.enums.ItemChange
 import small.app.shopping.list.enums.SIUnit
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.classifyDropItem
+import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.unuse
 import small.app.shopping.list.room.entities.Item
 import kotlin.math.max
 
@@ -32,16 +34,15 @@ abstract class ItemsAdapter(
 
     protected var canMove = false
 
+    lateinit var binding: ItemGrosseryItemBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsViewHolder {
-        val viewHolder = ItemsViewHolder(
-            LayoutInflater.from(context).inflate(
-                R.layout.item_grossery_item,
-                parent,
-                false
-            )
-        )
-        viewHolder.itemView.iv_dd.setOnLongClickListener(viewHolder)
+
+        binding =
+            ItemGrosseryItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
+        val viewHolder = ItemsViewHolder(binding)
+        viewHolder.binding.ivDd.setOnLongClickListener(viewHolder)
 
         return viewHolder
 
@@ -49,9 +50,12 @@ abstract class ItemsAdapter(
 
 
     protected open fun fillView(holder: ItemsViewHolder, item: Item) {
-        holder.itemView.tv_name.text = item.name
-        holder.itemView.tv_unit.text = item.unit.value
-        holder.itemView.tv_qty.text = item.qty.toString()
+        holder.binding.apply {
+            tvName.text = item.name
+            tvUnit.text = item.unit.value
+            tvQty.text = item.qty.toString()
+        }
+
 
     }
 
@@ -65,39 +69,44 @@ abstract class ItemsAdapter(
         if (list[position].name.isNotEmpty()) {
 
             fillView(holder, list[position])
-            holder.itemView.iv_check_item.setOnClickListener {
-                Utils.unuseItem(list[holder.layoutPosition])
+            holder.binding.apply {
+                ivCheckItem.setOnClickListener {
+                    list[holder.layoutPosition].unuse()
+                }
+
+                ivIncreaseQty.setOnClickListener {
+                    increaseQty(position, holder)
+                }
+                ivDecreaseQty.setOnClickListener {
+                    decreaseQty(position, holder)
+                }
+
+                tvUnit.text = list[position].unit.value
             }
 
-            holder.itemView.iv_increase_qty.setOnClickListener {
-                increaseQty(position, holder)
-            }
-            holder.itemView.iv_decrease_qty.setOnClickListener {
-                decreaseQty(position, holder)
-            }
-
-            holder.itemView.tv_unit.text = list[position].unit.value
             //Setup the drag event listener
             holder.itemView.setOnDragListener { v, event ->
                 if (v != null && event != null) {
                     Log.d(Utils.TAG, event.toString())
                     Log.d(Utils.TAG, "Position : " + v.x + " : " + v.y)
-                    when (event.action) {
-                        DragEvent.ACTION_DRAG_ENTERED -> {
-                            Log.d(Utils.TAG, "Enter")
-                            holder.itemView.separator.visibility = View.VISIBLE
-                        }
-                        DragEvent.ACTION_DRAG_EXITED -> {
-                            Log.d(Utils.TAG, "Exited")
-                            holder.itemView.separator.visibility = View.GONE
-                        }
-                        DragEvent.ACTION_DROP -> {
-                            val droppedItemName = event.localState
-                            if (droppedItemName is String) {
-                                Log.d(Utils.TAG, "Has drop ${droppedItemName}")
-                                Utils.classifyDropItem(droppedItemName, list[position])
+                    with(holder.binding) {
+                        when (event.action) {
+                            DragEvent.ACTION_DRAG_ENTERED -> {
+                                Log.d(Utils.TAG, "Enter")
+                                separator.visibility = View.VISIBLE
                             }
-                            holder.itemView.separator.visibility = View.GONE
+                            DragEvent.ACTION_DRAG_EXITED -> {
+                                Log.d(Utils.TAG, "Exited")
+                                separator.visibility = View.GONE
+                            }
+                            DragEvent.ACTION_DROP -> {
+                                val droppedItemName = event.localState
+                                if (droppedItemName is String) {
+                                    Log.d(Utils.TAG, "Has drop $droppedItemName")
+                                    list[position].classifyDropItem(droppedItemName)
+                                }
+                                separator.visibility = View.GONE
+                            }
                         }
                     }
                 }
@@ -116,8 +125,8 @@ abstract class ItemsAdapter(
 
         item.qty =
             max(0, newQty)
-        Utils.saveItem(item)
-        holder.itemView.tv_qty.text = item.qty.toString()
+        item.save()
+        holder.binding.tvQty.text = item.qty.toString()
     }
 
     private fun increaseQty(
@@ -129,8 +138,8 @@ abstract class ItemsAdapter(
         Log.d(Utils.TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
         item.qty = newQty
         Log.d(Utils.TAG, item.qty.toString())
-        Utils.saveItem(item)
-        holder.itemView.tv_qty.text = item.qty.toString()
+        item.save()
+        holder.binding.tvQty.text = item.qty.toString()
     }
 
     override fun getItemCount(): Int {
@@ -166,12 +175,12 @@ abstract class ItemsAdapter(
                             if (key == ItemChange.QTY.toString()) {
                                 val qty: String = (bundle.get(key) as CharSequence?).toString()
                                 list[position].qty = qty.toLong()
-                                holder.itemView.tv_qty.text = qty
+                                holder.binding.tvQty.text = qty
                             }
                             if (key == ItemChange.UNIT.toString()) {
                                 val unit: String = (bundle.get(key) as CharSequence?).toString()
                                 list[position].unit = SIUnit.fromValue(unit)
-                                holder.itemView.tv_unit.text = unit
+                                holder.binding.tvUnit.text = unit
                             }
                         }
                     }
@@ -180,7 +189,8 @@ abstract class ItemsAdapter(
         }
     }
 
-    class ItemsViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnLongClickListener,
+    class ItemsViewHolder(val binding: ItemGrosseryItemBinding) :
+        RecyclerView.ViewHolder(binding.root), View.OnLongClickListener,
         View.OnTouchListener {
         // class member variable to save the X,Y coordinates
         private val lastTouchDownXY = FloatArray(2)
@@ -188,7 +198,7 @@ abstract class ItemsAdapter(
         var adapter: ItemsAdapter? = null
 
         init {
-            view.setOnTouchListener(this)
+            binding.root.setOnTouchListener(this)
         }
 
         override fun onLongClick(v: View?): Boolean {
@@ -200,7 +210,7 @@ abstract class ItemsAdapter(
             val data = ClipData(clipText, mimeTypes, item)
 
             //Use the drag view as a context to build the dragShadowBuilder
-            this.itemView.ll_complet_line.apply {
+            this.binding.llCompletLine.apply {
                 val dragShadowBuilder = object : DragShadowBuilder(this) {
                     override fun onProvideShadowMetrics(
                         outShadowSize: Point?,
@@ -215,7 +225,7 @@ abstract class ItemsAdapter(
                 return v!!.startDragAndDrop(
                     data,
                     dragShadowBuilder,
-                    this@ItemsViewHolder.itemView.tv_name.text as String,
+                    this@ItemsViewHolder.binding.tvName.text as String,
                     0
                 )
             }

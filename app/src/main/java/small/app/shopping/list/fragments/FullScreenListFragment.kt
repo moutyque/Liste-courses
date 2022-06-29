@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.shopping.list.adapters.DepartmentsFullScreenAdapter
 import small.app.shopping.list.databinding.FragmentFullScreenListBinding
-import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -24,7 +24,7 @@ class FullScreenListFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentFullScreenListBinding.inflate(inflater)
-        viewModel = ViewModelProvider(this).get(FragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
         setupDepartmentsRV()
         return binding.root
     }
@@ -41,7 +41,7 @@ class FullScreenListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = adapter
 
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner, {
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
 
 
             if (it?.isEmpty() == true) {
@@ -53,12 +53,11 @@ class FullScreenListFragment : Fragment() {
 
                 binding.rvDepartment.visibility = View.VISIBLE
                 binding.tvNoData.visibility = View.GONE
-
-                adapter.updateList(Utils.getFilteredDepartmentWithItems(it).toList())
+                adapter.updateList(it?.keepWithUsedItem())
             }
 
 
-        })
+        }
 
 
     }

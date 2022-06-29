@@ -6,16 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import kotlinx.android.synthetic.main.item_department.view.*
-import small.app.shopping.list.R
 import small.app.shopping.list.adapters.listeners.ItemsDropListener
+import small.app.shopping.list.databinding.ItemDepartmentBinding
 import small.app.shopping.list.enums.DepartmentChange
 import small.app.shopping.list.fragments.NewItemsDialogFragment
 import small.app.shopping.list.models.Department
@@ -27,84 +25,83 @@ class DepartmentsListAdapter(
 ) :
     DepartmentsAbstractAdapter(context) {
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
-
-        return DepartmentViewHolder(
-            LayoutInflater.from(context).inflate(
-                R.layout.item_department,
-                parent,
-                false
-            )
-        )
+        val binding =
+            ItemDepartmentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DepartmentViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        fillView(position, holder)
-
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun fillView(
         position: Int,
-        holder: ViewHolder
+        holder: DepartmentViewHolder
     ) {
         val model = list[position]
 
-        holder.itemView.tv_dep_name.text = model.name
-        //Perform the D&D action on department only if we click on the department title and not and the item list
-        holder.itemView.tv_dep_name.setOnTouchListener { v, event ->
-            Log.d(Utils.TAG, "I touched $event")
+        holder.binding.apply {
+            tvDepName.text = model.name
+            //Perform the D&D action on department only if we click on the department title and not and the item list
+            tvDepName.setOnTouchListener { v, event ->
+                Log.d(Utils.TAG, "I touched $event")
 
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    canMove = true
-                    v.performClick()
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        canMove = true
+                        v.performClick()
+                    }
+                    MotionEvent.ACTION_UP -> canMove = false
                 }
-                MotionEvent.ACTION_UP -> canMove = false
+                true
             }
-            true
+
+            //Add an item directly from the department
+            ibNewItems.setOnClickListener {
+                val activity = context as FragmentActivity
+                val fm: FragmentManager = activity.supportFragmentManager
+                val dialog = NewItemsDialogFragment(model.name)
+                dialog.show(fm, NewItemsDialogFragment.TAG)
+            }
+
+            //Recycler view for the items in the department
+            Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
+
+            setupAdapter(rvItems, model)
+            //This drag adapter is necessary for the first items
+            val dragListen = ItemsDropListener(model)
+            holder.itemView.setOnDragListener(dragListen)
         }
 
 
-        //Add an item directly from the department
-        holder.itemView.ib_newItems.setOnClickListener {
-            val activity = context as FragmentActivity
-            val fm: FragmentManager = activity.supportFragmentManager
-            val dialog = NewItemsDialogFragment(model.name)
-            dialog.show(fm, NewItemsDialogFragment.TAG)
-        }
-
-        //Recycler view for the items in the department
-        Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
-
-        setupAdapter(holder, model)
-        //This drag adapter is necessary for the first items
-        val dragListen = ItemsDropListener(model)
-        holder.itemView.setOnDragListener(dragListen)
     }
 
     private fun setupAdapter(
-        holder: ViewHolder,
+        recyclerView: RecyclerView,
         model: Department
     ) {
-        var itemsAdapter = holder.itemView.rv_items.adapter
+        var itemsAdapter = recyclerView.adapter
         if (itemsAdapter == null) {
             itemsAdapter = ClassifiedUsedItemsAdapter(
                 context
             )
-            holder.itemView.rv_items.layoutManager =
+            recyclerView.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            holder.itemView.rv_items.adapter = itemsAdapter
+            recyclerView.adapter = itemsAdapter
         }
 
         (itemsAdapter as ItemsAdapter).updateList(model.items)
     }
 
-    class DepartmentViewHolder(view: View) : ViewHolder(view)
+    class DepartmentViewHolder(val binding: ItemDepartmentBinding) : ViewHolder(binding.root)
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        fillView(position, holder as DepartmentViewHolder)
+
+    }
 
     //Only when a new department is created this is called I think
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        require(holder is DepartmentViewHolder)
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -113,11 +110,11 @@ class DepartmentsListAdapter(
                     bundle.keySet().forEach { key ->
                         run {
                             if (key == DepartmentChange.NAME.toString()) {
-                                holder.itemView.tv_dep_name.text = bundle.get(key) as CharSequence?
+                                holder.binding.tvDepName.text = bundle.get(key) as CharSequence?
                             }
 
                             if (key == DepartmentChange.ITEMS.toString()) {
-                                (holder.itemView.rv_items.adapter as ItemsAdapter).updateList(list[position].items)
+                                (holder.binding.rvItems.adapter as ItemsAdapter).updateList(list[position].items)
                             }
                         }
                     }

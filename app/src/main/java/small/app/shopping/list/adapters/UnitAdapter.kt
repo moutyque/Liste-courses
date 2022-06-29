@@ -7,11 +7,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import small.app.shopping.list.enums.SIUnit
 import small.app.shopping.list.enums.SIUnit.Companion.unitList
-import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.objects.Utils.save
 import small.app.shopping.list.room.entities.Item
 
 class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
-    var initialized = false
+    private var initialized = false
     val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
         context,
         R.layout.simple_dropdown_item_1line,
@@ -24,9 +24,11 @@ class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
         actions?.let {
             when (initialized) {
                 true -> {
-                    val item = it.getItem() //TODO : bug with the get item
-                    item.unit = SIUnit.fromValue(unitList()[position])
-                    Utils.saveItem(item)
+                    //TODO : bug with the get item
+                    it.getItem().apply {
+                        unit = SIUnit.fromValue(unitList()[position])
+                        save()
+                    }
                 }
                 false -> {
                     it.initUnit()
