@@ -9,6 +9,7 @@ import small.app.shopping.list.adapters.PagerAdapter
 import small.app.shopping.list.databinding.ActivityMainBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.Repository
+import small.app.shopping.list.room.getDBInstance
 
 /*
 TODO : instead of hide show view, hide only the top bar and call the adapter on items 2
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        repo = Repository(context = this)
+        repo = Repository(getDBInstance(this))
         Utils.repo = repo
 
         binding = ActivityMainBinding.inflate(layoutInflater)

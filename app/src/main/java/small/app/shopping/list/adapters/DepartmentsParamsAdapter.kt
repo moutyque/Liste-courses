@@ -17,7 +17,7 @@ import small.app.shopping.list.databinding.ItemDepartmentParamBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.delete
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 
 class DepartmentsParamsAdapter(context: Context) :
     DepartmentsAbstractAdapter(context), IMovableAdapter {
@@ -149,7 +149,7 @@ class DepartmentsParamsAdapter(context: Context) :
     }
 
     override fun onDragEnd() {
-        savableDepartment.forEach { it.save() }
+        savableDepartment.forEach { it.saveAndUse() }
         savableDepartment.clear()
     }
 

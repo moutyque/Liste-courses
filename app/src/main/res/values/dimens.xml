@@ -2,8 +2,9 @@
 <resources>
     <dimen name="height_search_item">40dp</dimen>
     <dimen name="item_height">20dp</dimen>
-    <dimen name="width_button_add">50dp</dimen>
+    <dimen name="min_dim_size">50dp</dimen>
     <dimen name="department_width">300dp</dimen>
     <dimen name="width_qty">30dp</dimen>
     <dimen name="width_units">60dp</dimen>
+    <dimen name="default_margin">10dp</dimen>
 </resources>

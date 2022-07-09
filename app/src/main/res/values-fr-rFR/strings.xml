@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Liste de courses</string>
-    <string name="autocompletetextview">Nom de l\'article</string>
+    <string name="actv_item">Nom de l\'article</string>
     <string name="tabListName">Liste</string>
     <string name="tabListNameParameters">Paramètres</string>
     <string name="new_department_name">Nom du rayon</string>
     <string name="no_department_nor_item">Ni rayon, ni articles</string>
-    <string name="add_new_item">Add new item</string>
+    <string name="add_new_item">Ajouter nouvel article</string>
     <string name="drag_drop_cd">Drag and drop article entre rayons</string>
     <string name="full_screen">Vue plein écran</string>
     <string name="item_hint">Entrer un nom d\'article</string>
@@ -23,4 +23,6 @@
     <string name="import_done">Import fini</string>
     <string name="default_category_name">Non classifié</string>
     <string name="default_category_deletion_message">Vous ne pouvez pas supprimer le rayon par default</string>
+    <string name="actv_store">Nom du magagin</string>
+    <string name="add_new_store">Ajouter nouveau magasin</string>
 </resources>

@@ -12,17 +12,17 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:gravity="center"
-            android:text="@string/add_new_item"
-            app:layout_constraintBottom_toTopOf="@+id/act_item_name_in_dep"
+            android:text="@string/add_new_store"
+            app:layout_constraintBottom_toTopOf="@+id/act_store_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <AutoCompleteTextView
-            android:id="@+id/act_item_name_in_dep"
+            android:id="@+id/act_store_name"
             android:layout_width="250dp"
             android:layout_height="50dp"
-            android:hint="@string/autocompletetextview"
+            android:hint="@string/actv_store"
             app:layout_constraintBottom_toTopOf="@+id/b_valid_item_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +36,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/act_item_name_in_dep" />
+            app:layout_constraintTop_toBottomOf="@+id/act_store_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

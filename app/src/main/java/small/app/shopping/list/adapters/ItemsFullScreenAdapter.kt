@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import small.app.shopping.list.callback.IMovableAdapter
 import small.app.shopping.list.objects.Utils
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.room.entities.Item
 
 
@@ -45,7 +45,7 @@ class ItemsFullScreenAdapter(
     }
 
     override fun onDragEnd() {
-        list.save()
+        list.saveAndUse()
     }
 
 

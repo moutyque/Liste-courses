@@ -1,16 +1,18 @@
 package small.app.shopping.list.models
 
 import android.util.Log
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.objects.Utils.updateOrder
 import small.app.shopping.list.room.entities.Item
 
 data class Department(
+    val id: String,
     val name: String,
     var isUsed: Boolean,
     var items: MutableList<Item>,
     var itemsCount: Int,//Can be different from items.size if some items are not displayed, this var is used to store the number of items not
-    var order: Int
+    var order: Int,
+    var storeId: String
 ) {
 
     fun classify(item: Item) {
@@ -20,13 +22,16 @@ data class Department(
             this.itemsCount += 1
             with(item) {
                 isUsed = true
-                departmentId = this@Department.name
+                departmentId = this@Department.id
                 order = this@Department.itemsCount.toLong()
-                //Save the new items count
-                this.save()
-                this@Department.save()
+                storeId=this@Department.storeId
             }
         }
+    }
+
+    fun classifyAndSave(item: Item) {
+        classify(item)
+        saveAndUse(item)
     }
 
     fun classifyWithOrderDefined(item: Item) {
@@ -38,10 +43,10 @@ data class Department(
                 isUsed = true
                 departmentId = this@Department.name
                 //Save the new items count
-                this.save()
-                this@Department.save()
+
             }
-            this.updateOrder()
+            saveAndUse(item)
+            updateOrder()
         }
     }
 

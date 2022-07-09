@@ -1,19 +1,27 @@
 package small.app.shopping.list.objects
 
+import android.R
 import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
-import small.app.shopping.list.objects.Scope.mainScope
 import small.app.shopping.list.room.Repository
 import small.app.shopping.list.room.converters.DepartmentConverter
 import small.app.shopping.list.room.converters.ItemConverter
+import small.app.shopping.list.room.converters.StoreConverter
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
+import small.app.shopping.list.room.entities.Store
+import small.app.shopping.list.viewmodels.FragmentViewModel
 import java.util.*
 
 
@@ -52,16 +60,46 @@ object Utils {
         repo.getAllRawDepartments().map { depConverter.toJson(it) }
     }
 
-    //----------------------- ITEM EXTENSION METHODS -----------------------------
-    fun useItem(itemName: String) {
-        backgroundScope.launch {
-            repo.findItem(itemName)?.useItem()
+    fun getAllStoreAsJson() = with(Dispatchers.IO) {
+        val storeConverter = StoreConverter()
+        repo.getAllStores().map { storeConverter.toJson(it) }
+    }
+
+
+    fun Fragment.setupNamesDD(source: LiveData<List<String>>): ArrayAdapter<String> {
+        val names: ArrayList<String> = ArrayList()
+        val namesAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            requireContext(),
+            R.layout.simple_dropdown_item_1line,
+            names
+        )
+        source.observe(viewLifecycleOwner) {
+            namesAdapter.clear()
+            namesAdapter.addAll(it)
+        }
+        return namesAdapter
+    }
+
+    fun Spinner.setupStoreListener(
+        viewModel: FragmentViewModel,
+        viewLifecycleOwner: LifecycleOwner,
+        adapter: ArrayAdapter<String>
+    ) {
+        this.adapter = adapter
+        this.onItemSelectedListener = viewModel.storeSelectListener
+        viewModel.getStores().observe(viewLifecycleOwner) { stores ->
+            //Avoid setting an already set item
+            if (this.selectedItem == null || this.selectedItem as String != stores.firstOrNull { it.isUsed }?.name) {
+                this.setSelection(stores.indexOfFirst { it.isUsed })
+            }
         }
     }
 
+    //----------------------- ITEM EXTENSION METHODS -----------------------------
+
     fun Item.useOrCreate() {
         backgroundScope.launch {
-            repo.findItem(this@useOrCreate.name)?.useItem() ?: save()
+            repo.findItem(this@useOrCreate.name,storeId)?.useItem() ?: saveAndUse()
         }
     }
 
@@ -76,32 +114,27 @@ object Utils {
         //Check if the department is already displayed through the department list
         //If no get the adapter and add it to the dep adapter
         //If yes add the item to the items list in the dep adapter => Update department and notify change on dep adapter
-
+        this@useItem.isUsed = true
+        var d: Department? = null
         backgroundScope.launch {
-            this@useItem.isUsed = true
-            repo.saveItem(this@useItem)
+            d = repo.findDepartment(this@useItem.departmentId, this@useItem.storeId)
         }.invokeOnCompletion {
-            backgroundScope.launch {
-                val d = repo.findDepartment(this@useItem.departmentId)
-                mainScope.launch {
-                    d?.let {
-                        it.isUsed = true
-                        it.save()
-                    }
-                }
+            d?.let {
+                it.isUsed = true
+                it.saveAndUse(this@useItem)
             }
         }
     }
 
-    fun Item.save() {
+    fun Item.saveAndUse() {
         backgroundScope.launch {
-            repo.saveItem(this@save)
+            repo.saveItem(this@saveAndUse)
         }
     }
 
-    fun MutableList<Item>.save() {
+    fun MutableList<Item>.saveAndUse() {
         backgroundScope.launch {
-            repo.saveItems(*this@save.toTypedArray())
+            repo.saveItems(*this@saveAndUse.toTypedArray())
         }
     }
 
@@ -112,7 +145,10 @@ object Utils {
      */
     fun List<Item>.delete(position: Int) {
         backgroundScope.launch {
-            val dep = repo.findDepartment(this@delete[position].departmentId)
+            val dep = repo.findDepartment(
+                this@delete[position].departmentId,
+                this@delete[position].storeId
+            )
             if (position < this@delete.size - 1) {
                 val subList = this@delete.subList(position + 1, this@delete.size)
                 subList.forEach { it.order-- }
@@ -128,13 +164,14 @@ object Utils {
 
     private fun Item.classifyItemWithOrder(depId: String) {
         backgroundScope.launch {
-            repo.getDepartment(depId)?.classifyWithOrderDefined(this@classifyItemWithOrder)
+            repo.getDepartment(depId, this@classifyItemWithOrder.storeId)
+                ?.classifyWithOrderDefined(this@classifyItemWithOrder)
         }
     }
 
     fun Item.classifyDropItem(droppedItemName: String) {
         backgroundScope.launch {
-            repo.findItem(droppedItemName)?.let {
+            repo.findItem(droppedItemName,storeId)?.let {
                 if (this@classifyDropItem.departmentId != it.departmentId) {
                     it.order = this@classifyDropItem.order
                     it.classifyItemWithOrder(this@classifyDropItem.departmentId)
@@ -144,52 +181,72 @@ object Utils {
     }
 
     //----------------------- DEPARTMENT EXTENSION METHODS -----------------------------
-    fun small.app.shopping.list.room.entities.Department.save() {
+
+    fun Department.saveAndUse(item: Item? = null) {
         backgroundScope.launch {
-            this@save.save()
+            item?.let { repo.saveItem(it) }
+            repo.saveDepartment(this@saveAndUse)
         }
     }
 
-    fun Department.save() {
-        backgroundScope.launch {
-            repo.findItem(name)?.let {
-                repo.saveItem(it)
-            }
-            repo.saveDepartment(this@save)
-        }
-    }
-
-    private fun DepartmentWithItems.keeUsedItems() {
+    private fun DepartmentWithItems.keepUsedItems() {
         this.items = this.items.filter { it.isUsed }
     }
 
     fun List<DepartmentWithItems>.keepWithUsedItem(): List<DepartmentWithItems> =
-        this.onEach { it.keeUsedItems() }
+        this.onEach { it.keepUsedItems() }
 
     fun Department.delete() {
-        backgroundScope.launch {
-            repo.deleteDepartment(this@delete)
-        }
+        this.items.forEach { repo.deleteItem(it) }
+        repo.deleteDepartment(this@delete)
     }
 
 
     fun Department.updateOrder() {
         backgroundScope.launch {
-            repo.updateItemsOrderInDepartment(this@updateOrder.name)
+            repo.updateItemsOrderInDepartment(this@updateOrder.name, this@updateOrder.storeId)
         }
     }
 
 
     fun Department.classifyDropItem(droppedItemName: String) {
         backgroundScope.launch {
-            repo.findItem(droppedItemName)?.let {
+            repo.findItem(droppedItemName, storeId)?.let {
                 if (this@classifyDropItem.name != it.departmentId) {
-                    this@classifyDropItem.classify(it)
+                    this@classifyDropItem.classifyAndSave(it)
                 }
             }
         }
     }
 
+    //----------------------- STORE EXTENSION METHODS -----------------------------
+//TODO: update selected store when updating available stores
+    fun Store.save() {
+        backgroundScope.launch {
+            repo.saveStore(this@save)
+        }
+    }
 
+    fun unusedStores() {
+        backgroundScope.launch {
+            repo.getAllStores().forEach {
+                it.isUsed = false
+                it.save()
+            }
+        }
+    }
+
+    fun useStore(name: String) {
+        backgroundScope.launch {
+            repo.getAllStores().forEach {
+                it.isUsed = false
+                it.save()
+            }
+            repo.getStore(name)?.run {
+                isUsed = true
+                save()
+            }
+        }
+    }
 }
 

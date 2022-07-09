@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Shopping List</string>
 
-    <string name="autocompletetextview">Item name</string>
+    <string name="actv_item">Item name</string>
+    <string name="actv_store">Store name</string>
     <string name="tabListName">List</string>
     <string name="tabListNameParameters">Parameters</string>
     <string name="new_department_name">Department name</string>
@@ -11,6 +12,7 @@
     <string name="item_hint">Enter item name</string>
     <string name="ok">OK</string>
     <string name="add_new_item">Add new item</string>
+    <string name="add_new_store">Add new store</string>
     <string name="drag_drop_cd">Drag and drop item between department</string>
     <string name="increase_quantity_cd">Increase quantity</string>
     <string name="decrease_quantity_cd">Decrease quantity</string>

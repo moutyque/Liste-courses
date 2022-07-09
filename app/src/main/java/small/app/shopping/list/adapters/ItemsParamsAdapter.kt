@@ -9,7 +9,7 @@ import small.app.shopping.list.callback.IMovableAdapter
 import small.app.shopping.list.enums.SIUnit.Companion.unitList
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.delete
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.room.entities.Item
 
 
@@ -83,7 +83,7 @@ class ItemsParamsAdapter(
     }
 
     override fun onDragEnd() {
-        list.save()
+        list.saveAndUse()
         //Fix issue : when the drag end and we delete an item after, the position send to the onBindViewHolder is not the right one, it is the position of the previous item
         //Ex : if we move item 2 from position 2 to 4 and then delete item 2, we expect to get position 4 bt we get 2 instead
         this.notifyDataSetChanged()

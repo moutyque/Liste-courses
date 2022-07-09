@@ -4,7 +4,17 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.1828125" />
-        <entry key="app/src/main/res/layout/fragment_list.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/drawable/ic_baseline_delete_forever_24.xml" value="0.35" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1480978260869565" />
+        <entry key="app/src/main/res/layout/dialog_new_item.xml" value="0.3070652173913043" />
+        <entry key="app/src/main/res/layout/dialog_new_items.xml" value="0.3070652173913043" />
+        <entry key="app/src/main/res/layout/dialog_new_store.xml" value="0.3070652173913043" />
+        <entry key="app/src/main/res/layout/fragment_full_screen_list.xml" value="0.3070652173913043" />
+        <entry key="app/src/main/res/layout/fragment_list.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/fragment_params.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/item_department.xml" value="0.3070652173913043" />
+        <entry key="app/src/main/res/layout/item_department_param.xml" value="0.10258358662613981" />
+        <entry key="app/src/main/res/layout/item_grossery_item.xml" value="0.3070652173913043" />
       </map>
     </option>
   </component>

@@ -1,8 +1,7 @@
 package small.app.shopping.list.fragments
 
-import android.app.Activity
+import android.app.Application
 import android.content.ContentResolver
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
@@ -26,14 +25,14 @@ import small.app.shopping.list.databinding.FragmentParamsBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.TAG
 import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
+import small.app.shopping.list.objects.Utils.setupNamesDD
+import small.app.shopping.list.objects.Utils.setupStoreListener
 import small.app.shopping.list.room.converters.DepartmentConverter
 import small.app.shopping.list.room.converters.ItemConverter
+import small.app.shopping.list.room.converters.StoreConverter
 import small.app.shopping.list.viewmodels.FragmentViewModel
 import java.io.*
-
-// Request code for creating a PDF document.
-const val CREATE_FILE = 1
-const val OPEN_FILE = 2
 
 class ParamsFragment : Fragment() {
 
@@ -47,7 +46,8 @@ class ParamsFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentParamsBinding.inflate(inflater)
-        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
+        viewModel =
+            FragmentViewModel(requireContext().applicationContext as Application, Utils.repo)
         setupDepartmentsRV()
 
         binding.btnExport.setOnClickListener {
@@ -57,40 +57,41 @@ class ParamsFragment : Fragment() {
         binding.btnImport.setOnClickListener {
             openFile()
         }
+
+        binding.ibDeleteStore.setOnClickListener {
+            viewModel.deleteCurrentStore()
+        }
+
         return binding.root
     }
-
-
-
-    private fun openFile() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/json"
-            //putExtra(Intent.EXTRA_TITLE, "export.json")
-        }
-        startActivityForResult(intent, OPEN_FILE, null)
+    private val get = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { importList(it) }
     }
-
+    private fun openFile() {
+        get.launch("application/json")
+    }
+    private val create = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { exportList(it) }
+    }
     private fun createFile() {
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "export.json")
-        }
-        startActivityForResult(intent, CREATE_FILE, null)
+        create.launch("export.json")
     }
 
 
     private fun exportList(uri: Uri) {
+        println(uri)
         val contentResolver: ContentResolver = requireContext().contentResolver
         try {
             val export = JsonObject()
+            val stores = JsonArray()
             val deps = JsonArray()
             val items = JsonArray()
 
             runBlocking(Dispatchers.IO) {
+                Utils.getAllStoreAsJson().forEach { stores.add(it) }
                 Utils.getAllDepartmentAsJson().forEach { deps.add(it) }
                 Utils.getAllItemsAsJson().forEach { items.add(it) }
+                export.add("stores", stores)
                 export.add("departments", deps)
                 export.add("items", items)
             }
@@ -131,14 +132,18 @@ class ParamsFragment : Fragment() {
         Log.d(TAG, "file content : $jsonString")
         val depConverter = DepartmentConverter()
         val itemConverter = ItemConverter()
-        export.departments.forEach { depConverter.toDepartment(it).save() }
-        export.items.forEach { itemConverter.toItem(it).save() }
-
+        val storeConverter = StoreConverter()
+        viewModel.imports(
+        export.stores.map { storeConverter.toStore(it) },
+        export.departments.map { depConverter.toDepartment(it) },
+        export.items.map { itemConverter.toItem(it) }
+        )
         Toast.makeText(requireContext(), getString(R.string.import_done), Toast.LENGTH_LONG).show()
 
     }
 
     internal data class Export(
+        val stores: List<String>,
         val departments: List<String>,
         val items: List<String>
     )
@@ -155,9 +160,7 @@ class ParamsFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = departmentsAdapter
 
-        viewModel.getAllDepartments().observe(viewLifecycleOwner) {
-
-
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
             if (it?.isEmpty() == true) {
                 binding.rvDepartment.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE
@@ -166,8 +169,6 @@ class ParamsFragment : Fragment() {
                 binding.tvNoData.visibility = View.GONE
                 departmentsAdapter.updateList(it)
             }
-
-
         }
 
 
@@ -178,31 +179,14 @@ class ParamsFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.rvDepartment)
 
+        binding.sStoresParam.setupStoreListener(
+            viewModel,
+            viewLifecycleOwner,
+            setupNamesDD(viewModel.fetchStoreNames())
+        )
+
 
     }
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        Log.d(TAG, "Result")
-        if (requestCode == CREATE_FILE
-            && resultCode == Activity.RESULT_OK
-        ) {
-            // The result data contains a URI for the document or directory that
-            // the user selected.
-            data?.data?.also { uri ->
-                exportList(uri)
-                Log.d(TAG, "file create here $uri")
-            }
-        } else if (requestCode == OPEN_FILE && resultCode == Activity.RESULT_OK) {
-            data?.data?.also { uri ->
-                Log.d(TAG, "Open file : $uri")
-                importList(uri)
-            }
-        }
-    }
-
 
 }
 

@@ -14,6 +14,30 @@
         tools:visibility="visible">
 
         <LinearLayout
+            android:id="@+id/ll_stores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/s_store_dropdown"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageButton
+                android:id="@+id/ib_add_store"
+                android:layout_width="@dimen/min_dim_size"
+                android:layout_height="@dimen/min_dim_size"
+                android:layout_margin="@dimen/default_margin"
+                android:layout_weight="0"
+                android:background="@color/design_default_color_primary"
+                app:srcCompat="@drawable/ic_add"
+                tools:ignore="SpeakableTextPresentCheck" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/ll_departments"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -28,7 +52,7 @@
                 <AutoCompleteTextView
                     android:id="@+id/act_departmentName"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/min_dim_size"
                     android:layout_weight="0.8"
                     android:completionThreshold="1"
                     android:hint="@string/new_department_name"
@@ -42,14 +66,15 @@
 
                 <ImageButton
                     android:id="@+id/ib_add_department"
-                    android:layout_width="@dimen/width_button_add"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/min_dim_size"
+                    android:layout_height="@dimen/min_dim_size"
                     android:layout_gravity="center"
                     android:layout_weight="0.2"
                     android:background="@color/design_default_color_primary"
                     android:contentDescription="@string/new_dep_cd"
-                    android:src="@drawable/ic_add_item"
+                    android:src="@drawable/ic_validate"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_margin="@dimen/default_margin"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,8 +82,7 @@
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -79,43 +103,6 @@
             </androidx.core.widget.NestedScrollView>
 
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <AutoCompleteTextView
-                    android:id="@+id/actv_selection_item"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.8"
-                    android:completionThreshold="1"
-                    android:hint="@string/autocompletetextview"
-                    android:lines="1"
-                    android:maxLines="1"
-                    android:visibility="visible"
-                    app:layout_constraintEnd_toStartOf="@+id/ib_add_item"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:visibility="visible" />
-
-                <ImageButton
-                    android:id="@+id/ib_add_item"
-                    android:layout_width="@dimen/width_button_add"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="0.2"
-                    android:background="@color/design_default_color_primary"
-                    android:contentDescription="@string/new_item_cd"
-                    android:src="@drawable/ic_add_item"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
     </LinearLayout>
