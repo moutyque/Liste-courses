@@ -15,13 +15,15 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import small.app.shopping.list.adapters.listeners.ItemsDropListener
 import small.app.shopping.list.databinding.ItemDepartmentBinding
 import small.app.shopping.list.enums.DepartmentChange
-import small.app.shopping.list.fragments.NewItemsDialogFragment
+import small.app.shopping.list.fragments.NewItemDialogFragment
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.room.Repository
 
 
 class DepartmentsListAdapter(
-    context: Context
+    context: Context,
+    private val repository: Repository
 ) :
     DepartmentsAbstractAdapter(context) {
 
@@ -59,8 +61,8 @@ class DepartmentsListAdapter(
             ibNewItems.setOnClickListener {
                 val activity = context as FragmentActivity
                 val fm: FragmentManager = activity.supportFragmentManager
-                val dialog = NewItemsDialogFragment(model.name)
-                dialog.show(fm, NewItemsDialogFragment.TAG)
+                val dialog = NewItemDialogFragment(model.name,model.storeId,repository)
+                dialog.show(fm, NewItemDialogFragment.TAG)
             }
 
             //Recycler view for the items in the department

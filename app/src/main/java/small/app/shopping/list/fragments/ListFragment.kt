@@ -1,7 +1,7 @@
 package small.app.shopping.list.fragments
 
 import android.R
-import android.app.Activity
+import android.app.Application
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -10,17 +10,18 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import small.app.shopping.list.adapters.DepartmentsListAdapter
 import small.app.shopping.list.databinding.FragmentListBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
-import small.app.shopping.list.objects.Utils
-import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.objects.Utils.repo
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
+import small.app.shopping.list.objects.Utils.setupNamesDD
+import small.app.shopping.list.objects.Utils.setupStoreListener
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -41,12 +42,12 @@ class ListFragment : Fragment() {
         binding = FragmentListBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
+        viewModel = FragmentViewModel(requireContext().applicationContext as Application,repo)
 
-        initItemNameSuggestion()
-        initAddItem()
-
+        initAddStore()
         setupDepartmentsRV()
+        setupStoreSpinner()
+        setupObservers()
 
         //Setup the department name suggestion in the text field
         initDepartmentNameSuggestion()
@@ -57,61 +58,27 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    /**
-     * Create an ArrayAdapter that contains the name of all the unused items and use it to suggest items to add in the shopping list
-     */
-    private fun initItemNameSuggestion() {
-        val itemsName: ArrayList<String> = ArrayList()
-        val suggestedItemsAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            requireContext(),
-            R.layout.simple_dropdown_item_1line,
-            itemsName
-        )
-
-        //Setup the autocomplete item list
-        viewModel.getUnusedItemsName().observe(viewLifecycleOwner) {
-            suggestedItemsAdapter.clear()
-            suggestedItemsAdapter.addAll(it)
-
+    private fun setupObservers(){
+        viewModel.fetchUsedStore().observe(viewLifecycleOwner){
+            viewModel.selectedStore = it?.store
         }
+    }
 
-        binding.actvSelectionItem.setAdapter(suggestedItemsAdapter)
+    private fun setupStoreSpinner() {
+        binding.sStoreDropdown.setupStoreListener(viewModel,viewLifecycleOwner,setupNamesDD(viewModel.fetchStoreNames()))
+    }
+
+    private fun initAddStore() {
+        binding.ibAddStore.setOnClickListener {
+            val activity = context as FragmentActivity
+            val fm: FragmentManager = activity.supportFragmentManager
+            val dialog = NewStoreDialogFragment(repo)
+            dialog.show(fm, NewStoreDialogFragment.TAG)
+        }
 
 
     }
 
-    /**
-     * Initialize the two ways to add an item from the text field.
-     * 1) By clicking on the icon check
-     * 2) By pressing enter
-     */
-    private fun initAddItem() {
-        //Setup btn to add an new item
-        binding.ibAddItem.setOnClickListener {
-            useItem()
-        }
-
-        //Enable the enter button to add items
-        binding.actvSelectionItem.setOnKeyListener { _, keyCode, event ->
-           return@setOnKeyListener if (event.action == KeyEvent.ACTION_DOWN &&
-                keyCode == KeyEvent.KEYCODE_ENTER
-            ) {
-                useItem()
-                true
-            }else{
-               false
-           }
-        }
-    }
-    /**
-     * Reuse item, new item can only be create from department
-     */
-    private fun useItem() {
-        //Create or get the item
-        viewModel.useItem(binding.actvSelectionItem.text.toString().trim())
-        binding.actvSelectionItem.setText("")
-        Utils.hideKeyboardFrom(context as Activity,binding.root)
-    }
     /**
      * Initialize the two ways to add a department from the text field.
      * 1) By clicking on the icon check
@@ -120,12 +87,12 @@ class ListFragment : Fragment() {
     private fun initAddDepartment() {
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
-            addDepartment()
+            viewModel.selectedStore?.let { addDepartment(it.name) }
         }
 
         binding.actDepartmentName.setOnKeyListener { _, keyCode, event ->
             if (KeyEvent.KEYCODE_ENTER == keyCode && event.action == KeyEvent.ACTION_UP) {
-                addDepartment()
+                viewModel.selectedStore?.let { addDepartment(it.name) }
             }
 
             true
@@ -145,7 +112,8 @@ class ListFragment : Fragment() {
         binding.actDepartmentName.setAdapter(suggestedDepartmentsAdapter)
 
 
-        viewModel.getUnusedDepartmentsName().observe(viewLifecycleOwner
+        viewModel.getUnusedDepartmentsName().observe(
+            viewLifecycleOwner
         ) {
             suggestedDepartmentsAdapter.clear()
             suggestedDepartmentsAdapter.addAll(it)
@@ -157,7 +125,7 @@ class ListFragment : Fragment() {
      * or
      * Reuse an existing department with the same name as the one set in the text field
      */
-    private fun addDepartment() {
+    private fun addDepartment(storeName: String) {
         //Create the new department
         val depName = binding.actDepartmentName.text.toString().trim()
         if (depName.isNotEmpty()) {
@@ -166,20 +134,22 @@ class ListFragment : Fragment() {
             var depDb: Department? = null
             val job = backgroundScope.launch {
                 order = repo.getNumberOfDepartments()
-                depDb = repo.findDepartment(depName)
+                depDb = repo.findDepartment(depName, storeName)
             }
             job.invokeOnCompletion {
 
                 val dep: Department = depDb
                     ?: Department(
+                        "${depName}_$storeName",
                         depName,
                         true,
                         ArrayList(),
                         0,
-                        order
+                        order,
+                        storeName
                     )
                 dep.isUsed = true
-                dep.save()
+                dep.saveAndUse()
 
             }
             Toast.makeText(requireContext(), "$depName has been added.", Toast.LENGTH_LONG).show()
@@ -195,7 +165,7 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsListAdapter = DepartmentsListAdapter(
-            requireContext()
+            requireContext(),repo
         )
 
 
@@ -204,8 +174,8 @@ class ListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvDepartment.adapter = departmentsListAdapter
 
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
-            departmentsListAdapter.updateList(it?.keepWithUsedItem())
+        viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
+            departmentsListAdapter.updateList(it?.departments)
         }
 
     }

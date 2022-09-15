@@ -8,89 +8,81 @@ import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
+import small.app.shopping.list.room.entities.Store
+import small.app.shopping.list.room.entities.Department as DepartmentEntity
 
-class Repository(private val context: Context) {
-    private val db = getInstance(context)
+class Repository(private val db: AppDatabase) {
 
-    fun getNumberOfDepartments(): Int {
-        return db.departmentDAO().getNbDep()
-    }
+    fun getNumberOfDepartments(): Int =
+        db.departmentDAO().getNbDep()
 
-    fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> {
-        return db.departmentDAO().getAllDepartment()
-    }
 
-    fun getAllItems(): List<Item> {
-        return db.itemDAO().getAll()
-    }
+    fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> =
+        db.departmentDAO().fetchAllDepartment()
 
-    fun getAllRawDepartments(): List<small.app.shopping.list.room.entities.Department> {
-        return db.departmentDAO().getAll()
-    }
 
-    fun saveDepartment(d : Department) {
+    fun getAllItems(): List<Item> =
+        db.itemDAO().getAll()
+
+
+    fun getAllRawDepartments(): List<DepartmentEntity> =
+        db.departmentDAO().getAll()
+
+
+    fun saveDepartment(d: Department) =
         db.departmentDAO()
             .insertAll(
                 with(d) {
-                    small.app.shopping.list.room.entities.Department(
+                    DepartmentEntity(
+                        "${name}_$storeId",
                         name,
                         isUsed,
                         itemsCount,
-                        order
+                        order,
+                        storeId
                     )
                 }
             )
-    }
 
-
-    fun small.app.shopping.list.room.entities.Department.save() {
+    fun DepartmentEntity.save() =
         db.departmentDAO()
             .insertAll(
                 this
             )
-    }
 
-    fun saveItem(i: Item) {
+    fun saveItem(i: Item) =
         db.itemDAO().insertAll(i)
-    }
 
-    fun saveItems(vararg items: Item) {
+
+    fun saveItems(vararg items: Item) =
         db.itemDAO().insertAll(*items)
-    }
-
-    fun getUnusedDepartmentsName(): LiveData<List<String>> {
-        return db.departmentDAO().getUnusedDepartmentsName()
-    }
 
 
-    fun findItem(name: String): Item? {
-        return db.itemDAO().findByName(name)
-    }
-
-    fun findDepartment(name: String): Department? {
-        val findByName = db.departmentDAO().findByName(name)
-        return findByName?.toDepartment()
-    }
+    fun getUnusedDepartmentsName(): LiveData<List<String>> =
+        db.departmentDAO().fetchUnusedDepartmentsName()
 
 
-    fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> {
-        return db.departmentDAO().getUsedDepartment()
-    }
+    fun findItem(itemName: String, storeName: String): Item? =
+        db.itemDAO().findByName(itemName, storeName)
+
+
+    fun findDepartment(name: String, storeId: String): Department? =
+        db.departmentDAO().getByName(name, storeId)?.toDepartment()
+
+
+    fun fetchUsedDepartment(): LiveData<List<DepartmentWithItems>?> =
+        db.departmentDAO().fetchUsedDepartments()
 
 
     fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
-        updateDepartmentUsage(item.departmentId)
-
+        updateDepartmentUsage(item.departmentId, item.storeId)
     }
 
-    private fun updateDepartmentUsage(depName: String) {
-        //TODO : update this ugliness
-        val name = context.getString(R.string.default_category_name)
-        if (depName == name) return
-        if (db.itemDAO().fetchAssociatedUsedItems(depName).isEmpty()) {
-            val findByName = db.departmentDAO().findByName(depName)
+    private fun updateDepartmentUsage(depName: String, storeId: String) {
+        if (db.itemDAO().getUsedDepItems(depName, storeId).isEmpty()) {
+            val findByName = db.departmentDAO().getByName(depName, storeId)
             findByName?.apply {
                 isUsed = false
                 db.departmentDAO().insertAll(this)
@@ -99,16 +91,18 @@ class Repository(private val context: Context) {
         }
     }
 
-    private fun small.app.shopping.list.room.entities.Department.toDepartment(): Department {
-        val dep = db.departmentDAO().getItemsFromDepartment(this.name)
+    private fun DepartmentEntity.toDepartment(): Department {
+        val dep = db.departmentDAO().getItemsFromDepartment(this.name,this.storeId)
         dep?.apply {
             Log.d(Utils.TAG, "In department $name there is ${dep.items.count()} items")
             return Department(
+                id = "${dep.department.name}_${dep.department.storeId}",
                 name = dep.department.name,
                 isUsed = dep.department.isUsed,
                 items = dep.items.toMutableList(),
                 itemsCount = itemsCount,
-                order = dep.department.order
+                order = dep.department.order,
+                storeId = dep.department.storeId
             )
         }
         throw Exception("Unknown department name ${this.name}")
@@ -116,29 +110,27 @@ class Repository(private val context: Context) {
     }
 
     fun getUnusedItemsName(): LiveData<List<String>> {
-        return db.itemDAO().getUnusedItemsName()
+        return db.itemDAO().fetchUnusedItemsName()
 
     }
 
-    fun getUnusedDepartmentItems(name: String): LiveData<List<String>> {
-        return db.itemDAO().findUnusedItemsNameByDepName(name)
-    }
+    fun getUnusedDepartmentItems(name: String, storeName: String) =
+        db.itemDAO().fetchUnusedDepItems(name, storeName)
 
-    fun getDepartment(departmentId: String): Department? {
-        return db.departmentDAO().findByName(departmentId)?.toDepartment()
-    }
+    fun getDepartment(departmentId: String, storeId: String) =
+        db.departmentDAO().getByName(departmentId, storeId)?.toDepartment()
 
     fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
-        with(item.departmentId) {
-            updateDepartmentUsage(this)
-            updateItemsOrderInDepartment(this)
+        item.apply {
+            updateDepartmentUsage(departmentId, storeId)
+            updateItemsOrderInDepartment(departmentId, storeId)
         }
     }
 
-    fun updateItemsOrderInDepartment(departmentId: String) {
-        if (db.itemDAO().findByDepName(departmentId).value.isNullOrEmpty()) {
-            val findByName = findDepartment(departmentId)
+    fun updateItemsOrderInDepartment(departmentId: String, storeId: String) {
+        if (db.itemDAO().getDepItems(departmentId, storeId).isEmpty()) {
+            val findByName = findDepartment(departmentId, storeId)
             findByName?.let {
                 var order: Long = 1
                 val sortedItems = it.items.sortedWith { i1, i2 ->
@@ -150,31 +142,44 @@ class Repository(private val context: Context) {
                     item.order = order
                     order++
                 }
-                Utils.repo.saveItems(*sortedItems.toTypedArray())
+                saveItems(*sortedItems.toTypedArray())
             }
 
         }
     }
 
-    fun deleteDepartment(department: Department) {
+    fun deleteDepartment(department: Department) = db.departmentDAO().delete(department.toEntity())
 
-        val dep = small.app.shopping.list.room.entities.Department(
-            name = department.name,
-            isUsed = department.isUsed,
-            itemsCount = department.itemsCount,
-            order = department.order
-        )
-        db.departmentDAO().delete(dep)
 
-        department.items.forEach {
-            it.order = System.currentTimeMillis()
-            it.departmentId = ""
-            db.itemDAO().insertAll(it)
+    fun fetchStoreNames() = db.storeDao().fetchNames()
 
-        }
+    fun fetchStores() = db.storeDao().fetchAll()
 
+    fun getUsedStore() = db.storeDao().getUsedStore()
+
+    fun fetchUsedStore() = db.storeDao().fetchUsedStore()
+    fun saveStore(store: Store) {
+        db.storeDao().insertAll(store)
 
     }
 
+    fun getAllStores(): List<Store> = db.storeDao().getAll()
+    fun getStore(name: String): Store? = db.storeDao().getStore(name)
+    fun deleteStore(store: Store) = db.storeDao().delete(store)
+    fun getStoreDepartments(store: Store) = db.departmentDAO().getStoreDepartments(store.name)
+    fun saveDepartments(vararg department: DepartmentEntity) =
+        db.departmentDAO().insertAll(*department)
 
+    fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
 }
+
+private fun Department.toEntity() =
+    DepartmentEntity(
+        id = "${name}_$storeId",
+        name = name,
+        isUsed = isUsed,
+        itemsCount = itemsCount,
+        order = order,
+        storeId = storeId
+    )
+

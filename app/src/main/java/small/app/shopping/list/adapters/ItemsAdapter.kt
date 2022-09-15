@@ -18,7 +18,7 @@ import small.app.shopping.list.enums.ItemChange
 import small.app.shopping.list.enums.SIUnit
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.classifyDropItem
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.objects.Utils.unuse
 import small.app.shopping.list.room.entities.Item
 import kotlin.math.max
@@ -125,7 +125,7 @@ abstract class ItemsAdapter(
 
         item.qty =
             max(0, newQty)
-        item.save()
+        item.saveAndUse()
         holder.binding.tvQty.text = item.qty.toString()
     }
 
@@ -138,7 +138,7 @@ abstract class ItemsAdapter(
         Log.d(Utils.TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
         item.qty = newQty
         Log.d(Utils.TAG, item.qty.toString())
-        item.save()
+        item.saveAndUse()
         holder.binding.tvQty.text = item.qty.toString()
     }
 

@@ -4,17 +4,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewInteraction
-import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions
 import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions
 import com.adevinta.android.barista.interaction.BaristaClickInteractions
-import com.adevinta.android.barista.interaction.BaristaListInteractions
+import com.adevinta.android.barista.internal.performAction
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.TypeSafeMatcher
 
+//https://developer.android.com/static/images/training/testing/espresso-cheatsheet.png
 object TestUtils {
 
     /**
@@ -89,8 +90,13 @@ object TestUtils {
         ).perform(click())
     }
 
-    fun createAndCheckItem(name: String, dep_position: Int) {
-        createItemFromDep(name, dep_position)
+    fun createAndCheckItem(name: String, depPosition: Int) {
+        createItemFromDep(name, depPosition)
+        BaristaVisibilityAssertions.assertDisplayed(name)
+    }
+
+    fun createAndCheckItem(name: String, depName: String) {
+        createItemFromDep(name, depName)
         BaristaVisibilityAssertions.assertDisplayed(name)
     }
 
@@ -99,17 +105,104 @@ object TestUtils {
         BaristaVisibilityAssertions.assertDisplayed(name)
     }
 
+    fun createAndCheckStore(name: String) {
+        createStore(name)
+        BaristaVisibilityAssertions.assertDisplayed(name)
+    }
 
-    private fun createItemFromDep(item_name: String, dep_position: Int) {
-        BaristaListInteractions.clickListItemChild(
-            R.id.rv_department,
-            dep_position,
-            R.id.ib_newItems
+    private fun createStore(storeName: String) {
+        val appCompatImageButton = onView(
+            allOf(
+                withId(R.id.ib_add_store),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.ll_stores),
+                        childAtPosition(
+                            withId(R.id.frameLayout),
+                            0
+                        )
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
         )
+        appCompatImageButton.perform(click())
+
+        val materialAutoCompleteTextView = onView(
+            allOf(
+                withId(R.id.act_store_name),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.cl_rv_dp_header),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
+        )
+        materialAutoCompleteTextView.perform(
+            replaceText(storeName),
+            closeSoftKeyboard()
+        )
+
+        val materialButton = onView(
+            allOf(
+                withId(R.id.b_valid_item_name),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.cl_rv_dp_header),
+                        childAtPosition(
+                            withId(android.R.id.content),
+                            0
+                        )
+                    ),
+                    2
+                ),
+                isDisplayed()
+            )
+        )
+        materialButton.perform(click())
+    }
+
+
+    private fun createItemFromDep(itemName: String, depPosition: Int) {
+        onView(
+            allOf(
+                withId(R.id.ib_newItems),
+                childAtPosition(
+                    allOf(
+                        withId(R.id.cl_rv_dp_header),
+                        childAtPosition(
+                            withId(R.id.ll_departments),
+                            depPosition
+                        )
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
+        ).perform(click())
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
-            R.id.act_item_name_in_dep,
-            item_name
-        )
+            R.id.act_item_name,
+            itemName)
+        BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
+    }
+
+    private fun createItemFromDep(itemName: String, depName: String) {
+        //View with id, ancestor has an other child with depName
+        val depViewMatcher= withChild(allOf(withId(R.id.tv_dep_name),withText(depName)))
+        //depViewMatcher.performAction(scrollTo())
+        //scrollTo(depViewMatcher)
+        allOf(isDescendantOfA(depViewMatcher),
+            withId(R.id.ib_newItems)).performAction(click())
+        BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
+            R.id.act_item_name,
+            itemName)
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 

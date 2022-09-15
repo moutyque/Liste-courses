@@ -12,37 +12,37 @@ interface DepartmentDao {
     fun getAll(): List<Department>
 
     @Transaction
-    @Query("SELECT * FROM Department WHERE dep_name==:departmentName ORDER BY dep_order")
-    fun getItemsFromDepartment(departmentName: String): DepartmentWithItems?
+    @Query("SELECT * FROM Department WHERE dep_name==:departmentName AND dep_store == :storeId  ORDER BY dep_order")
+    fun getItemsFromDepartment(departmentName: String, storeId:String): DepartmentWithItems?
 
     @Transaction
     @Query("SELECT * FROM Department ORDER BY dep_order")
-    fun getAllDepartment(): LiveData<List<DepartmentWithItems>?>
+    fun fetchAllDepartment(): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
     @Query("SELECT * FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
-    fun getUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>?>
+    fun fetchUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
     @Query("SELECT dep_name FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
-    fun getUnusedDepartmentsName(used: Boolean = false): LiveData<List<String>>
+    fun fetchUnusedDepartmentsName(used: Boolean = false): LiveData<List<String>>
 
 
     //Left join for the new department that have no items inside
     @Transaction
-    @Query("SELECT  *  FROM  Department  WHERE Department.dep_isUsed = :used ORDER BY Department.dep_order")
-    fun getUsedDepartment(used: Int = 1): LiveData<List<DepartmentWithItems>?>
+    @Query("SELECT * FROM  Department LEFT JOIN Store ON Store.store_name == Department.dep_store WHERE Department.dep_isUsed = :used AND Store.isUsed = 1 ORDER BY Department.dep_order")
+    fun fetchUsedDepartments(used: Int = 1): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
-    @Query("SELECT * FROM Department  ORDER BY dep_order")
-    fun getDepartments(): LiveData<List<DepartmentWithItems>>
+    @Query("SELECT * FROM Department ORDER BY dep_order")
+    fun fetchDepartments(): LiveData<List<DepartmentWithItems>>
 
-    @Query("SELECT * FROM Department WHERE dep_name == :name ORDER BY dep_order")
-    fun findByName(name: String): Department?
+    @Query("SELECT * FROM Department WHERE dep_name == :name AND dep_store == :storeId ORDER BY dep_order")
+    fun getByName(name: String, storeId: String): Department?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(vararg items: Department)
+    fun insertAll(vararg department: Department)
 
     @Transaction
     @Delete
@@ -50,6 +50,9 @@ interface DepartmentDao {
 
     @Query("SELECT COUNT(*) FROM Department")
     fun getNbDep(): Int
+
+    @Query("SELECT * FROM Department WHERE dep_store==:id")
+    fun getStoreDepartments(id: String): List<DepartmentWithItems>
 
 
 }

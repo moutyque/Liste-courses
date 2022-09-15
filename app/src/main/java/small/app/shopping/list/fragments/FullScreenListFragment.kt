@@ -1,5 +1,6 @@
 package small.app.shopping.list.fragments
 
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.shopping.list.adapters.DepartmentsFullScreenAdapter
 import small.app.shopping.list.databinding.FragmentFullScreenListBinding
+import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
@@ -24,7 +26,7 @@ class FullScreenListFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentFullScreenListBinding.inflate(inflater)
-        viewModel = ViewModelProvider(this)[FragmentViewModel::class.java]
+        viewModel = FragmentViewModel(requireContext().applicationContext as Application, Utils.repo)
         setupDepartmentsRV()
         return binding.root
     }

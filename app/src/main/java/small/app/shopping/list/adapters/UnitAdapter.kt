@@ -7,7 +7,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import small.app.shopping.list.enums.SIUnit
 import small.app.shopping.list.enums.SIUnit.Companion.unitList
-import small.app.shopping.list.objects.Utils.save
+import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.room.entities.Item
 
 class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
@@ -24,10 +24,9 @@ class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
         actions?.let {
             when (initialized) {
                 true -> {
-                    //TODO : bug with the get item
                     it.getItem().apply {
                         unit = SIUnit.fromValue(unitList()[position])
-                        save()
+                        saveAndUse()
                     }
                 }
                 false -> {

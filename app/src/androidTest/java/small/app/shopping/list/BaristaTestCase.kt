@@ -3,7 +3,6 @@ package small.app.shopping.list
 import android.content.Context
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withSpinnerText
@@ -13,9 +12,10 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
+import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotExist
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
+import com.adevinta.android.barista.interaction.BaristaScrollInteractions.scrollTo
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
-import junit.framework.Assert.assertEquals
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -24,16 +24,14 @@ import org.junit.runner.RunWith
 import small.app.shopping.list.TestUtils.changeUnit
 import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
+import small.app.shopping.list.TestUtils.createAndCheckStore
+import small.app.shopping.list.TestUtils.getDepViewMatcher
 import small.app.shopping.list.TestUtils.interactWithItemSubComponent
 
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BaristaTestCase {
-
-    companion object {
-
-    }
 
     @get:Rule
     var clearDatabaseRule = ClearDatabaseRule()
@@ -56,9 +54,17 @@ class BaristaTestCase {
     }
 
     @Test
+    fun createStore(){
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckStore("Store")
+    }
+
+    @Test
     fun createDep() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
         clickOn("Parameters")
         assertDisplayed("Legume")
@@ -71,6 +77,7 @@ class BaristaTestCase {
     fun createMultiDep() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
         createAndCheckDep("Boucherie")
     }
@@ -79,8 +86,9 @@ class BaristaTestCase {
     fun createOneItem() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Carotte", "Legume")
         clickOn("Parameters")
         assertDisplayed("Carotte")
         clickOn("Full Screen View")
@@ -90,17 +98,39 @@ class BaristaTestCase {
     @Test
     fun createMultiItemsInSameDep() {
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", 0)
-        createAndCheckItem("Courgette", 0)
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
+    }
 
+    @Test
+    fun createMultipleStore() {
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
+
+        createAndCheckDep("Boucherie")
+        scrollTo(getDepViewMatcher("Boucherie"))
+        createAndCheckItem("Steak", "Boucherie")
+
+        createAndCheckStore("Store2")
+        assertNotExist("Store")
+        assertNotDisplayed("Legume")
+        assertNotDisplayed("Boucherie")
+        assertNotDisplayed("Courgette")
+        assertNotDisplayed("Carotte")
+        assertNotDisplayed("Steak")
     }
 
     @Test
     fun reuseItem() {
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", 0)
+        createAndCheckItem("Carotte", "Legume")
         interactWithItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
         assertNotDisplayed("Legume")
         assertNotDisplayed("Carotte")
@@ -112,19 +142,22 @@ class BaristaTestCase {
     fun createMultiItemsInMultiDep() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
         createAndCheckDep("Boucherie")
-        createAndCheckItem("Carotte", 0)
-        createAndCheckItem("Steak", 1)
+        createAndCheckItem("Carotte", "Legume")
+        scrollTo(getDepViewMatcher("Boucherie"))
+        createAndCheckItem("Steak", "Boucherie")
     }
 
     @Test
     fun modifyQty() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", 0)
-        createAndCheckItem("Courgette", 0)
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
 
         interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
@@ -146,9 +179,10 @@ class BaristaTestCase {
     fun modifyQtyAndUnit() {
         assertDisplayed("List")
         clickOn("List")
+        createAndCheckStore("Store")
         createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", 0)
-        createAndCheckItem("Courgette", 0)
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
 
         interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
@@ -183,25 +217,5 @@ class BaristaTestCase {
 
 
     }
-
-    @Test
-    fun checkUtilsMethod() {
-        clickOn("List")
-        createAndCheckDep("depName")
-        //createAndCheckDep("depName2")
-        onView(TestUtils.getDepViewMatcher("depName")).check { view, _ ->
-
-            val name = context.resources.getResourceEntryName(view.id)
-            assertEquals("Actual resource name : $name", view.id, R.id.ll_departments)
-        }
-
-        createAndCheckItem("itemName", 0)
-        onView(TestUtils.getItemViewMatcher("depName", "itemName")).check { view, _ ->
-
-            val name = context.resources.getResourceEntryName(view.id)
-            assertEquals("Actual resource name : $name", view.id, R.id.ll_container)
-        }
-    }
-
 
 }
