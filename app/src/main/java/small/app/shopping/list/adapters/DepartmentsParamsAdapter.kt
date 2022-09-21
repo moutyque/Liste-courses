@@ -99,8 +99,7 @@ class DepartmentsParamsAdapter(context: Context) :
     }
 
     private fun ItemDepartmentParamBinding.setupAdapter(itemsAdapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
-        var itemsAdapter1 = itemsAdapter
-        itemsAdapter1 = ItemsParamsAdapter(
+        val itemsAdapter1 = ItemsParamsAdapter(
             context
         )
         rvItems.apply {

@@ -13,7 +13,7 @@ interface DepartmentDao {
 
     @Transaction
     @Query("SELECT * FROM Department WHERE dep_name==:departmentName AND dep_store == :storeId  ORDER BY dep_order")
-    fun getItemsFromDepartment(departmentName: String, storeId:String): DepartmentWithItems?
+    fun getItemsFromDepartment(departmentName: String, storeId: String): DepartmentWithItems?
 
     @Transaction
     @Query("SELECT * FROM Department ORDER BY dep_order")
@@ -30,6 +30,7 @@ interface DepartmentDao {
 
     //Left join for the new department that have no items inside
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM  Department LEFT JOIN Store ON Store.store_name == Department.dep_store WHERE Department.dep_isUsed = :used AND Store.isUsed = 1 ORDER BY Department.dep_order")
     fun fetchUsedDepartments(used: Int = 1): LiveData<List<DepartmentWithItems>?>
 
@@ -51,6 +52,7 @@ interface DepartmentDao {
     @Query("SELECT COUNT(*) FROM Department")
     fun getNbDep(): Int
 
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM Department WHERE dep_store==:id")
     fun getStoreDepartments(id: String): List<DepartmentWithItems>
 

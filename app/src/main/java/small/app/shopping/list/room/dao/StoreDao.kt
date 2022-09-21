@@ -2,7 +2,6 @@ package small.app.shopping.list.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import small.app.shopping.list.room.entities.Department
 import small.app.shopping.list.room.entities.Store
 import small.app.shopping.list.room.entities.StoreWithDepartment
 
@@ -24,6 +23,7 @@ interface StoreDao {
     fun fetchNames(): LiveData<List<String>>
 
     @Query("SELECT * FROM Store WHERE isUsed = 1")
+    @RewriteQueriesToDropUnusedColumns
     fun fetchUsedStore(): LiveData<StoreWithDepartment?>
 
     @Transaction
