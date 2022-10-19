@@ -57,10 +57,13 @@ class FullScreenListFragment : Fragment() {
                 binding.tvNoData.visibility = View.GONE
                 adapter.updateList(it?.keepWithUsedItem())
             }
-
-
         }
+        setupObservers()
+    }
 
-
+    private fun setupObservers(){
+        viewModel.fetchUsedStore().observe(viewLifecycleOwner){
+            viewModel.selectedStore = it?.store
+        }
     }
 }

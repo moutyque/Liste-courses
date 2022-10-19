@@ -18,6 +18,7 @@ import small.app.shopping.list.adapters.DepartmentsListAdapter
 import small.app.shopping.list.databinding.FragmentListBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
+import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.objects.Utils.repo
 import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.objects.Utils.setupNamesDD
@@ -175,7 +176,7 @@ class ListFragment : Fragment() {
         binding.rvDepartment.adapter = departmentsListAdapter
 
         viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
-            departmentsListAdapter.updateList(it?.departments)
+            departmentsListAdapter.updateList(it?.departments?.keepWithUsedItem())
         }
 
     }
