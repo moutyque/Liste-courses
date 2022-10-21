@@ -41,6 +41,9 @@ interface DepartmentDao {
     @Query("SELECT * FROM Department WHERE dep_name == :name AND dep_store == :storeId ORDER BY dep_order")
     fun getByName(name: String, storeId: String): Department?
 
+    @Query("SELECT * FROM Department WHERE dep_id == :depId AND dep_store == :storeId ORDER BY dep_order")
+    fun getByIds(depId: String, storeId: String): Department?
+
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg department: Department)

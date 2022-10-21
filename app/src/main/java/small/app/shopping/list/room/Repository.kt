@@ -1,9 +1,7 @@
 package small.app.shopping.list.room
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import small.app.shopping.list.R
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.entities.DepartmentWithItems
@@ -82,17 +80,15 @@ class Repository(private val db: AppDatabase) {
 
     private fun updateDepartmentUsage(depName: String, storeId: String) {
         if (db.itemDAO().getUsedDepItems(depName, storeId).isEmpty()) {
-            val findByName = db.departmentDAO().getByName(depName, storeId)
-            findByName?.apply {
+            db.departmentDAO().getByIds(depName, storeId)?.apply {
                 isUsed = false
                 db.departmentDAO().insertAll(this)
             }
-
         }
     }
 
     private fun DepartmentEntity.toDepartment(): Department {
-        val dep = db.departmentDAO().getItemsFromDepartment(this.name,this.storeId)
+        val dep = db.departmentDAO().getItemsFromDepartment(this.name, this.storeId)
         dep?.apply {
             Log.d(Utils.TAG, "In department $name there is ${dep.items.count()} items")
             return Department(
@@ -171,6 +167,7 @@ class Repository(private val db: AppDatabase) {
         db.departmentDAO().insertAll(*department)
 
     fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
+    fun fetchDepartments(): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchAllDepartment()
 }
 
 private fun Department.toEntity() =

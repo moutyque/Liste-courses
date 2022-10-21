@@ -25,4 +25,6 @@
     <string name="default_category_deletion_message">Vous ne pouvez pas supprimer le rayon par default</string>
     <string name="actv_store">Nom du magagin</string>
     <string name="add_new_store">Ajouter nouveau magasin</string>
+    <string name="no_store">Créé un magasin avant de créer un rayon</string>
+
 </resources>

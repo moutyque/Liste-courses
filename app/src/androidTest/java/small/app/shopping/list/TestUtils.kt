@@ -15,6 +15,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.TypeSafeMatcher
 
+
 //https://developer.android.com/static/images/training/testing/espresso-cheatsheet.png
 object TestUtils {
 
@@ -174,7 +175,7 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 
-    private fun createDep(name: String) {
+    fun createDep(name: String) {
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
             R.id.act_departmentName,
             name

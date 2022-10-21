@@ -43,7 +43,7 @@ class ListFragment : Fragment() {
         binding = FragmentListBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel = FragmentViewModel(requireContext().applicationContext as Application,repo)
+        viewModel = FragmentViewModel(requireContext().applicationContext as Application, repo)
 
         initAddStore()
         setupDepartmentsRV()
@@ -59,14 +59,18 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupObservers(){
-        viewModel.fetchUsedStore().observe(viewLifecycleOwner){
+    private fun setupObservers() {
+        viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
             viewModel.selectedStore = it?.store
         }
     }
 
     private fun setupStoreSpinner() {
-        binding.sStoreDropdown.setupStoreListener(viewModel,viewLifecycleOwner,setupNamesDD(viewModel.fetchStoreNames()))
+        binding.sStoreDropdown.setupStoreListener(
+            viewModel,
+            viewLifecycleOwner,
+            setupNamesDD(viewModel.fetchStoreNames())
+        )
     }
 
     private fun initAddStore() {
@@ -89,6 +93,7 @@ class ListFragment : Fragment() {
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
             viewModel.selectedStore?.let { addDepartment(it.name) }
+                ?: Toast.makeText(requireContext(), getString(small.app.shopping.list.R.string.no_store), Toast.LENGTH_LONG).show()
         }
 
         binding.actDepartmentName.setOnKeyListener { _, keyCode, event ->
@@ -166,7 +171,7 @@ class ListFragment : Fragment() {
     private fun setupDepartmentsRV() {
         //Create the department adapter
         departmentsListAdapter = DepartmentsListAdapter(
-            requireContext(),repo
+            requireContext(), repo
         )
 
 

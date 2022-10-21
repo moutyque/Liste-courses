@@ -194,11 +194,12 @@ object Utils {
     }
 
     fun List<DepartmentWithItems>.keepWithUsedItem(): List<DepartmentWithItems> =
-        this.onEach { it.keepUsedItems() }
+        this.filter { it.department.isUsed }.onEach { it.keepUsedItems() }
 
     fun Department.delete() {
-        this.items.forEach { repo.deleteItem(it) }
-        repo.deleteDepartment(this@delete)
+        backgroundScope.launch {
+            this@delete.items.forEach { repo.deleteItem(it) }
+        repo.deleteDepartment(this@delete)}
     }
 
 
@@ -249,4 +250,20 @@ object Utils {
         }
     }
 }
+inline fun <E: Any, T: Collection<E>> T?.withNotNullNorEmpty(func: T.() -> Unit): Unit {
+    if (this != null && this.isNotEmpty()) {
+        with (this) { func() }
+    }
+}
 
+inline fun  <E: Any, T: Collection<E>> T?.whenNotNullNorEmpty(func: (T) -> Unit): Unit {
+    if (this != null && this.isNotEmpty()) {
+        func(this)
+    }
+}
+
+inline fun <E: Any, T: Collection<E>> T?.withNullOrEmpty(func: () -> Unit): Unit {
+    if (this == null || this.isEmpty()) {
+        func()
+    }
+}
