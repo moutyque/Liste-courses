@@ -56,7 +56,7 @@ class DepartmentsParamsAdapter(context: Context) :
             Log.d(Utils.TAG, "department name : ${model.name} & items ${model.items}")
             var itemsAdapter = rvItems.adapter
             if (itemsAdapter == null) {
-                itemsAdapter = setupAdapter(itemsAdapter)
+                itemsAdapter = setupAdapter()
             }
 
             (itemsAdapter as ItemsAdapter).updateList(model.items)
@@ -94,11 +94,9 @@ class DepartmentsParamsAdapter(context: Context) :
                 true
             }
         }
-
-
     }
 
-    private fun ItemDepartmentParamBinding.setupAdapter(itemsAdapter: RecyclerView.Adapter<*>?): RecyclerView.Adapter<*>? {
+    private fun ItemDepartmentParamBinding.setupAdapter(): RecyclerView.Adapter<*> {
         val itemsAdapter1 = ItemsParamsAdapter(
             context
         )

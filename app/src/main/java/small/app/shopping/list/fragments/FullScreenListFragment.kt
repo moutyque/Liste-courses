@@ -1,6 +1,6 @@
 package small.app.shopping.list.fragments
 
-import android.app.Application
+import  android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +12,8 @@ import small.app.shopping.list.adapters.DepartmentsFullScreenAdapter
 import small.app.shopping.list.databinding.FragmentFullScreenListBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.keepWithUsedItem
+import small.app.shopping.list.objects.whenNotNullNorEmpty
+import small.app.shopping.list.objects.withNullOrEmpty
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -26,7 +28,8 @@ class FullScreenListFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentFullScreenListBinding.inflate(inflater)
-        viewModel = FragmentViewModel(requireContext().applicationContext as Application, Utils.repo)
+        viewModel =
+            FragmentViewModel(requireContext().applicationContext as Application, Utils.repo)
         setupDepartmentsRV()
         return binding.root
     }
@@ -43,24 +46,25 @@ class FullScreenListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = adapter
 
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner) { departments ->
+            departments?.keepWithUsedItem()?.apply {
+                adapter.updateList(this)
+                when (this.isEmpty()) {
+                    true -> {
+                        binding.rvDepartment.visibility = View.GONE
+                        binding.tvNoData.visibility = View.VISIBLE
+                    }
+                    false -> {
 
 
-            if (it?.isEmpty() == true) {
-                binding.rvDepartment.visibility = View.GONE
-                binding.tvNoData.visibility = View.VISIBLE
-
-
-            } else {
-
-                binding.rvDepartment.visibility = View.VISIBLE
-                binding.tvNoData.visibility = View.GONE
-                adapter.updateList(it?.keepWithUsedItem())
+                        binding.rvDepartment.visibility = View.VISIBLE
+                        binding.tvNoData.visibility = View.GONE
+                    }
+                }
             }
 
 
         }
-
-
     }
+
 }

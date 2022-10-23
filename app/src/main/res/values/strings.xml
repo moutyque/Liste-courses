@@ -26,4 +26,5 @@
     <string name="import_done">Import done</string>
     <string name="default_category_name">Unclassified</string>
     <string name="default_category_deletion_message">You can not delete the default category</string>
+    <string name="no_store">Create a store before creating department</string>
 </resources>

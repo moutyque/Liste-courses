@@ -3,9 +3,11 @@ package small.app.shopping.list
 import android.content.Context
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withSpinnerText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -16,6 +18,7 @@ import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assert
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
 import com.adevinta.android.barista.interaction.BaristaScrollInteractions.scrollTo
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
+import org.hamcrest.Matchers.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -26,7 +29,7 @@ import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
 import small.app.shopping.list.TestUtils.createAndCheckStore
 import small.app.shopping.list.TestUtils.getDepViewMatcher
-import small.app.shopping.list.TestUtils.interactWithItemSubComponent
+import small.app.shopping.list.TestUtils.interactWithDisplayedItemSubComponent
 
 
 @LargeTest
@@ -38,8 +41,6 @@ class BaristaTestCase {
 
     @get:Rule
     var mainActivity = ActivityScenarioRule(MainActivity::class.java)
-
-    private val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     private lateinit var scenario: ActivityScenario<MainActivity>
 
@@ -54,7 +55,7 @@ class BaristaTestCase {
     }
 
     @Test
-    fun createStore(){
+    fun createStore() {
         assertDisplayed("List")
         clickOn("List")
         createAndCheckStore("Store")
@@ -131,7 +132,7 @@ class BaristaTestCase {
         createAndCheckStore("Store")
         createAndCheckDep("Legume")
         createAndCheckItem("Carotte", "Legume")
-        interactWithItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
         assertNotDisplayed("Legume")
         assertNotDisplayed("Carotte")
 
@@ -159,13 +160,13 @@ class BaristaTestCase {
         createAndCheckItem("Carotte", "Legume")
         createAndCheckItem("Courgette", "Legume")
 
-        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
         )
-        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
         )
-        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
             assert(
                 (view as TextView).text.equals(
                     "2"
@@ -184,13 +185,13 @@ class BaristaTestCase {
         createAndCheckItem("Carotte", "Legume")
         createAndCheckItem("Courgette", "Legume")
 
-        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
         )
-        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
         )
-        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
             assert(
                 (view as TextView).text.equals(
                     "2"
@@ -202,10 +203,10 @@ class BaristaTestCase {
 
         assertDisplayed("Legume")
 
-        interactWithItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
             click()
         )
-        interactWithItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
+        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
             assert(
                 (view as TextView).text.equals(
                     "3"
@@ -213,9 +214,85 @@ class BaristaTestCase {
             )
         }
         changeUnit("Carotte", "cL")
-        interactWithItemSubComponent("Carotte", R.id.s_unit).check(matches(withSpinnerText("cL")))
+        interactWithDisplayedItemSubComponent("Carotte", R.id.s_unit).check(
+            matches(
+                withSpinnerText(
+                    "cL"
+                )
+            )
+        )
 
 
     }
+
+    @Test
+    fun createAndUseItemFromFullView() {
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
+
+        assertDisplayed("Full Screen View")
+        clickOn("Full Screen View")
+        assertDisplayed("Carotte")
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
+        getDepViewMatcher("Legume")
+        assertNotDisplayed("Carotte")
+        clickOn("List")
+        assertNotDisplayed(R.id.tv_name, "Carotte")
+        onView(
+            allOf(
+                withId(R.id.tv_name), withText("Carotte"),
+                withParent(
+                    allOf(
+                        withId(R.id.ll_complet_line),
+                        withParent(withId(R.id.ll_container))
+                    )
+                ),
+                isDisplayed()
+            )
+        ).check(doesNotExist())
+    }
+
+    @Test
+    fun verfifyDepartmentDisapearFromFullScreen() {
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        assertDisplayed("Full Screen View")
+        clickOn("Full Screen View")
+        assertDisplayed("Carotte")
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
+        onView(
+            allOf(
+                withId(R.id.tv_name), withText("Carotte"),
+                withParent(
+                    allOf(
+                        withId(R.id.ll_complet_line),
+                        withParent(withId(R.id.ll_container))
+                    )
+                ),
+                isDisplayed()
+            )
+        ).check(doesNotExist())
+        clickOn("List")
+        onView(
+            allOf(
+                withId(R.id.tv_dep_name), withText("Legume"),
+                withParent(
+                    allOf(
+                        withParent(withId(R.id.ll_complet_line))
+                    )
+                ),
+                isDisplayed()
+            )
+        ).check(doesNotExist())
+    }
+
+
 
 }

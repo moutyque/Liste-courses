@@ -37,6 +37,7 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
 
     fun getUnusedDepartmentsName(): LiveData<List<String>> =repo.getUnusedDepartmentsName()
 
+    fun getDepartment(): LiveData<List<DepartmentWithItems>?> = repo.fetchDepartments()
 
     fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> = repo.fetchUsedDepartment()
 

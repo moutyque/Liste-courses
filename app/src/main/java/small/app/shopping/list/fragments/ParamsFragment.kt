@@ -160,7 +160,7 @@ class ParamsFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = departmentsAdapter
 
-        viewModel.getUsedDepartment().observe(viewLifecycleOwner) {
+        viewModel.getDepartment().observe(viewLifecycleOwner) {
             if (it?.isEmpty() == true) {
                 binding.rvDepartment.visibility = View.GONE
                 binding.tvNoData.visibility = View.VISIBLE

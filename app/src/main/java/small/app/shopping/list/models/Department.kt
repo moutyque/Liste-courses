@@ -59,13 +59,11 @@ data class Department(
         if (name != other.name) return false
         if (isUsed != other.isUsed) return false
 
+        if (order != other.order) return false
         if (items.size != other.items.size) return false
         for (i in items.indices) {
             if (!items[i].equals(other.items[i])) return false
         }
-
-        if (items.equals(other.items)) return false
-        if (order != other.order) return false
 
         return true
     }

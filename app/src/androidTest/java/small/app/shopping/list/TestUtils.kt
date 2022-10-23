@@ -15,6 +15,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.TypeSafeMatcher
 
+
 //https://developer.android.com/static/images/training/testing/espresso-cheatsheet.png
 object TestUtils {
 
@@ -39,24 +40,21 @@ object TestUtils {
         }
     }
 
-
     fun interactWithItemSubComponent(
+        itemName: String,
+        subComponentId: Int
+    ): ViewInteraction = onView(
+        allOf(isDescendantOfA(allOf(hasDescendant(withText(itemName)), withId(R.id.ll_complet_line))),withId(subComponentId))
+
+    )
+
+    fun interactWithDisplayedItemSubComponent(
         itemName: String,
         subComponentId: Int
     ): ViewInteraction = onView(
         allOf(isDescendantOfA(allOf(hasDescendant(withText(itemName)), withId(R.id.ll_complet_line))),withId(subComponentId),
             isDisplayed())
 
-    )
-
-    internal fun getItemViewMatcher(
-        depName: String,
-        itemName: String
-    ): Matcher<View> = allOf(
-        isDescendantOfA(getDepViewMatcher(depName)),
-        hasDescendant(withText(itemName)),
-        withId(R.id.ll_container),
-        isDisplayed()
     )
 
     internal fun getDepViewMatcher(
@@ -70,7 +68,7 @@ object TestUtils {
         )
 
     fun changeUnit(itemName: String,unit : String){
-        interactWithItemSubComponent(itemName, R.id.s_unit).perform(
+        interactWithDisplayedItemSubComponent(itemName, R.id.s_unit).perform(
             click()
         )
 
@@ -88,11 +86,6 @@ object TestUtils {
                 withText(unit)
             )
         ).perform(click())
-    }
-
-    fun createAndCheckItem(name: String, depPosition: Int) {
-        createItemFromDep(name, depPosition)
-        BaristaVisibilityAssertions.assertDisplayed(name)
     }
 
     fun createAndCheckItem(name: String, depName: String) {
@@ -169,30 +162,6 @@ object TestUtils {
         materialButton.perform(click())
     }
 
-
-    private fun createItemFromDep(itemName: String, depPosition: Int) {
-        onView(
-            allOf(
-                withId(R.id.ib_newItems),
-                childAtPosition(
-                    allOf(
-                        withId(R.id.cl_rv_dp_header),
-                        childAtPosition(
-                            withId(R.id.ll_departments),
-                            depPosition
-                        )
-                    ),
-                    1
-                ),
-                isDisplayed()
-            )
-        ).perform(click())
-        BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
-            R.id.act_item_name,
-            itemName)
-        BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
-    }
-
     private fun createItemFromDep(itemName: String, depName: String) {
         //View with id, ancestor has an other child with depName
         val depViewMatcher= withChild(allOf(withId(R.id.tv_dep_name),withText(depName)))
@@ -206,7 +175,7 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 
-    private fun createDep(name: String) {
+    fun createDep(name: String) {
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
             R.id.act_departmentName,
             name
