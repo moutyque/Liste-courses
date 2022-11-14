@@ -142,7 +142,7 @@ class ListFragment : Fragment() {
             var depDb: Department? = null
             val job = backgroundScope.launch {
                 order = repo.getNumberOfDepartments()
-                depDb = repo.findDepartment(depName, storeName)
+                depDb = repo.findDepartment(depName)
             }
             job.invokeOnCompletion {
 

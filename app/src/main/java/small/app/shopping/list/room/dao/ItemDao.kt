@@ -28,17 +28,16 @@ interface ItemDao {
     @Query("SELECT * FROM Item WHERE departmentId == :depName AND storeId == :storeId ORDER BY `order`")
     fun fetchDepItems(depName: String, storeId: String): LiveData<List<Item>?>
 
-    @Query("SELECT * FROM Item WHERE departmentId == :depName AND storeId == :storeId ORDER BY `order`")
-    fun getDepItems(depName: String, storeId: String): List<Item>
+    @Query("SELECT * FROM Item WHERE departmentId == :depId ORDER BY `order`")
+    fun getDepItems(depId: String): List<Item>
 
 
-    @Query("SELECT * FROM Item WHERE departmentId == :depName AND storeId == :storeId AND isUsed == :isUsed ORDER BY `order`")
-    fun getUsedDepItems(depName: String, storeId: String, isUsed: Boolean = true): List<Item>
+    @Query("SELECT * FROM Item WHERE departmentId == :depId AND isUsed == :isUsed ORDER BY `order`")
+    fun getUsedDepItems(depId: String, isUsed: Boolean = true): List<Item>
 
-    @Query("SELECT name FROM Item WHERE departmentId == :depName AND storeId == :storeId AND isUsed == :isUsed ORDER BY `order`")
+    @Query("SELECT name FROM Item WHERE departmentId == :depId AND isUsed == :isUsed ORDER BY `order`")
     fun fetchUnusedDepItems(
-        depName: String,
-        storeId: String,
+        depId: String,
         isUsed: Boolean = false
     ): LiveData<List<String>>
 

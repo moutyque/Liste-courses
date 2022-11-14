@@ -117,7 +117,7 @@ object Utils {
         this@useItem.isUsed = true
         var d: Department? = null
         backgroundScope.launch {
-            d = repo.findDepartment(this@useItem.departmentId, this@useItem.storeId)
+            d = repo.findDepartment(this@useItem.departmentId)
         }.invokeOnCompletion {
             d?.let {
                 it.isUsed = true
@@ -146,8 +146,7 @@ object Utils {
     fun List<Item>.delete(position: Int) {
         backgroundScope.launch {
             val dep = repo.findDepartment(
-                this@delete[position].departmentId,
-                this@delete[position].storeId
+                this@delete[position].departmentId
             )
             if (position < this@delete.size - 1) {
                 val subList = this@delete.subList(position + 1, this@delete.size)
@@ -164,7 +163,7 @@ object Utils {
 
     private fun Item.classifyItemWithOrder(depId: String) {
         backgroundScope.launch {
-            repo.getDepartment(depId, this@classifyItemWithOrder.storeId)
+            repo.getDepartment(depId)
                 ?.classifyWithOrderDefined(this@classifyItemWithOrder)
         }
     }
@@ -205,7 +204,7 @@ object Utils {
 
     fun Department.updateOrder() {
         backgroundScope.launch {
-            repo.updateItemsOrderInDepartment(this@updateOrder.name, this@updateOrder.storeId)
+            repo.updateItemsOrderInDepartment(this@updateOrder.name)
         }
     }
 
