@@ -20,6 +20,10 @@ interface DepartmentDao {
     fun fetchAllDepartment(): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
+    @Query("SELECT * FROM Department WHERE dep_store==:storeId ORDER BY dep_order")
+    fun fetchStoreDepartment(storeId: String): LiveData<List<DepartmentWithItems>?>
+
+    @Transaction
     @Query("SELECT * FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
     fun fetchUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>?>
 

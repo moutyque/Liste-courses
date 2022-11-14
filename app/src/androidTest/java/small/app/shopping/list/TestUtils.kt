@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions
 import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions
@@ -175,11 +176,25 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 
-    fun createDep(name: String) {
+    private fun createDep(name: String) {
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
             R.id.act_departmentName,
             name
         )
         BaristaClickInteractions.clickOn(R.id.ib_add_department)
+    }
+
+    fun assertDepDoNotExist(depName: String){
+        onView(
+            allOf(
+                withId(R.id.tv_dep_name), withText(depName),
+                withParent(
+                    allOf(
+                        withParent(withId(R.id.ll_complet_line))
+                    )
+                ),
+                isDisplayed()
+            )
+        ).check(ViewAssertions.doesNotExist())
     }
 }

@@ -167,7 +167,7 @@ class Repository(private val db: AppDatabase) {
         db.departmentDAO().insertAll(*department)
 
     fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
-    fun fetchDepartments(): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchAllDepartment()
+    fun fetchDepartments(storeId: String): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchStoreDepartment(storeId)
 }
 
 private fun Department.toEntity() =
