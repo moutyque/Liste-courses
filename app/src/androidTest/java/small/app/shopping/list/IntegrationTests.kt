@@ -1,6 +1,5 @@
 package small.app.shopping.list
 
-import android.content.Context
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.*
@@ -11,12 +10,13 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotExist
+import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
 import com.adevinta.android.barista.interaction.BaristaScrollInteractions.scrollTo
+import com.adevinta.android.barista.internal.performAction
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
 import org.hamcrest.Matchers.*
 import org.junit.After
@@ -24,6 +24,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import small.app.shopping.list.TestUtils.assertDepDoesNotExist
+import small.app.shopping.list.TestUtils.assertItemDoesNotExist
 import small.app.shopping.list.TestUtils.changeUnit
 import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
@@ -34,7 +36,7 @@ import small.app.shopping.list.TestUtils.interactWithDisplayedItemSubComponent
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class BaristaTestCase {
+class IntegrationTests {
 
     @get:Rule
     var clearDatabaseRule = ClearDatabaseRule()
@@ -132,10 +134,9 @@ class BaristaTestCase {
         createAndCheckStore("Store")
         createAndCheckDep("Legume")
         createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
         interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
-        assertNotDisplayed("Legume")
         assertNotDisplayed("Carotte")
-
 
     }
 
@@ -242,18 +243,7 @@ class BaristaTestCase {
         assertNotDisplayed("Carotte")
         clickOn("List")
         assertNotDisplayed(R.id.tv_name, "Carotte")
-        onView(
-            allOf(
-                withId(R.id.tv_name), withText("Carotte"),
-                withParent(
-                    allOf(
-                        withId(R.id.ll_complet_line),
-                        withParent(withId(R.id.ll_container))
-                    )
-                ),
-                isDisplayed()
-            )
-        ).check(doesNotExist())
+        assertItemDoesNotExist("Carotte")
     }
 
     @Test
@@ -267,30 +257,23 @@ class BaristaTestCase {
         clickOn("Full Screen View")
         assertDisplayed("Carotte")
         interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
-        onView(
-            allOf(
-                withId(R.id.tv_name), withText("Carotte"),
-                withParent(
-                    allOf(
-                        withId(R.id.ll_complet_line),
-                        withParent(withId(R.id.ll_container))
-                    )
-                ),
-                isDisplayed()
-            )
-        ).check(doesNotExist())
+        assertItemDoesNotExist("Carotte")
         clickOn("List")
-        onView(
-            allOf(
-                withId(R.id.tv_dep_name), withText("Legume"),
-                withParent(
-                    allOf(
-                        withParent(withId(R.id.ll_complet_line))
-                    )
-                ),
-                isDisplayed()
-            )
-        ).check(doesNotExist())
+        assertDepDoesNotExist("Legumes")
+    }
+
+    @Test
+    fun verfifyDepartmentFilteredByStoreInParamView() {
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckDep("Viandes")
+        createAndCheckStore("Store2")
+        assertDisplayed("Parameters")
+        clickOn("Parameters")
+        assertDepDoesNotExist("Legume")
     }
 
 

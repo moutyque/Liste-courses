@@ -20,6 +20,10 @@ interface DepartmentDao {
     fun fetchAllDepartment(): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
+    @Query("SELECT * FROM Department WHERE dep_store==:storeId ORDER BY dep_order")
+    fun fetchStoreDepartment(storeId: String): LiveData<List<DepartmentWithItems>?>
+
+    @Transaction
     @Query("SELECT * FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
     fun fetchUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>?>
 
@@ -38,11 +42,11 @@ interface DepartmentDao {
     @Query("SELECT * FROM Department ORDER BY dep_order")
     fun fetchDepartments(): LiveData<List<DepartmentWithItems>>
 
-    @Query("SELECT * FROM Department WHERE dep_name == :name AND dep_store == :storeId ORDER BY dep_order")
-    fun getByName(name: String, storeId: String): Department?
+    @Query("SELECT * FROM Department WHERE dep_id == :depId ORDER BY dep_order")
+    fun getByName(depId: String): Department?
 
-    @Query("SELECT * FROM Department WHERE dep_id == :depId AND dep_store == :storeId ORDER BY dep_order")
-    fun getByIds(depId: String, storeId: String): Department?
+    @Query("SELECT * FROM Department WHERE dep_id == :depId ORDER BY dep_order")
+    fun getByIds(depId: String): Department?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

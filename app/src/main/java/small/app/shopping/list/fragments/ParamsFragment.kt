@@ -64,15 +64,20 @@ class ParamsFragment : Fragment() {
 
         return binding.root
     }
+
     private val get = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { importList(it) }
     }
+
     private fun openFile() {
         get.launch("application/json")
     }
-    private val create = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        uri?.let { exportList(it) }
-    }
+
+    private val create =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            uri?.let { exportList(it) }
+        }
+
     private fun createFile() {
         create.launch("export.json")
     }
@@ -134,9 +139,9 @@ class ParamsFragment : Fragment() {
         val itemConverter = ItemConverter()
         val storeConverter = StoreConverter()
         viewModel.imports(
-        export.stores.map { storeConverter.toStore(it) },
-        export.departments.map { depConverter.toDepartment(it) },
-        export.items.map { itemConverter.toItem(it) }
+            export.stores.map { storeConverter.toStore(it) },
+            export.departments.map { depConverter.toDepartment(it) },
+            export.items.map { itemConverter.toItem(it) }
         )
         Toast.makeText(requireContext(), getString(R.string.import_done), Toast.LENGTH_LONG).show()
 
@@ -160,15 +165,21 @@ class ParamsFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.rvDepartment.adapter = departmentsAdapter
 
-        viewModel.getDepartment().observe(viewLifecycleOwner) {
-            if (it?.isEmpty() == true) {
-                binding.rvDepartment.visibility = View.GONE
-                binding.tvNoData.visibility = View.VISIBLE
-            } else {
-                binding.rvDepartment.visibility = View.VISIBLE
-                binding.tvNoData.visibility = View.GONE
-                departmentsAdapter.updateList(it)
+        viewModel.fetchUsedStore().observe(viewLifecycleOwner) { useStore ->
+            useStore?.let { storeWithDepartment ->
+                viewModel.getDepartment(storeWithDepartment.store.name)
+                    .observe(viewLifecycleOwner) {
+                        if (it?.isEmpty() == true) {
+                            binding.rvDepartment.visibility = View.GONE
+                            binding.tvNoData.visibility = View.VISIBLE
+                        } else {
+                            binding.rvDepartment.visibility = View.VISIBLE
+                            binding.tvNoData.visibility = View.GONE
+                            departmentsAdapter.updateList(it)
+                        }
+                    }
             }
+
         }
 
 

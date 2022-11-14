@@ -41,7 +41,7 @@ class NewItemDialogFragment(private val depName: String, private val storeName: 
         )
 
         //Setup the autocomplete item list
-        viewModel.getUnusedItemsNameInDepartment(depName,storeName).observe(viewLifecycleOwner) {
+        viewModel.getUnusedItemsNameInDepartment("${depName}_$storeName").observe(viewLifecycleOwner) {
             suggestedItemsAdapter.clear()
             suggestedItemsAdapter.addAll(it)
 

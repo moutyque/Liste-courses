@@ -62,7 +62,7 @@ class RoomDBTest {
         storeDao.insertAll(store)
         val dep = Department("id", "FRUITS", true, 0, 0, "")
         departmentDao.insertAll(dep)
-        val byName = departmentDao.getByName("FRUITS", "")
+        val byName = departmentDao.getByName("FRUITS")
         assertThat(byName!!.name, equalTo("FRUITS"))
 
     }
@@ -78,7 +78,7 @@ class RoomDBTest {
         departmentDao.insertAll(dep)
         departmentDao.insertAll(Department("2", "LEGUMES", true, 0, 1, storeID))
         departmentDao.insertAll(Department("3", "VIANDES", true, 0, 2, storeID))
-        val dep1 = departmentDao.getByName("FRUITS", storeID)
+        val dep1 = departmentDao.getByName("FRUITS")
         assertThat(dep1, notNullValue())
         assertThat(dep1!!.name, equalTo("FRUITS"))
         Utils.repo = Repository(db)
@@ -140,7 +140,7 @@ class RoomDBTest {
             storeId = storeId
         )
         departmentDao.insertAll(dep)
-        val found = departmentDao.getByName("DEP1", storeId)
+        val found = departmentDao.getByName("DEP1")
         assertThat(found!!.name, equalTo(dep.name))
 
         val conv = DepartmentConverter()

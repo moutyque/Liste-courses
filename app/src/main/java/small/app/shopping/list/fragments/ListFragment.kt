@@ -48,7 +48,6 @@ class ListFragment : Fragment() {
         initAddStore()
         setupDepartmentsRV()
         setupStoreSpinner()
-        setupObservers()
 
         //Setup the department name suggestion in the text field
         initDepartmentNameSuggestion()
@@ -57,12 +56,6 @@ class ListFragment : Fragment() {
 
         // Inflate the layout for this fragment
         return binding.root
-    }
-
-    private fun setupObservers() {
-        viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
-            viewModel.selectedStore = it?.store
-        }
     }
 
     private fun setupStoreSpinner() {
@@ -92,13 +85,22 @@ class ListFragment : Fragment() {
     private fun initAddDepartment() {
         //Setup btn to add an new department
         binding.ibAddDepartment.setOnClickListener {
-            viewModel.selectedStore?.let { addDepartment(it.name) }
-                ?: Toast.makeText(requireContext(), getString(small.app.shopping.list.R.string.no_store), Toast.LENGTH_LONG).show()
+            viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
+                it?.let { store -> addDepartment(store.store.name) }
+                    ?: Toast.makeText(
+                        requireContext(),
+                        getString(small.app.shopping.list.R.string.no_store),
+                        Toast.LENGTH_LONG
+                    ).show()
+            }
+
         }
 
         binding.actDepartmentName.setOnKeyListener { _, keyCode, event ->
             if (KeyEvent.KEYCODE_ENTER == keyCode && event.action == KeyEvent.ACTION_UP) {
-                viewModel.selectedStore?.let { addDepartment(it.name) }
+                viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
+                    it?.let { store -> addDepartment(store.store.name) }
+                }
             }
 
             true
@@ -140,7 +142,7 @@ class ListFragment : Fragment() {
             var depDb: Department? = null
             val job = backgroundScope.launch {
                 order = repo.getNumberOfDepartments()
-                depDb = repo.findDepartment(depName, storeName)
+                depDb = repo.findDepartment(depName)
             }
             job.invokeOnCompletion {
 
@@ -180,8 +182,10 @@ class ListFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvDepartment.adapter = departmentsListAdapter
 
-        viewModel.fetchUsedStore().observe(viewLifecycleOwner) {
-            departmentsListAdapter.updateList(it?.departments?.keepWithUsedItem())
+        viewModel.getUsedDepartment().observe(viewLifecycleOwner) { departments ->
+            departments?.keepWithUsedItem()?.apply {
+                departmentsListAdapter.updateList(this)
+            }
         }
 
     }

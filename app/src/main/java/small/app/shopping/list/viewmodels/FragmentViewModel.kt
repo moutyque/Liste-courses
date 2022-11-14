@@ -30,19 +30,17 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
 
     }
 
-    var selectedStore: Store? = null
-
     fun getStores(): LiveData<List<Store>> = repo.fetchStores()
 
 
     fun getUnusedDepartmentsName(): LiveData<List<String>> =repo.getUnusedDepartmentsName()
 
-    fun getDepartment(): LiveData<List<DepartmentWithItems>?> = repo.fetchDepartments()
+    fun getDepartment(storeId: String): LiveData<List<DepartmentWithItems>?> = repo.fetchDepartments(storeId)
 
     fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> = repo.fetchUsedDepartment()
 
 
-    fun getUnusedItemsNameInDepartment(name: String, storeName: String): LiveData<List<String>> = repo.getUnusedDepartmentItems(name,storeName)
+    fun getUnusedItemsNameInDepartment(depId: String): LiveData<List<String>> = repo.getUnusedDepartmentItems(depId)
 
     fun addItem(itemName: String, depName: String, storeName: String) {
         if (itemName.isNotEmpty()) {

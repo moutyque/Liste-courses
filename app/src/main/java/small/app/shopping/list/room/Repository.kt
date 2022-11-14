@@ -64,8 +64,8 @@ class Repository(private val db: AppDatabase) {
         db.itemDAO().findByName(itemName, storeName)
 
 
-    fun findDepartment(name: String, storeId: String): Department? =
-        db.departmentDAO().getByName(name, storeId)?.toDepartment()
+    fun findDepartment(name: String): Department? =
+        db.departmentDAO().getByName(name)?.toDepartment()
 
 
     fun fetchUsedDepartment(): LiveData<List<DepartmentWithItems>?> =
@@ -75,12 +75,12 @@ class Repository(private val db: AppDatabase) {
     fun unuseItem(item: Item) {
         item.isUsed = false
         db.itemDAO().insertAll(item)
-        updateDepartmentUsage(item.departmentId, item.storeId)
+        updateDepartmentUsage(item.departmentId)
     }
 
-    private fun updateDepartmentUsage(depName: String, storeId: String) {
-        if (db.itemDAO().getUsedDepItems(depName, storeId).isEmpty()) {
-            db.departmentDAO().getByIds(depName, storeId)?.apply {
+    private fun updateDepartmentUsage(depName: String) {
+        if (db.itemDAO().getUsedDepItems(depName).isEmpty()) {
+            db.departmentDAO().getByIds(depName)?.apply {
                 isUsed = false
                 db.departmentDAO().insertAll(this)
             }
@@ -110,23 +110,23 @@ class Repository(private val db: AppDatabase) {
 
     }
 
-    fun getUnusedDepartmentItems(name: String, storeName: String) =
-        db.itemDAO().fetchUnusedDepItems(name, storeName)
+    fun getUnusedDepartmentItems(name: String) =
+        db.itemDAO().fetchUnusedDepItems(name)
 
-    fun getDepartment(departmentId: String, storeId: String) =
-        db.departmentDAO().getByName(departmentId, storeId)?.toDepartment()
+    fun getDepartment(departmentId: String) =
+        db.departmentDAO().getByName(departmentId)?.toDepartment()
 
     fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
         item.apply {
-            updateDepartmentUsage(departmentId, storeId)
-            updateItemsOrderInDepartment(departmentId, storeId)
+            updateDepartmentUsage(departmentId)
+            updateItemsOrderInDepartment(departmentId)
         }
     }
 
-    fun updateItemsOrderInDepartment(departmentId: String, storeId: String) {
-        if (db.itemDAO().getDepItems(departmentId, storeId).isEmpty()) {
-            val findByName = findDepartment(departmentId, storeId)
+    fun updateItemsOrderInDepartment(departmentId: String) {
+        if (db.itemDAO().getDepItems(departmentId).isEmpty()) {
+            val findByName = findDepartment(departmentId)
             findByName?.let {
                 var order: Long = 1
                 val sortedItems = it.items.sortedWith { i1, i2 ->
@@ -167,7 +167,7 @@ class Repository(private val db: AppDatabase) {
         db.departmentDAO().insertAll(*department)
 
     fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
-    fun fetchDepartments(): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchAllDepartment()
+    fun fetchDepartments(storeId: String): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchStoreDepartment(storeId)
 }
 
 private fun Department.toEntity() =
