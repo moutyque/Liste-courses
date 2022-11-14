@@ -13,8 +13,10 @@ import androidx.test.filters.LargeTest
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotExist
+import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
 import com.adevinta.android.barista.interaction.BaristaScrollInteractions.scrollTo
+import com.adevinta.android.barista.internal.performAction
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
 import org.hamcrest.Matchers.*
 import org.junit.After
@@ -22,7 +24,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import small.app.shopping.list.TestUtils.assertDepDoNotExist
+import small.app.shopping.list.TestUtils.assertDepDoesNotExist
+import small.app.shopping.list.TestUtils.assertItemDoesNotExist
 import small.app.shopping.list.TestUtils.changeUnit
 import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
@@ -131,10 +134,9 @@ class IntegrationTests {
         createAndCheckStore("Store")
         createAndCheckDep("Legume")
         createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
         interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
-        assertNotDisplayed("Legume")
         assertNotDisplayed("Carotte")
-
 
     }
 
@@ -241,18 +243,7 @@ class IntegrationTests {
         assertNotDisplayed("Carotte")
         clickOn("List")
         assertNotDisplayed(R.id.tv_name, "Carotte")
-        onView(
-            allOf(
-                withId(R.id.tv_name), withText("Carotte"),
-                withParent(
-                    allOf(
-                        withId(R.id.ll_complet_line),
-                        withParent(withId(R.id.ll_container))
-                    )
-                ),
-                isDisplayed()
-            )
-        ).check(doesNotExist())
+        assertItemDoesNotExist("Carotte")
     }
 
     @Test
@@ -266,20 +257,9 @@ class IntegrationTests {
         clickOn("Full Screen View")
         assertDisplayed("Carotte")
         interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
-        onView(
-            allOf(
-                withId(R.id.tv_name), withText("Carotte"),
-                withParent(
-                    allOf(
-                        withId(R.id.ll_complet_line),
-                        withParent(withId(R.id.ll_container))
-                    )
-                ),
-                isDisplayed()
-            )
-        ).check(doesNotExist())
+        assertItemDoesNotExist("Carotte")
         clickOn("List")
-        assertDepDoNotExist("Legumes")
+        assertDepDoesNotExist("Legumes")
     }
 
     @Test
@@ -293,7 +273,7 @@ class IntegrationTests {
         createAndCheckStore("Store2")
         assertDisplayed("Parameters")
         clickOn("Parameters")
-        assertDepDoNotExist("Legume")
+        assertDepDoesNotExist("Legume")
     }
 
 

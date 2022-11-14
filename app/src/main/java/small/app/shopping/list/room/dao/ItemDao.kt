@@ -25,8 +25,8 @@ interface ItemDao {
     @Delete
     fun delete(item: Item)
 
-    @Query("SELECT * FROM Item WHERE departmentId == :depName AND storeId == :storeId ORDER BY `order`")
-    fun fetchDepItems(depName: String, storeId: String): LiveData<List<Item>?>
+    @Query("SELECT * FROM Item WHERE departmentId == :depName ORDER BY `order`")
+    fun fetchDepItems(depName: String): LiveData<List<Item>?>
 
     @Query("SELECT * FROM Item WHERE departmentId == :depId ORDER BY `order`")
     fun getDepItems(depId: String): List<Item>

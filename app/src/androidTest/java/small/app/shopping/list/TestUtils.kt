@@ -166,8 +166,6 @@ object TestUtils {
     private fun createItemFromDep(itemName: String, depName: String) {
         //View with id, ancestor has an other child with depName
         val depViewMatcher= withChild(allOf(withId(R.id.tv_dep_name),withText(depName)))
-        //depViewMatcher.performAction(scrollTo())
-        //scrollTo(depViewMatcher)
         allOf(isDescendantOfA(depViewMatcher),
             withId(R.id.ib_newItems)).performAction(click())
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
@@ -184,13 +182,28 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.ib_add_department)
     }
 
-    fun assertDepDoNotExist(depName: String){
+    fun assertDepDoesNotExist(depName: String){
         onView(
             allOf(
                 withId(R.id.tv_dep_name), withText(depName),
                 withParent(
                     allOf(
                         withParent(withId(R.id.ll_complet_line))
+                    )
+                ),
+                isDisplayed()
+            )
+        ).check(ViewAssertions.doesNotExist())
+    }
+
+    fun assertItemDoesNotExist(itemName: String){
+        onView(
+            allOf(
+                withId(R.id.tv_name), withText(itemName),
+                withParent(
+                    allOf(
+                        withId(R.id.ll_complet_line),
+                        withParent(withId(R.id.ll_container))
                     )
                 ),
                 isDisplayed()
