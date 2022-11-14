@@ -30,8 +30,6 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
 
     }
 
-    var selectedStore: Store? = null
-
     fun getStores(): LiveData<List<Store>> = repo.fetchStores()
 
 
