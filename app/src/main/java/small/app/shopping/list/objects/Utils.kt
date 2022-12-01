@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
@@ -197,8 +199,8 @@ object Utils {
 
     fun Department.delete() {
         backgroundScope.launch {
-            this@delete.items.forEach { repo.deleteItem(it) }
-        repo.deleteDepartment(this@delete)}
+            repo.deleteDepartment(this@delete)
+        }
     }
 
 

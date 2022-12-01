@@ -4,7 +4,6 @@ import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -13,10 +12,8 @@ import androidx.test.filters.LargeTest
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotDisplayed
 import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions.assertNotExist
-import com.adevinta.android.barista.interaction.BaristaAutoCompleteTextViewInteractions
 import com.adevinta.android.barista.interaction.BaristaClickInteractions.clickOn
 import com.adevinta.android.barista.interaction.BaristaScrollInteractions.scrollTo
-import com.adevinta.android.barista.internal.performAction
 import com.adevinta.android.barista.rule.cleardata.ClearDatabaseRule
 import org.hamcrest.Matchers.*
 import org.junit.After
@@ -276,6 +273,22 @@ class IntegrationTests {
         assertDepDoesNotExist("Legume")
     }
 
+    @Test
+    fun deleteStore() {
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
 
+        createAndCheckDep("Boucherie")
+        scrollTo(getDepViewMatcher("Boucherie"))
+        createAndCheckItem("Steak", "Boucherie")
+
+        clickOn("Parameters")
+        clickOn(R.id.ib_delete_store)
+        assertDepDoesNotExist("Boucherie")
+
+    }
 
 }

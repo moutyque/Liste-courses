@@ -9,7 +9,8 @@ import small.app.shopping.list.comparators.ItemsComparator
     foreignKeys = [ForeignKey(
         entity = Store::class,
         parentColumns = ["store_name"],
-        childColumns = ["dep_store"]
+        childColumns = ["dep_store"],
+        onDelete = CASCADE
     )],
     primaryKeys = ["dep_id"]
 )
