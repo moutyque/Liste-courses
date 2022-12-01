@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.launch
 import small.app.shopping.list.objects.Scope.backgroundScope
 import small.app.shopping.list.objects.Utils
-import small.app.shopping.list.objects.Utils.delete
 import small.app.shopping.list.objects.Utils.save
 import small.app.shopping.list.objects.Utils.useOrCreate
 import small.app.shopping.list.room.Repository
@@ -17,7 +16,8 @@ import small.app.shopping.list.room.entities.DepartmentWithItems
 import small.app.shopping.list.room.entities.Item
 import small.app.shopping.list.room.entities.Store
 
-class FragmentViewModel(application: Application, private val repo: Repository) : AndroidViewModel(application) {
+class FragmentViewModel(application: Application, private val repo: Repository) :
+    AndroidViewModel(application) {
 
     val storeSelectListener = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -33,14 +33,16 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
     fun getStores(): LiveData<List<Store>> = repo.fetchStores()
 
 
-    fun getUnusedDepartmentsName(): LiveData<List<String>> =repo.getUnusedDepartmentsName()
+    fun getUnusedDepartmentsName(): LiveData<List<String>> = repo.getUnusedDepartmentsName()
 
-    fun getDepartment(storeId: String): LiveData<List<DepartmentWithItems>?> = repo.fetchDepartments(storeId)
+    fun getDepartment(storeId: String): LiveData<List<DepartmentWithItems>?> =
+        repo.fetchDepartments(storeId)
 
     fun getUsedDepartment(): LiveData<List<DepartmentWithItems>?> = repo.fetchUsedDepartment()
 
 
-    fun getUnusedItemsNameInDepartment(depId: String): LiveData<List<String>> = repo.getUnusedDepartmentItems(depId)
+    fun getUnusedItemsNameInDepartment(depId: String): LiveData<List<String>> =
+        repo.getUnusedDepartmentItems(depId)
 
     fun addItem(itemName: String, depName: String, storeName: String) {
         if (itemName.isNotEmpty()) {
@@ -57,7 +59,7 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
         }
     }
 
-    fun addStore(storeName: String)=
+    fun addStore(storeName: String) =
         changeStore(Store(storeName, true))
 
 
@@ -73,25 +75,23 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
 
     fun deleteCurrentStore() {
         backgroundScope.launch {
-            repo.getUsedStore()?.let {
-
-                repo.getStoreDepartments(it).forEach { dep -> dep.toDepartment().delete() }
-                repo.deleteStore(it)
-            }
-            repo.getAllStores().firstOrNull()
-                ?.apply {
-                    isUsed = true
-                    save()
+                repo.getUsedStore()?.let {
+                    repo.deleteStore(it)
+                    repo.getAllStores().firstOrNull()
+                        ?.apply {
+                            isUsed = true
+                            save()
+                        }
                 }
         }
     }
 
     fun imports(stores: List<Store>, departments: List<Department>, items: List<Item>) {
-            backgroundScope.launch {
-                repo.saveStores(*stores.toTypedArray())
-                repo.saveDepartments(*departments.toTypedArray())
-                repo.saveItems(*items.toTypedArray())
-            }
+        backgroundScope.launch {
+            repo.saveStores(*stores.toTypedArray())
+            repo.saveDepartments(*departments.toTypedArray())
+            repo.saveItems(*items.toTypedArray())
+        }
     }
 
 

@@ -12,7 +12,8 @@ import small.app.shopping.list.enums.SIUnit
     foreignKeys = [ForeignKey(
         entity = Department::class,
         parentColumns = ["dep_id"],
-        childColumns = ["departmentId"]
+        childColumns = ["departmentId"],
+        onDelete = CASCADE
     )],
     primaryKeys = ["name","storeId"]
 )
