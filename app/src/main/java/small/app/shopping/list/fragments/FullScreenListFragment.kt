@@ -1,19 +1,16 @@
 package small.app.shopping.list.fragments
 
-import  android.app.Application
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import small.app.shopping.list.adapters.DepartmentsFullScreenAdapter
 import small.app.shopping.list.databinding.FragmentFullScreenListBinding
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.objects.Utils.keepWithUsedItem
-import small.app.shopping.list.objects.whenNotNullNorEmpty
-import small.app.shopping.list.objects.withNullOrEmpty
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 

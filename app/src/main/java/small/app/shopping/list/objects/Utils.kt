@@ -11,8 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
@@ -51,11 +49,10 @@ object Utils {
     }
 
 
-    fun getAllItemsAsJson() =
-        with(Dispatchers.IO) {
-            val itemConverter = ItemConverter()
-            repo.getAllItems().map { itemConverter.toJson(it) }
-        }
+    fun getAllItemsAsJson() = with(Dispatchers.IO) {
+        val itemConverter = ItemConverter()
+        repo.getAllItems().map { itemConverter.toJson(it) }
+    }
 
     fun getAllDepartmentAsJson() = with(Dispatchers.IO) {
         val depConverter = DepartmentConverter()
@@ -71,9 +68,7 @@ object Utils {
     fun Fragment.setupNamesDD(source: LiveData<List<String>>): ArrayAdapter<String> {
         val names: ArrayList<String> = ArrayList()
         val namesAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            requireContext(),
-            R.layout.simple_dropdown_item_1line,
-            names
+            requireContext(), R.layout.simple_dropdown_item_1line, names
         )
         source.observe(viewLifecycleOwner) {
             namesAdapter.clear()
@@ -101,7 +96,7 @@ object Utils {
 
     fun Item.useOrCreate() {
         backgroundScope.launch {
-            repo.findItem(this@useOrCreate.name,storeId)?.useItem() ?: saveAndUse()
+            repo.findItem(this@useOrCreate.name, storeId)?.useItem() ?: saveAndUse()
         }
     }
 
@@ -165,14 +160,13 @@ object Utils {
 
     private fun Item.classifyItemWithOrder(depId: String) {
         backgroundScope.launch {
-            repo.getDepartment(depId)
-                ?.classifyWithOrderDefined(this@classifyItemWithOrder)
+            repo.getDepartment(depId)?.classifyWithOrderDefined(this@classifyItemWithOrder)
         }
     }
 
     fun Item.classifyDropItem(droppedItemName: String) {
         backgroundScope.launch {
-            repo.findItem(droppedItemName,storeId)?.let {
+            repo.findItem(droppedItemName, storeId)?.let {
                 if (this@classifyDropItem.departmentId != it.departmentId) {
                     it.order = this@classifyDropItem.order
                     it.classifyItemWithOrder(this@classifyDropItem.departmentId)
@@ -225,7 +219,9 @@ object Utils {
 //TODO: update selected store when updating available stores
     fun Store.save() {
         backgroundScope.launch {
-            repo.saveStore(this@save)
+            repo.getStore(this@save.name)?.let {
+                repo.updateStore(this@save)
+            } ?: repo.saveStore(this@save)
         }
     }
 
@@ -249,22 +245,5 @@ object Utils {
                 save()
             }
         }
-    }
-}
-inline fun <E: Any, T: Collection<E>> T?.withNotNullNorEmpty(func: T.() -> Unit): Unit {
-    if (this != null && this.isNotEmpty()) {
-        with (this) { func() }
-    }
-}
-
-inline fun  <E: Any, T: Collection<E>> T?.whenNotNullNorEmpty(func: (T) -> Unit): Unit {
-    if (this != null && this.isNotEmpty()) {
-        func(this)
-    }
-}
-
-inline fun <E: Any, T: Collection<E>> T?.withNullOrEmpty(func: () -> Unit): Unit {
-    if (this == null || this.isEmpty()) {
-        func()
     }
 }

@@ -126,6 +126,33 @@ class IntegrationTests {
     }
 
     @Test
+    fun switchBetweenStore() {
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckItem("Carotte", "Legume")
+        createAndCheckItem("Courgette", "Legume")
+
+        createAndCheckDep("Boucherie")
+        scrollTo(getDepViewMatcher("Boucherie"))
+        createAndCheckItem("Steak", "Boucherie")
+
+        createAndCheckStore("Store2")
+        createAndCheckDep("Fruits")
+        createAndCheckItem("Pommes", "Fruits")
+
+        createAndCheckDep("Sec")
+        scrollTo(getDepViewMatcher("Sec"))
+        createAndCheckItem("Riz", "Sec")
+
+        clickOn(R.id.s_store_dropdown)
+        clickOn("Store")
+        assertDisplayed("Legume")
+
+
+    }
+
+    @Test
     fun reuseItem() {
         clickOn("List")
         createAndCheckStore("Store")
