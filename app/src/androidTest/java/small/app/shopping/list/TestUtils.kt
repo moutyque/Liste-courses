@@ -78,27 +78,6 @@ object TestUtils {
             isDisplayed()
         )
 
-    fun changeUnit(itemName: String, unit: String) {
-        interactWithDisplayedItemSubComponent(itemName, R.id.s_unit).perform(
-            click()
-        )
-
-        onView(
-            allOf(
-                isDescendantOfA(
-                    allOf(
-                        withId(R.id.select_dialog_listview),
-                        childAtPosition(
-                            withId(R.id.contentPanel),
-                            0
-                        )
-                    )
-                ),
-                withText(unit)
-            )
-        ).perform(click())
-    }
-
     fun createAndCheckItem(name: String, depName: String) {
         createItemFromDep(name, depName)
         BaristaVisibilityAssertions.assertDisplayed(name)

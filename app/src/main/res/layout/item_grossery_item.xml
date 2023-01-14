@@ -39,42 +39,6 @@
             tools:text="TEST" />
 
         <LinearLayout
-            android:id="@+id/ll_always_visible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_qty"
-                android:layout_width="@dimen/width_qty"
-                android:layout_height="wrap_content"
-                tools:text="17" />
-
-            <LinearLayout
-                android:id="@+id/ll_qty_modifiers"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/iv_increase_qty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/increase_quantity_cd"
-                    app:srcCompat="@drawable/ic_increase_qty" />
-
-                <ImageView
-                    android:id="@+id/iv_decrease_qty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/decrease_quantity_cd"
-                    app:srcCompat="@drawable/ic_decrease_qty" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/ll_list_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -107,12 +71,6 @@
             android:orientation="horizontal"
             android:visibility="gone"
             tools:visibility="visible">
-
-            <Spinner
-                android:id="@+id/s_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:spinnerMode="dialog" />
 
             <ImageButton
                 android:id="@+id/ib_delete_item"

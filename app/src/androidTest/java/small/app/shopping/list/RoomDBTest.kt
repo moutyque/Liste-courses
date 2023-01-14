@@ -26,8 +26,6 @@ import small.app.shopping.list.room.entities.Item
 import small.app.shopping.list.room.entities.Store
 import java.io.IOException
 
-@RunWith(AndroidJUnit4::class)
-
 class RoomDBTest {
     private lateinit var itemDao: ItemDao
     private lateinit var departmentDao: DepartmentDao
@@ -120,7 +118,7 @@ class RoomDBTest {
 
         val conv = ItemConverter()
         val expected = """
-            {"departmentId":"id","isUsed":false,"name":"TEST","order":-1,"qty":0,"storeId":"storeId","unit":"EMPTY"}
+            {"departmentId":"id","isUsed":false,"name":"TEST","order":-1,"storeId":"storeId"}
                     """.trimIndent()
         assertThat(conv.toJson(item), equalTo(expected))
     }

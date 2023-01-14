@@ -42,11 +42,11 @@ interface DepartmentDao {
     @Query("SELECT * FROM Department ORDER BY dep_order")
     fun fetchDepartments(): LiveData<List<DepartmentWithItems>>
 
-    @Query("SELECT * FROM Department WHERE dep_id == :depId ORDER BY dep_order")
+    @Query("SELECT * FROM Department WHERE dep_name == :depId ORDER BY dep_order")
     fun getByName(depId: String): Department?
 
     @Query("SELECT * FROM Department WHERE dep_id == :depId ORDER BY dep_order")
-    fun getByIds(depId: String): Department?
+    fun getById(depId: String): Department?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

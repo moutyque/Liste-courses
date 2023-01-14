@@ -62,9 +62,9 @@ class Repository(private val db: AppDatabase) {
         updateDepartmentUsage(item.departmentId)
     }
 
-    private fun updateDepartmentUsage(depName: String) {
-        if (db.itemDAO().getUsedDepItems(depName).isEmpty()) {
-            db.departmentDAO().getByIds(depName)?.apply {
+    private fun updateDepartmentUsage(depId: String) {
+        if (db.itemDAO().getUsedDepItems(depId).isEmpty()) {
+            db.departmentDAO().getById(depId)?.apply {
                 isUsed = false
                 db.departmentDAO().insertAll(this)
             }

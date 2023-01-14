@@ -25,9 +25,7 @@ data class Item(
     var departmentId: String = "",
     @ColumnInfo(index = true)
     var storeId: String = "",
-    var order: Long = -1,
-    var qty: Long = 0,
-    var unit: SIUnit = SIUnit.EMPTY
+    var order: Long = -1
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -40,8 +38,6 @@ data class Item(
         if (departmentId != other.departmentId) return false
         if (storeId != other.storeId) return false
         if (order != other.order) return false
-        if (qty != other.qty) return false
-        if (unit != other.unit) return false
 
         return true
     }
@@ -52,8 +48,6 @@ data class Item(
         result = 31 * result + departmentId.hashCode()
         result = 31 * result + storeId.hashCode()
         result = 31 * result + order.hashCode()
-        result = 31 * result + qty.hashCode()
-        result = 31 * result + unit.hashCode()
         return result
     }
 }

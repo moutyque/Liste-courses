@@ -24,10 +24,7 @@ class UnitAdapter(context: Context) : AdapterView.OnItemSelectedListener {
         actions?.let {
             when (initialized) {
                 true -> {
-                    it.getItem().apply {
-                        unit = SIUnit.fromValue(unitList()[position])
-                        saveAndUse()
-                    }
+                    it.getItem().saveAndUse()
                 }
                 false -> {
                     it.initUnit()
