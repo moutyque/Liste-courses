@@ -1,10 +1,8 @@
 package small.app.shopping.list
 
-import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import small.app.shopping.list.TestUtils.assertDepDoesNotExist
 import small.app.shopping.list.TestUtils.assertItemDoesNotExist
-import small.app.shopping.list.TestUtils.changeUnit
 import small.app.shopping.list.TestUtils.createAndCheckDep
 import small.app.shopping.list.TestUtils.createAndCheckItem
 import small.app.shopping.list.TestUtils.createAndCheckStore
@@ -176,79 +173,6 @@ class IntegrationTests {
         createAndCheckItem("Steak", "Boucherie")
     }
 
-    @Test
-    fun modifyQty() {
-        assertDisplayed("List")
-        clickOn("List")
-        createAndCheckStore("Store")
-        createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", "Legume")
-        createAndCheckItem("Courgette", "Legume")
-
-        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
-            click()
-        )
-        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
-            click()
-        )
-        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
-            assert(
-                (view as TextView).text.equals(
-                    "2"
-                )
-            )
-        }
-
-    }
-
-    @Test
-    fun modifyQtyAndUnit() {
-        assertDisplayed("List")
-        clickOn("List")
-        createAndCheckStore("Store")
-        createAndCheckDep("Legume")
-        createAndCheckItem("Carotte", "Legume")
-        createAndCheckItem("Courgette", "Legume")
-
-        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
-            click()
-        )
-        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
-            click()
-        )
-        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
-            assert(
-                (view as TextView).text.equals(
-                    "2"
-                )
-            )
-        }
-
-        clickOn("Parameters")
-
-        assertDisplayed("Legume")
-
-        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_increase_qty).perform(
-            click()
-        )
-        interactWithDisplayedItemSubComponent("Carotte", R.id.tv_qty).check { view, _ ->
-            assert(
-                (view as TextView).text.equals(
-                    "3"
-                )
-            )
-        }
-        changeUnit("Carotte", "cL")
-        interactWithDisplayedItemSubComponent("Carotte", R.id.s_unit).check(
-            matches(
-                withSpinnerText(
-                    "cL"
-                )
-            )
-        )
-
-
-    }
 
     @Test
     fun createAndUseItemFromFullView() {

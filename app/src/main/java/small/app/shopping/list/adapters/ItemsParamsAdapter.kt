@@ -36,23 +36,7 @@ class ItemsParamsAdapter(
             ibDeleteItem.setOnClickListener {
                 list.delete(holder.adapterPosition)
             }
-            with(sUnit) {
-                if (adapter == null) {
-                    val adapt = UnitAdapter(context)
-                    adapt.actions = object : IUnitSelect {
-                        override fun getItem(): Item {
-                            Log.d(Utils.TAG, tvName.text as String)
-                            return list.first { item -> item.name == tvName.text }
-                        }
 
-                        override fun initUnit() {
-                            sUnit.setSelection(unitList().indexOf(list[holder.adapterPosition].unit.value))
-                        }
-                    }
-                    adapter = adapt.adapter
-                    onItemSelectedListener = adapt
-                }
-            }
             //Setup the drag and drop only on the reorder icon
             ivReorder.setOnTouchListener { v, event ->
                 Log.d(Utils.TAG, "I touched $event")

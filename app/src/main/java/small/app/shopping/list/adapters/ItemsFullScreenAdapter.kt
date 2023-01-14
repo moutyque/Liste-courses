@@ -26,7 +26,6 @@ class ItemsFullScreenAdapter(
             llListView.visibility = View.VISIBLE
             llParamView.visibility = View.GONE
             ivDd.visibility = View.GONE
-            llQtyModifiers.visibility = View.GONE
         }
         super.onBindViewHolder(holder, position)
     }

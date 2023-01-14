@@ -52,8 +52,6 @@ abstract class ItemsAdapter(
     protected open fun fillView(holder: ItemsViewHolder, item: Item) {
         holder.binding.apply {
             tvName.text = item.name
-            tvUnit.text = item.unit.value
-            tvQty.text = item.qty.toString()
         }
 
 
@@ -73,15 +71,6 @@ abstract class ItemsAdapter(
                 ivCheckItem.setOnClickListener {
                     list[holder.layoutPosition].unuse()
                 }
-
-                ivIncreaseQty.setOnClickListener {
-                    increaseQty(position, holder)
-                }
-                ivDecreaseQty.setOnClickListener {
-                    decreaseQty(position, holder)
-                }
-
-                tvUnit.text = list[position].unit.value
             }
 
             //Setup the drag event listener
@@ -115,33 +104,6 @@ abstract class ItemsAdapter(
         }
     }
 
-    private fun decreaseQty(
-        position: Int,
-        holder: ItemsViewHolder
-    ) {
-        val item = list[position]
-        Log.d(Utils.TAG, "decrease qty")
-        val newQty = item.qty - item.unit.mutliplicator - item.qty % item.unit.mutliplicator
-
-        item.qty =
-            max(0, newQty)
-        item.saveAndUse()
-        holder.binding.tvQty.text = item.qty.toString()
-    }
-
-    private fun increaseQty(
-        position: Int,
-        holder: ItemsViewHolder
-    ) {
-        val item = list[position]
-        val newQty = item.qty + item.unit.mutliplicator - item.qty % item.unit.mutliplicator
-        Log.d(Utils.TAG, "increase qty, previous qty ${item.qty}, new qty $newQty")
-        item.qty = newQty
-        Log.d(Utils.TAG, item.qty.toString())
-        item.saveAndUse()
-        holder.binding.tvQty.text = item.qty.toString()
-    }
-
     override fun getItemCount(): Int {
         return list.size
     }
@@ -166,26 +128,6 @@ abstract class ItemsAdapter(
         if (payloads.isEmpty()) {
             //Keep this for the first call
             super.onBindViewHolder(holder, position, payloads)
-        } else {
-            payloads.filterIsInstance<Bundle>().forEach { bundle ->
-                run {
-                    bundle.keySet().forEach { key ->
-                        run {
-
-                            if (key == ItemChange.QTY.toString()) {
-                                val qty: String = (bundle.get(key) as CharSequence?).toString()
-                                list[position].qty = qty.toLong()
-                                holder.binding.tvQty.text = qty
-                            }
-                            if (key == ItemChange.UNIT.toString()) {
-                                val unit: String = (bundle.get(key) as CharSequence?).toString()
-                                list[position].unit = SIUnit.fromValue(unit)
-                                holder.binding.tvUnit.text = unit
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

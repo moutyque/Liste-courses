@@ -16,7 +16,7 @@ import small.app.shopping.list.room.entities.Store
 
 @Database(
     entities = [Item::class, Department::class, Store::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converter::class, ItemConverter::class)
