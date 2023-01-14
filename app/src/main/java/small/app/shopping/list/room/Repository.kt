@@ -11,49 +11,33 @@ import small.app.shopping.list.room.entities.Department as DepartmentEntity
 
 class Repository(private val db: AppDatabase) {
 
-    fun getNumberOfDepartments(): Int =
-        db.departmentDAO().getNbDep()
+    fun getNumberOfDepartments(): Int = db.departmentDAO().getNbDep()
 
 
     fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> =
         db.departmentDAO().fetchAllDepartment()
 
 
-    fun getAllItems(): List<Item> =
-        db.itemDAO().getAll()
+    fun getAllItems(): List<Item> = db.itemDAO().getAll()
 
 
-    fun getAllRawDepartments(): List<DepartmentEntity> =
-        db.departmentDAO().getAll()
+    fun getAllRawDepartments(): List<DepartmentEntity> = db.departmentDAO().getAll()
 
 
-    fun saveDepartment(d: Department) =
-        db.departmentDAO()
-            .insertAll(
-                with(d) {
-                    DepartmentEntity(
-                        "${name}_$storeId",
-                        name,
-                        isUsed,
-                        itemsCount,
-                        order,
-                        storeId
-                    )
-                }
-            )
+    fun saveDepartment(d: Department) = db.departmentDAO().insertAll(with(d) {
+        DepartmentEntity(
+            "${name}_$storeId", name, isUsed, itemsCount, order, storeId
+        )
+    })
 
-    fun DepartmentEntity.save() =
-        db.departmentDAO()
-            .insertAll(
-                this
-            )
+    fun DepartmentEntity.save() = db.departmentDAO().insertAll(
+        this
+    )
 
-    fun saveItem(i: Item) =
-        db.itemDAO().insertAll(i)
+    fun saveItem(i: Item) = db.itemDAO().insertAll(i)
 
 
-    fun saveItems(vararg items: Item) =
-        db.itemDAO().insertAll(*items)
+    fun saveItems(vararg items: Item) = db.itemDAO().insertAll(*items)
 
 
     fun getUnusedDepartmentsName(): LiveData<List<String>> =
@@ -110,8 +94,7 @@ class Repository(private val db: AppDatabase) {
 
     }
 
-    fun getUnusedDepartmentItems(name: String) =
-        db.itemDAO().fetchUnusedDepItems(name)
+    fun getUnusedDepartmentItems(name: String) = db.itemDAO().fetchUnusedDepItems(name)
 
     fun getDepartment(departmentId: String) =
         db.departmentDAO().getByName(departmentId)?.toDepartment()
@@ -146,32 +129,7 @@ class Repository(private val db: AppDatabase) {
 
     fun deleteDepartment(department: Department) = db.departmentDAO().delete(department.toEntity())
 
-
-    fun fetchStoreNames() = db.storeDao().fetchNames()
-
-    fun fetchStores() = db.storeDao().fetchAll()
-
-    fun getUsedStore() = db.storeDao().getUsedStore()
-
-    fun fetchUsedStore() = db.storeDao().fetchUsedStore()
-    fun saveStore(store: Store) {
-        db.storeDao().insertAll(store)
-
-    }
-
-    fun getAllStores(): List<Store> = db.storeDao().getAll()
-    fun getStore(name: String): Store? = db.storeDao().getStore(name)
-    fun deleteStore(store: Store) = db.storeDao().delete(store)
-    fun getStoreDepartments(store: Store) = db.departmentDAO().getStoreDepartments(store.name)
-    fun saveDepartments(vararg department: DepartmentEntity) =
-        db.departmentDAO().insertAll(*department)
-
-    fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
-    fun fetchDepartments(storeId: String): LiveData<List<DepartmentWithItems>?> = db.departmentDAO().fetchStoreDepartment(storeId)
-}
-
-private fun Department.toEntity() =
-    DepartmentEntity(
+    private fun Department.toEntity() = DepartmentEntity(
         id = "${name}_$storeId",
         name = name,
         isUsed = isUsed,
@@ -179,4 +137,33 @@ private fun Department.toEntity() =
         order = order,
         storeId = storeId
     )
+
+    fun saveDepartments(vararg department: DepartmentEntity) =
+        db.departmentDAO().insertAll(*department)
+
+    fun fetchDepartments(storeId: String): LiveData<List<DepartmentWithItems>?> =
+        db.departmentDAO().fetchStoreDepartment(storeId)
+
+    fun getStoreDepartments(store: Store) = db.departmentDAO().getStoreDepartments(store.name)
+
+    //-------------------STORE----------------------------------------------------------------------------
+    fun fetchStoreNames() = db.storeDao().fetchNames()
+
+    fun fetchStores() = db.storeDao().fetchAll()
+    fun getUsedStore() = db.storeDao().getUsedStore()
+
+    fun fetchUsedStore() = db.storeDao().fetchUsedStore()
+    fun saveStore(store: Store) = db.storeDao().insertAll(store)
+
+    fun saveStores(vararg stores: Store) = db.storeDao().insertAll(*stores)
+    fun updateStore(store: Store) = db.storeDao().updateAll(store)
+
+
+    fun updateStores(vararg stores: Store) = db.storeDao().updateAll(*stores)
+    fun getAllStores(): List<Store> = db.storeDao().getAll()
+    fun getStore(name: String): Store? = db.storeDao().getStore(name)
+    fun deleteStore(store: Store) = db.storeDao().delete(store)
+
+
+}
 

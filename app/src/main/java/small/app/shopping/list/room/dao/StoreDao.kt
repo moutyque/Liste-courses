@@ -31,6 +31,10 @@ interface StoreDao {
     fun insertAll(vararg items: Store)
 
     @Transaction
+    @Update
+    fun updateAll(vararg items: Store)
+
+    @Transaction
     @Delete
     fun delete(item: Store)
 

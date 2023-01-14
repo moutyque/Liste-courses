@@ -23,7 +23,7 @@ object TestUtils {
     /**
      * Find a view child at {@position} inside the view that match {@parentMatcher]
      */
-    private fun childAtPosition(
+    fun childAtPosition(
         parentMatcher: Matcher<View>, position: Int
     ): Matcher<View> {
 
@@ -45,7 +45,14 @@ object TestUtils {
         itemName: String,
         subComponentId: Int
     ): ViewInteraction = onView(
-        allOf(isDescendantOfA(allOf(hasDescendant(withText(itemName)), withId(R.id.ll_complet_line))),withId(subComponentId))
+        allOf(
+            isDescendantOfA(
+                allOf(
+                    hasDescendant(withText(itemName)),
+                    withId(R.id.ll_complet_line)
+                )
+            ), withId(subComponentId)
+        )
 
     )
 
@@ -53,8 +60,11 @@ object TestUtils {
         itemName: String,
         subComponentId: Int
     ): ViewInteraction = onView(
-        allOf(isDescendantOfA(allOf(hasDescendant(withText(itemName)), withId(R.id.ll_complet_line))),withId(subComponentId),
-            isDisplayed())
+        allOf(
+            isDescendantOfA(allOf(hasDescendant(withText(itemName)), withId(R.id.ll_complet_line))),
+            withId(subComponentId),
+            isDisplayed()
+        )
 
     )
 
@@ -68,7 +78,7 @@ object TestUtils {
             isDisplayed()
         )
 
-    fun changeUnit(itemName: String,unit : String){
+    fun changeUnit(itemName: String, unit: String) {
         interactWithDisplayedItemSubComponent(itemName, R.id.s_unit).perform(
             click()
         )
@@ -165,12 +175,15 @@ object TestUtils {
 
     private fun createItemFromDep(itemName: String, depName: String) {
         //View with id, ancestor has an other child with depName
-        val depViewMatcher= withChild(allOf(withId(R.id.tv_dep_name),withText(depName)))
-        allOf(isDescendantOfA(depViewMatcher),
-            withId(R.id.ib_newItems)).performAction(click())
+        val depViewMatcher = withChild(allOf(withId(R.id.tv_dep_name), withText(depName)))
+        allOf(
+            isDescendantOfA(depViewMatcher),
+            withId(R.id.ib_newItems)
+        ).performAction(click())
         BaristaAutoCompleteTextViewInteractions.writeToAutoComplete(
             R.id.act_item_name,
-            itemName)
+            itemName
+        )
         BaristaClickInteractions.clickOn(R.id.b_valid_item_name)
     }
 
@@ -182,7 +195,7 @@ object TestUtils {
         BaristaClickInteractions.clickOn(R.id.ib_add_department)
     }
 
-    fun assertDepDoesNotExist(depName: String){
+    fun assertDepDoesNotExist(depName: String) {
         onView(
             allOf(
                 withId(R.id.tv_dep_name), withText(depName),
@@ -196,7 +209,7 @@ object TestUtils {
         ).check(ViewAssertions.doesNotExist())
     }
 
-    fun assertItemDoesNotExist(itemName: String){
+    fun assertItemDoesNotExist(itemName: String) {
         onView(
             allOf(
                 withId(R.id.tv_name), withText(itemName),
