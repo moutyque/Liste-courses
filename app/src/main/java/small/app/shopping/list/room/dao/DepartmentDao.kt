@@ -42,11 +42,18 @@ interface DepartmentDao {
     @Query("SELECT * FROM Department ORDER BY dep_order")
     fun fetchDepartments(): LiveData<List<DepartmentWithItems>>
 
-    @Query("SELECT * FROM Department WHERE dep_name == :depId ORDER BY dep_order")
-    fun getByName(depId: String): Department?
+    @Query("SELECT * FROM Department WHERE dep_name == :name ORDER BY dep_order")
+    fun getByName(name: String): Department?
 
     @Query("SELECT * FROM Department WHERE dep_id == :depId ORDER BY dep_order")
     fun getById(depId: String): Department?
+
+    @Query("SELECT COUNT(*) FROM Department")
+    fun getNbDep(): Int
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM Department WHERE dep_store==:id")
+    fun getStoreDepartments(id: String): List<DepartmentWithItems>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -56,12 +63,8 @@ interface DepartmentDao {
     @Delete
     fun delete(item: Department)
 
-    @Query("SELECT COUNT(*) FROM Department")
-    fun getNbDep(): Int
 
-    @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM Department WHERE dep_store==:id")
-    fun getStoreDepartments(id: String): List<DepartmentWithItems>
-
-
+    @Transaction
+    @Update
+    fun updateAll(vararg department: Department)
 }

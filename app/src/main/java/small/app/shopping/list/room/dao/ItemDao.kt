@@ -22,6 +22,10 @@ interface ItemDao {
     fun insertAll(vararg items: Item)
 
     @Transaction
+    @Update
+    fun updateAll(vararg items: Item)
+
+    @Transaction
     @Delete
     fun delete(item: Item)
 

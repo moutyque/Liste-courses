@@ -26,6 +26,9 @@ import small.app.shopping.list.TestUtils.createAndCheckItem
 import small.app.shopping.list.TestUtils.createAndCheckStore
 import small.app.shopping.list.TestUtils.getDepViewMatcher
 import small.app.shopping.list.TestUtils.interactWithDisplayedItemSubComponent
+import small.app.shopping.list.models.Department
+import small.app.shopping.list.objects.Utils
+import small.app.shopping.list.room.Repository
 
 
 @LargeTest
@@ -171,6 +174,42 @@ class IntegrationTests {
         createAndCheckItem("Carotte", "Legume")
         scrollTo(getDepViewMatcher("Boucherie"))
         createAndCheckItem("Steak", "Boucherie")
+    }
+
+    @Test
+    fun reorderDep() {
+        assertDisplayed("List")
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        createAndCheckDep("Boucherie")
+        createAndCheckItem("Carotte", "Legume")
+        scrollTo(getDepViewMatcher("Boucherie"))
+        createAndCheckItem("Steak", "Boucherie")
+
+        var legume = Utils.repo.getDepartmentEntity(Repository.buildDepId("Legume", "Store"))
+        var boucherie = Utils.repo.getDepartmentEntity(Repository.buildDepId("Boucherie", "Store"))
+        assert(legume!!.order == 0)
+        assert(boucherie!!.order == 1)
+
+        clickOn("Parameters")
+
+        boucherie.order = 0
+        legume.order = 1
+
+        Utils.repo.saveDepartments(*listOf(
+            boucherie,
+            legume
+        ).toTypedArray())
+        Thread.sleep(250)
+        clickOn("List")
+
+        legume = Utils.repo.getDepartmentEntity(Repository.buildDepId("Legume", "Store"))
+        boucherie = Utils.repo.getDepartmentEntity(Repository.buildDepId("Boucherie", "Store"))
+        assert(legume!!.order == 1)
+        assert(boucherie!!.order == 0)
+        Thread.sleep(250)
+        assertDisplayed("Carotte")
     }
 
 

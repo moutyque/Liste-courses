@@ -11,10 +11,18 @@ import small.app.shopping.list.room.entities.Department as DepartmentEntity
 
 class Repository(private val db: AppDatabase) {
 
+    companion object {
+        private fun buildDepId(dep: DepartmentWithItems) =
+            buildDepId(dep.department.name, dep.department.storeId)
+
+        public fun buildDepId(name: String, storeId: String) =
+            "${name}_${storeId}"
+    }
+
     fun getNumberOfDepartments(): Int = db.departmentDAO().getNbDep()
 
 
-    fun getAllDepartments(): LiveData<List<DepartmentWithItems>?> =
+    fun fetchAllDepartments(): LiveData<List<DepartmentWithItems>?> =
         db.departmentDAO().fetchAllDepartment()
 
 
@@ -24,17 +32,25 @@ class Repository(private val db: AppDatabase) {
     fun getAllRawDepartments(): List<DepartmentEntity> = db.departmentDAO().getAll()
 
 
-    fun saveDepartment(d: Department) = db.departmentDAO().insertAll(with(d) {
-        DepartmentEntity(
-            "${name}_$storeId", name, isUsed, itemsCount, order, storeId
-        )
-    })
+    fun saveDepartment(d: Department) = with(d.toEntity()) {
+        db.departmentDAO().getById(id)?.let {
+            db.departmentDAO().updateAll(this)
+        } ?: run {
+            db.departmentDAO().insertAll(this)
+        }
+    }
 
     fun DepartmentEntity.save() = db.departmentDAO().insertAll(
         this
     )
 
-    fun saveItem(i: Item) = db.itemDAO().insertAll(i)
+    fun saveItem(i: Item) = with(db.itemDAO()) {
+        findByName(i.name, i.storeId)?.let {
+            updateAll(i)
+        } ?: run {
+            insertAll(i)
+        }
+    }
 
 
     fun saveItems(vararg items: Item) = db.itemDAO().insertAll(*items)
@@ -76,7 +92,7 @@ class Repository(private val db: AppDatabase) {
         dep?.apply {
             Log.d(Utils.TAG, "In department $name there is ${dep.items.count()} items")
             return Department(
-                id = "${dep.department.name}_${dep.department.storeId}",
+                id = buildDepId(dep),
                 name = dep.department.name,
                 isUsed = dep.department.isUsed,
                 items = dep.items.toMutableList(),
@@ -89,6 +105,7 @@ class Repository(private val db: AppDatabase) {
 
     }
 
+
     fun getUnusedItemsName(): LiveData<List<String>> {
         return db.itemDAO().fetchUnusedItemsName()
 
@@ -97,7 +114,10 @@ class Repository(private val db: AppDatabase) {
     fun getUnusedDepartmentItems(name: String) = db.itemDAO().fetchUnusedDepItems(name)
 
     fun getDepartment(departmentId: String) =
-        db.departmentDAO().getByName(departmentId)?.toDepartment()
+        getDepartmentEntity(departmentId)?.toDepartment()
+
+    fun getDepartmentEntity(departmentId: String) =
+        db.departmentDAO().getById(departmentId)
 
     fun deleteItem(item: Item) {
         db.itemDAO().delete(item)
@@ -139,7 +159,7 @@ class Repository(private val db: AppDatabase) {
     )
 
     fun saveDepartments(vararg department: DepartmentEntity) =
-        db.departmentDAO().insertAll(*department)
+        db.departmentDAO().updateAll(*department)
 
     fun fetchDepartments(storeId: String): LiveData<List<DepartmentWithItems>?> =
         db.departmentDAO().fetchStoreDepartment(storeId)

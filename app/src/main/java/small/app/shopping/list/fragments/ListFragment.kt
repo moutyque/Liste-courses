@@ -3,6 +3,7 @@ package small.app.shopping.list.fragments
 import android.R
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -18,11 +19,13 @@ import small.app.shopping.list.adapters.DepartmentsListAdapter
 import small.app.shopping.list.databinding.FragmentListBinding
 import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Scope.backgroundScope
+import small.app.shopping.list.objects.Utils.TAG
 import small.app.shopping.list.objects.Utils.keepWithUsedItem
 import small.app.shopping.list.objects.Utils.repo
 import small.app.shopping.list.objects.Utils.saveAndUse
 import small.app.shopping.list.objects.Utils.setupNamesDD
 import small.app.shopping.list.objects.Utils.setupStoreListener
+import small.app.shopping.list.room.Repository
 import small.app.shopping.list.viewmodels.FragmentViewModel
 
 
@@ -130,7 +133,9 @@ class ListFragment : Fragment() {
 
     /**
      * Create a new department from the name in the text field and db info and make it visible
+     *
      * or
+     *
      * Reuse an existing department with the same name as the one set in the text field
      */
     private fun addDepartment(storeName: String) {
@@ -138,27 +143,25 @@ class ListFragment : Fragment() {
         val depName = binding.actDepartmentName.text.toString().trim()
         if (depName.isNotEmpty()) {
             // Need to check if it exist first because we don't want to override an existing department
-            var order = 0
-            var depDb: Department? = null
-            val job = backgroundScope.launch {
-                order = repo.getNumberOfDepartments()
-                depDb = repo.findDepartment(depName)
-            }
-            job.invokeOnCompletion {
+            backgroundScope.launch {
+                run {
+                    repo.findDepartment(depName)
+                        ?: run {
 
-                val dep: Department = depDb
-                    ?: Department(
-                        "${depName}_$storeName",
-                        depName,
-                        true,
-                        ArrayList(),
-                        0,
-                        order,
-                        storeName
-                    )
-                dep.isUsed = true
-                dep.saveAndUse()
-
+                            Department(
+                                Repository.buildDepId(depName, storeName),
+                                depName,
+                                true,
+                                ArrayList(),
+                                0,
+                                repo.getNumberOfDepartments(),
+                                storeName
+                            )
+                        }
+                }.apply {
+                    isUsed = true
+                    saveAndUse()
+                }
             }
             Toast.makeText(requireContext(), "$depName has been added.", Toast.LENGTH_LONG).show()
             binding.actDepartmentName.setText("")
