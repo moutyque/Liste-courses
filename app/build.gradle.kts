@@ -79,7 +79,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
 
 
-    androidTestImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
 
     androidTestImplementation("com.adevinta.android:barista:4.2.0") {
         exclude(group = "org.jetbrains.kotlin") // Only if you already use Kotlin in your project
@@ -88,7 +88,7 @@ dependencies {
     val lifeCycleVersion = "2.4.1"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifeCycleVersion")
-    androidTestImplementation("androidx.test:rules:1.4.1-alpha07")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 
     //Room
     val roomVersion = "2.4.2"
@@ -104,18 +104,18 @@ dependencies {
     testImplementation("androidx.room:room-testing:$roomVersion")
 
     //Coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     //Needed for espresso
-    androidTestImplementation("androidx.fragment:fragment-testing:1.5.0")
+    androidTestImplementation("androidx.fragment:fragment-testing:1.5.5")
 
     //Manage Json
     implementation("com.google.code.gson:gson:2.8.9")
 
     //Test
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.test:core-ktx:1.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
 
 }
