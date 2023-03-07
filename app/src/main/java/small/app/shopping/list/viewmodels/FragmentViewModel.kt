@@ -63,7 +63,7 @@ class FragmentViewModel(application: Application, private val repo: Repository) 
         changeStore(Store(storeName, true))
 
 
-    fun changeStore(store: Store) {
+    private fun changeStore(store: Store) {
         Utils.unusedStores()
         store.isUsed = true
         store.save()

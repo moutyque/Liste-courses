@@ -28,8 +28,8 @@ interface DepartmentDao {
     fun fetchUnusedDepartment(used: Boolean = false): LiveData<List<DepartmentWithItems>?>
 
     @Transaction
-    @Query("SELECT dep_name FROM Department WHERE dep_isUsed==:used ORDER BY dep_order")
-    fun fetchUnusedDepartmentsName(used: Boolean = false): LiveData<List<String>>
+    @Query("SELECT dep_name FROM Department LEFT JOIN Store ON dep_store=store_name WHERE dep_isUsed==0 AND isUsed == 1 ORDER BY dep_order")
+    fun fetchUnusedDepartmentsName(): LiveData<List<String>>
 
 
     //Left join for the new department that have no items inside

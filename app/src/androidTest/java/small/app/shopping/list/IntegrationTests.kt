@@ -2,7 +2,10 @@ package small.app.shopping.list
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,7 +29,6 @@ import small.app.shopping.list.TestUtils.createAndCheckItem
 import small.app.shopping.list.TestUtils.createAndCheckStore
 import small.app.shopping.list.TestUtils.getDepViewMatcher
 import small.app.shopping.list.TestUtils.interactWithDisplayedItemSubComponent
-import small.app.shopping.list.models.Department
 import small.app.shopping.list.objects.Utils
 import small.app.shopping.list.room.Repository
 
@@ -165,6 +167,30 @@ class IntegrationTests {
     }
 
     @Test
+    fun verifyUsedDepAreProposed() {
+        clickOn("List")
+        createAndCheckStore("Store")
+        createAndCheckDep("Legume")
+        Thread.sleep(100)
+        createAndCheckItem("Carotte", "Legume")
+        interactWithDisplayedItemSubComponent("Carotte", R.id.iv_check_item).perform(click())
+        clickOn(R.id.act_departmentName)
+        onView(
+            allOf(
+                withId(R.id.act_departmentName),
+                isDisplayed()
+            )
+        ).perform(
+            ViewActions.replaceText("Le"),
+            ViewActions.closeSoftKeyboard()
+        )
+        onView(withText("Legume"))
+            .inRoot(RootMatchers.isPlatformPopup())
+            .check(ViewAssertions.matches(isDisplayed()))
+
+    }
+
+    @Test
     fun createMultiItemsInMultiDep() {
         assertDisplayed("List")
         clickOn("List")
@@ -197,10 +223,12 @@ class IntegrationTests {
         boucherie.order = 0
         legume.order = 1
 
-        Utils.repo.saveDepartments(*listOf(
-            boucherie,
-            legume
-        ).toTypedArray())
+        Utils.repo.saveDepartments(
+            *listOf(
+                boucherie,
+                legume
+            ).toTypedArray()
+        )
         Thread.sleep(250)
         clickOn("List")
 
