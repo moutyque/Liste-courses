@@ -202,4 +202,22 @@ object TestUtils {
             )
         ).check(ViewAssertions.doesNotExist())
     }
+
+    fun triggerProposition(id: Int, text: String) {
+        triggerProposition(
+            allOf(
+                withId(id),
+                isDisplayed()
+            ), text
+        )
+    }
+
+    fun triggerProposition(matcher: Matcher<View>, text: String) {
+        onView(
+            matcher
+        ).perform(
+            replaceText(text),
+            closeSoftKeyboard()
+        )
+    }
 }
